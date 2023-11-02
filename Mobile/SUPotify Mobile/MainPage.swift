@@ -11,10 +11,9 @@ struct MainMenu: View {
     var body: some View {
         TabView {
             // Tab 1
-            Text("Tab 1")
+            Text("Home page")
                 .tabItem {
-                    Image(systemName: "1.circle")
-                    Text("Tab 1")
+                    Image(systemName: "house.fill")
                 }
             
             // Tab 2
@@ -39,18 +38,24 @@ struct MainMenu: View {
                 }
             
             // Tab 2
-            Text("Tab 5")
+            // Profile Tab
+                NavigationView {
+                    Profile()
+                }
                 .tabItem {
-                    Image(systemName: "5.circle")
-                    Text("Tab 5")
+                    Image(systemName: "person.crop.circle.fill")
+                    Text("Profile")
                 }
         }
+        .font(.title)
+
     }
 }
 
 struct MainMenu_Previews: PreviewProvider {
     static var previews: some View {
         MainMenu()
+            .preferredColorScheme(.dark)
     }
 }
 

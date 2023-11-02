@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 BackgroundView()
 
@@ -11,7 +11,7 @@ struct ContentView: View {
                     Text("Music & More")
                         .font(.headline)
 
-                    NavigationLink(destination: MainMenu()) {
+                    NavigationLink(destination: LoginView()) {
                         Text("Tap to continue")
                             .font(.caption)
                             .fontWeight(.light)
@@ -37,9 +37,6 @@ struct BackgroundView: View {
     ContentView()
         .preferredColorScheme(.dark)
 }
-
-//Color(red: <#T##Double#>, green: <#T##Double#>, blue: <#T##Double#>) rgb code look from google
-//State variable if you want to change
 
 
 struct TitleView: View {

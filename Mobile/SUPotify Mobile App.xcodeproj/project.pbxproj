@@ -14,7 +14,10 @@
 		A62625F22AE148CB009F0080 /* SUPotify_MobileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62625F12AE148CB009F0080 /* SUPotify_MobileTests.swift */; };
 		A62625FC2AE148CB009F0080 /* SUPotify_MobileUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62625FB2AE148CB009F0080 /* SUPotify_MobileUITests.swift */; };
 		A62625FE2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62625FD2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift */; };
+		A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A626260E2AEFD8C0009F0080 /* LoginView.swift */; };
+		A62626112AF0532F009F0080 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62626102AF0532F009F0080 /* SignUpView.swift */; };
 		B82C84912AED6217000E31FA /* MainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82C84902AED6217000E31FA /* MainPage.swift */; };
+		B837D4E72AF3851800880F3A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D4E62AF3851800880F3A /* Profile.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,7 +49,10 @@
 		A62625F72AE148CB009F0080 /* SUPotify Mobile AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SUPotify Mobile AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A62625FB2AE148CB009F0080 /* SUPotify_MobileUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUPotify_MobileUITests.swift; sourceTree = "<group>"; };
 		A62625FD2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUPotify_MobileUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		A626260E2AEFD8C0009F0080 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		A62626102AF0532F009F0080 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		B82C84902AED6217000E31FA /* MainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPage.swift; sourceTree = "<group>"; };
+		B837D4E62AF3851800880F3A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,10 +105,13 @@
 			children = (
 				A62625DF2AE148CA009F0080 /* SUPotifyMobileApp.swift */,
 				A62625E12AE148CA009F0080 /* ContentView.swift */,
-				A62625E32AE148CA009F0080 /* Assets.xcassets */,
-				A62625E52AE148CA009F0080 /* SUPotify_Mobile.entitlements */,
-				A62625E62AE148CA009F0080 /* Preview Content */,
 				B82C84902AED6217000E31FA /* MainPage.swift */,
+				A626260E2AEFD8C0009F0080 /* LoginView.swift */,
+				A62626102AF0532F009F0080 /* SignUpView.swift */,
+				A62625E52AE148CA009F0080 /* SUPotify_Mobile.entitlements */,
+				A62625E32AE148CA009F0080 /* Assets.xcassets */,
+				A62625E62AE148CA009F0080 /* Preview Content */,
+				B837D4E62AF3851800880F3A /* Profile.swift */,
 			);
 			path = "SUPotify Mobile";
 			sourceTree = "<group>";
@@ -263,7 +272,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				A62625E22AE148CA009F0080 /* ContentView.swift in Sources */,
+				B837D4E72AF3851800880F3A /* Profile.swift in Sources */,
+				A62626112AF0532F009F0080 /* SignUpView.swift in Sources */,
 				A62625E02AE148CA009F0080 /* SUPotifyMobileApp.swift in Sources */,
+				A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */,
 				B82C84912AED6217000E31FA /* MainPage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
