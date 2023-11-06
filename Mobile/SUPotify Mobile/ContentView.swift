@@ -59,9 +59,12 @@ struct TitleView: View {
                 .rotationEffect(isRotated ? .zero : .degrees( 360))
                 .frame(maxWidth: 70, maxHeight: 70)
                 .onAppear {
-                    withAnimation(Animation.spring()) {
+                    withAnimation(Animation.spring(duration: 3)) {
                         isRotated.toggle() //toggle the value
                     }
+                    withAnimation(Animation.linear(duration: 6).repeatForever(autoreverses: false)) {
+                                isRotated.toggle()
+                            }
         }
                 .padding()
         }
