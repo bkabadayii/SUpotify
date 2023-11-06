@@ -94,3 +94,6 @@ module.exports.Logout = (req, res, next) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+// TODO
+module.exports.deleteAccount = (req, res, next) => {};

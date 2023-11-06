@@ -7,6 +7,7 @@ const { MONGO_URL, PORT } = process.env;
 // ----- Routes -----
 const defaultRouter = require("./routes/defaultRouter");
 const authRoute = require("./routes/authRoute"); // route for the authentication
+const likedSongsRoute = require("./routes/likedSongsRoute");
 // ----- Routes -----
 
 // Initialize express application
@@ -27,7 +28,7 @@ app.use(express.json());
 
 // ----- Controllers -----
 app.use("/auth", authRoute);
-
+app.use("/likedSongs", likedSongsRoute);
 app.use("/api/default", defaultRouter);
 // ----- Controllers -----
 
