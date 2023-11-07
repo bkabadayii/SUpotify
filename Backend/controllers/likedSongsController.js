@@ -4,10 +4,13 @@ module.exports.createLikedSongsForUser = async (req, res) => {
     try {
         const { username } = req.body;
 
-        const existingUser = await LikedSongs.findOne({ username });
+        const existingUserLikedSongs = await LikedSongs.findOne({ username });
 
-        if (existingUser) {
-            return res.json({ message: "User already exists" });
+        if (existingUserLikedSongs) {
+            return res.json({
+                message: "Liked songs for this user already exists",
+                success: false,
+            });
         }
 
         const userLikedSongs = await LikedSongs.create({
