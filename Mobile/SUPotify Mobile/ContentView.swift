@@ -62,10 +62,10 @@ struct TitleView: View {
                     withAnimation(Animation.spring(duration: 3)) {
                         isRotated.toggle() //toggle the value
                     }
-                    withAnimation(Animation.linear(duration: 6).repeatForever(autoreverses: false)) {
-                                isRotated.toggle()
-                            }
-        }
+                    withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                        isRotated.toggle()
+                    }
+                }
                 .padding()
         }
     }
