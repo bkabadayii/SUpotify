@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import SongList from "./SongList";
 
 const Home = () => {
@@ -14,10 +14,6 @@ const Home = () => {
     const newSongs = songs.filter(song => song.id !== id);
     setSongs(newSongs);
   }
-
-  useEffect(() => {
-    console.log("use effect ran")
-  }, [] );
 
   return ( 
     <div className="home">

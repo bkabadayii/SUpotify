@@ -4,6 +4,7 @@ const Navbar = () => {
       <h1>SUpotify</h1>
       <div className="links">
         <a href="/">Home</a>
+        <a href="/login">Login</a>
         <a href="/signup" style={{
           color: "white",
           backgroundColor: "#2b197a",
