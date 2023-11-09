@@ -116,3 +116,31 @@ module.exports.removeFromUserLikedSongs = async (req, res) => {
         });
     }
 };
+
+module.exports.getLikedSongsForUser = async (req, res) => {
+    try {
+        const { username } = req.body;
+        const existingUserLikedSongs = await LikedSongs.findOne({ username });
+
+        // If user does not have liked songs, throw an error
+        if (!existingUserLikedSongs) {
+            res.status(500).json({
+                message:
+                    "Liked Songs does not exist for the specified username!",
+                success: false,
+            });
+        }
+
+        res.status(200).json({
+            message: "Retrieved liked songs successfully",
+            success: true,
+            likedSongs: existingUserLikedSongs,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Internal Server Error",
+            success: false,
+        });
+    }
+};
