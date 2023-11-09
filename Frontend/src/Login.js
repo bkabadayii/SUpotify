@@ -1,12 +1,12 @@
 import React, { useState }  from 'react';
 import axios from 'axios';
 import "./Login.css"
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-
+  const history = useHistory()
   
   const handleLogin =  async (e) => {
     e.preventDefault()
@@ -17,6 +17,7 @@ const Login = () => {
     {
       console.log("WELCOME")
       // Navigate to Home Screen
+      history.push('/')
     }
   }
 
