@@ -2,7 +2,9 @@ const LikedSongs = require("../models/likedSongsModel");
 
 module.exports.createLikedSongsForUser = async (req, res) => {
     try {
-        const { username } = req.body;
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
 
         const existingUserLikedSongs = await LikedSongs.findOne({ username });
 
@@ -31,8 +33,12 @@ module.exports.createLikedSongsForUser = async (req, res) => {
 
 module.exports.addToUserLikedSongs = async (req, res) => {
     try {
-        // Get username and songID from request body
-        const { username, songID } = req.body;
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get songID from request body
+        const { songID } = req.body;
         let existingUserLikedSongs = await LikedSongs.findOne({ username });
 
         // If liked songs list is not initialized for user, throw error
@@ -73,7 +79,12 @@ module.exports.addToUserLikedSongs = async (req, res) => {
 
 module.exports.removeFromUserLikedSongs = async (req, res) => {
     try {
-        const { username, songID } = req.body;
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get songID from request body
+        const { songID } = req.body;
         let existingUserLikedSongs = await LikedSongs.findOne({ username });
 
         // If liked songs list is not initialized for user, throw error
@@ -119,7 +130,8 @@ module.exports.removeFromUserLikedSongs = async (req, res) => {
 
 module.exports.getLikedSongsForUser = async (req, res) => {
     try {
-        const { username } = req.body;
+        const user = req.user;
+        const { username } = user;
         const existingUserLikedSongs = await LikedSongs.findOne({ username });
 
         // If user does not have liked songs, throw an error

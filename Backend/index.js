@@ -6,6 +6,9 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 const { MONGO_URL, PORT } = process.env;
 
+// import 'verifyToken' middleware
+const { verifyToken } = require("./middlewares/verifyToken");
+
 // ----- Routes -----
 const defaultRouter = require("./routes/defaultRouter");
 const authRoute = require("./routes/authRoute"); // route for the authentication
@@ -33,13 +36,20 @@ app.use(
     })
 );
 app.use(cookieParser());
-
 app.use(express.json());
+
+// In order to see requests in console
+app.use((req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.path}`);
+    next();
+});
 // ----- Middlewares -----
 
 // ----- Controllers -----
 app.use("/auth", authRoute);
-app.use("/likedSongs", likedSongsRoute);
+
+app.use("/api", verifyToken); // Set verifyToken middleware for all endpoints belonging to /api
+app.use("/api/likedSongs", likedSongsRoute);
 app.use("/api/default", defaultRouter);
 // ----- Controllers -----
 
