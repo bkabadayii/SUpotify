@@ -34,7 +34,7 @@ const Signup = () => {
           </div>
           <div className="mb-3">
             <label htmlFor="exampleInputEmail2" className="form-label">Username</label>
-            <input type="username" className="form-control" id="exampleInputEmail2" aria-describedby="emailHelp" onChange= {(e) => {
+            <input type="username" className="form-control" id="exampleInputUsername" aria-describedby="emailHelp" onChange= {(e) => {
             e.preventDefault()
             setUsername(e.target.value)
             console.log(username)

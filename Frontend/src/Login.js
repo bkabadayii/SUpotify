@@ -1,6 +1,7 @@
 import React, { useState }  from 'react';
 import axios from 'axios';
 import "./Login.css"
+import { Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState("")
@@ -18,6 +19,7 @@ const Login = () => {
       // Navigate to Home Screen
     }
   }
+
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 login-container">
@@ -44,7 +46,9 @@ const Login = () => {
         <button className='btn btn-default border w-100 bg-light' onClick={handleLogin}> Log in</button>
         <p></p>
         <p>Don't have an account?</p>
-        <button className='btn btn-default border w-100 bg-light'>Create Account</button>
+        <Link to="/signup">
+          <button className='btn btn-default border w-100 bg-light'>Create Account</button>
+        </Link>
       </form>
       </div>
     </div>
