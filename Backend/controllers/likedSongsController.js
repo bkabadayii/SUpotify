@@ -156,3 +156,57 @@ module.exports.getLikedSongsForUser = async (req, res) => {
         });
     }
 };
+
+// In order to add multiple songs in a single request
+module.exports.addManyToUserLikedSongs = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get songIDList from request body
+        const { songIDList } = req.body;
+        let existingUserLikedSongs = await LikedSongs.findOne({ username });
+
+        // If liked songs list is not initialized for user, throw error
+        if (!existingUserLikedSongs) {
+            return res.json({
+                message: "User liked songs does not exist!",
+                success: false,
+            });
+        }
+
+        // Add all songs to liked songs if they already does not exist.
+        // In order to store existing songs and newly added songs.
+        var existingSongIDs = [];
+        var addedSongIDs = [];
+        for (var i = 0; i < songIDList.length; i++) {
+            const songID = songIDList[i];
+            const duplicate = existingUserLikedSongs.likedSongsList.find(
+                (existingSongID) => songID === existingSongID
+            );
+            if (duplicate) {
+                // If user already liked the song with songID, don't add
+                existingSongIDs.push(songID);
+            } else {
+                // Else, add songID to user's liked songs list
+                addedSongIDs.push(songID);
+                existingUserLikedSongs.likedSongsList.push(songID);
+            }
+        }
+        // Save database
+        await existingUserLikedSongs.save();
+
+        res.status(201).json({
+            message: `Added non-duplicate songs successfully, to liked songs of user: ${username}`,
+            success: true,
+            existingSongIDs: existingSongIDs,
+            addedSongIDs: addedSongIDs,
+        });
+    } catch (err) {
+        console.error(err);
+        return res
+            .status(500)
+            .json({ message: "Internal Server Error", success: false });
+    }
+};
