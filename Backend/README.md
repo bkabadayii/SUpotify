@@ -1,11 +1,11 @@
-### Guide for Sending Requests to the Server
+### Guide for Sending Requests to the Server
 
 1. Choose an endpoint to send the request to.
 2. Set necessary variables for that endpoint in request body.
 3. Set authorization header.
-   3.1. Put "authorization" for the key of the header.
-   3.2. Put "Bearer <your_token>" for the value of the header.
-   3.3. You can find your token from either browser cookies, or it is also present as a return value when you login to the app.
+   * 3.1. Put "authorization" for the key of the header.
+   * 3.2. Put "Bearer <your_token>" for the value of the header.
+   * 3.3. You can find your token from either browser cookies, or it is also present as a return value when you login to the app.
 
 -   You can find examples on how to achieve this kind of a request structure in POSTMAN.
 
