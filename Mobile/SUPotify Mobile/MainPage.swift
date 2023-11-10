@@ -14,6 +14,7 @@ struct MainMenu: View {
             Text("Home page")
                 .tabItem {
                     Image(systemName: "house.fill")
+                    Text("Home")
                 }
             
             // Tab 2
@@ -30,14 +31,16 @@ struct MainMenu: View {
                     Text("Tab 3")
                 }
             
-            // Tab 2
-            Text("Tab 4")
+            // Liked Songs Tab
+                NavigationView {
+                    LikedSongsPage()
+                }
                 .tabItem {
-                    Image(systemName: "4.circle")
-                    Text("Tab 4")
+                    Image(systemName: "heart.circle.fill")
+                    Text("Liked Songs")
                 }
             
-            // Tab 2
+            
             // Profile Tab
                 NavigationView {
                     Profile()

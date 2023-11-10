@@ -17,6 +17,7 @@
 		A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A626260E2AEFD8C0009F0080 /* LoginView.swift */; };
 		A62626112AF0532F009F0080 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62626102AF0532F009F0080 /* SignUpView.swift */; };
 		B82C84912AED6217000E31FA /* MainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82C84902AED6217000E31FA /* MainPage.swift */; };
+		B837D3912AFDEA5100316541 /* LikedSongsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D3902AFDEA5100316541 /* LikedSongsPage.swift */; };
 		B837D4E72AF3851800880F3A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D4E62AF3851800880F3A /* Profile.swift */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +53,7 @@
 		A626260E2AEFD8C0009F0080 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		A62626102AF0532F009F0080 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		B82C84902AED6217000E31FA /* MainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPage.swift; sourceTree = "<group>"; };
+		B837D3902AFDEA5100316541 /* LikedSongsPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikedSongsPage.swift; sourceTree = "<group>"; };
 		B837D4E62AF3851800880F3A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -103,6 +105,7 @@
 		A62625DE2AE148CA009F0080 /* SUPotify Mobile */ = {
 			isa = PBXGroup;
 			children = (
+				B837D3902AFDEA5100316541 /* LikedSongsPage.swift */,
 				A62625DF2AE148CA009F0080 /* SUPotifyMobileApp.swift */,
 				A62625E12AE148CA009F0080 /* ContentView.swift */,
 				B82C84902AED6217000E31FA /* MainPage.swift */,
@@ -274,6 +277,7 @@
 				A62625E22AE148CA009F0080 /* ContentView.swift in Sources */,
 				B837D4E72AF3851800880F3A /* Profile.swift in Sources */,
 				A62626112AF0532F009F0080 /* SignUpView.swift in Sources */,
+				B837D3912AFDEA5100316541 /* LikedSongsPage.swift in Sources */,
 				A62625E02AE148CA009F0080 /* SUPotifyMobileApp.swift in Sources */,
 				A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */,
 				B82C84912AED6217000E31FA /* MainPage.swift in Sources */,
