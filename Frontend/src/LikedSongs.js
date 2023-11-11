@@ -1,26 +1,48 @@
-import { useState } from "react";
-import SongList from "./SongList";
+import React from 'react';
+import axios from 'axios';
 
 const LikedSongs = () => {
 
-  const[songs, setSongs] = useState([
-    { title: "Waves Of Blue", album: "Wildest Dreams", artist: "Majid Jordan", id: 1 },
-    { title: "After Hours", album: "After Hours" , artist: "The Weeknd", id: 2 },
-    { title: "Ghost", album: "Justice", artist: "Justin Bieber", id: 3 },
-    { title: "Company", album: "Purpose", artist: "Justin Bieber", id: 4 }
-  ]);
+  const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username');
 
-  const handleDelete = (id) => {
-    const newSongs = songs.filter(song => song.id !== id);
-    setSongs(newSongs);
-  }
+  const createLikedSongs = async (token) => {
 
-  return ( 
-    <div className="home">
-      <SongList songs = {songs} title = "Liked Songs" handleDelete={handleDelete}/>
-      <SongList songs = {songs.filter( (song) => song.artist === "Justin Bieber")} title = "Liked Songs by Justin Bieber"/>
+    try {
+      const res = await axios.post('http://localhost:4000/api/likedSongs/createLikedSongsForUser',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Handle the response as needed
+      console.log(res.data);
+      if(res.success === true)
+      {
+        alert('Liked songs playlist successfully created!');
+      }
+      else
+      {
+        alert('Liked songs already exist for this user.')
+      }
+
+    } catch (error) {
+      // Handle errors
+      console.error('Error creating liked songs for user:', error);
+    }
+
+  };
+
+  return (
+    <div>
+      <h2>Liked Songs of {username} </h2>
+      <p></p>
+      <button onClick = { () => createLikedSongs(token) } >Create Liked Songs</button>
     </div>
   );
 }
- 
+
 export default LikedSongs;
