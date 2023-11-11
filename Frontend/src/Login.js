@@ -20,6 +20,7 @@ const Login = ({ setIsAuthenticated }) => {
         // Save token to localStorage or wherever you store it
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('id', res.data.userDetails._id)
+        localStorage.setItem('username', res.data.userDetails.username)
 
         // Navigate to Home Screen
         history.push('/');
