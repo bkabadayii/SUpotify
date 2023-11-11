@@ -16,6 +16,9 @@
 		A62625FE2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62625FD2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift */; };
 		A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A626260E2AEFD8C0009F0080 /* LoginView.swift */; };
 		A62626112AF0532F009F0080 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62626102AF0532F009F0080 /* SignUpView.swift */; };
+		A64525632AFD80CA00B93D60 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64525622AFD80CA00B93D60 /* ImportView.swift */; };
+		A64525672AFF73C500B93D60 /* userInput.txt in Resources */ = {isa = PBXBuildFile; fileRef = A64525662AFF73C500B93D60 /* userInput.txt */; };
+		A64525692AFF751B00B93D60 /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = A64525682AFF751B00B93D60 /* Config.plist */; };
 		B82C84912AED6217000E31FA /* MainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82C84902AED6217000E31FA /* MainPage.swift */; };
 		B837D3912AFDEA5100316541 /* LikedSongsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D3902AFDEA5100316541 /* LikedSongsPage.swift */; };
 		B837D4E72AF3851800880F3A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D4E62AF3851800880F3A /* Profile.swift */; };
@@ -52,6 +55,9 @@
 		A62625FD2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUPotify_MobileUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		A626260E2AEFD8C0009F0080 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		A62626102AF0532F009F0080 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		A64525622AFD80CA00B93D60 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
+		A64525662AFF73C500B93D60 /* userInput.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = userInput.txt; sourceTree = "<group>"; };
+		A64525682AFF751B00B93D60 /* Config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Config.plist; sourceTree = "<group>"; };
 		B82C84902AED6217000E31FA /* MainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPage.swift; sourceTree = "<group>"; };
 		B837D3902AFDEA5100316541 /* LikedSongsPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikedSongsPage.swift; sourceTree = "<group>"; };
 		B837D4E62AF3851800880F3A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -109,9 +115,12 @@
 				A62625DF2AE148CA009F0080 /* SUPotifyMobileApp.swift */,
 				A62625E12AE148CA009F0080 /* ContentView.swift */,
 				B82C84902AED6217000E31FA /* MainPage.swift */,
+				A64525682AFF751B00B93D60 /* Config.plist */,
+				A64525622AFD80CA00B93D60 /* ImportView.swift */,
 				A626260E2AEFD8C0009F0080 /* LoginView.swift */,
 				A62626102AF0532F009F0080 /* SignUpView.swift */,
 				A62625E52AE148CA009F0080 /* SUPotify_Mobile.entitlements */,
+				A64525662AFF73C500B93D60 /* userInput.txt */,
 				A62625E32AE148CA009F0080 /* Assets.xcassets */,
 				A62625E62AE148CA009F0080 /* Preview Content */,
 				B837D4E62AF3851800880F3A /* Profile.swift */,
@@ -248,6 +257,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A64525692AFF751B00B93D60 /* Config.plist in Resources */,
+				A64525672AFF73C500B93D60 /* userInput.txt in Resources */,
 				A62625E82AE148CA009F0080 /* Preview Assets.xcassets in Resources */,
 				A62625E42AE148CA009F0080 /* Assets.xcassets in Resources */,
 			);
@@ -275,6 +286,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A62625E22AE148CA009F0080 /* ContentView.swift in Sources */,
+				A64525632AFD80CA00B93D60 /* ImportView.swift in Sources */,
 				B837D4E72AF3851800880F3A /* Profile.swift in Sources */,
 				A62626112AF0532F009F0080 /* SignUpView.swift in Sources */,
 				B837D3912AFDEA5100316541 /* LikedSongsPage.swift in Sources */,

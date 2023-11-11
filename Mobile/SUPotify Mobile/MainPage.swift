@@ -24,11 +24,10 @@ struct MainMenu: View {
                     Text("Tab 2")
                 }
             
-            // Tab 2
-            Text("Tab 3")
+            Text("For you")
                 .tabItem {
-                    Image(systemName: "3.circle")
-                    Text("Tab 3")
+                    Image(systemName: "heart.fill")
+                    Text("For You")
                 }
             
             // Liked Songs Tab
@@ -36,7 +35,7 @@ struct MainMenu: View {
                     LikedSongsPage()
                 }
                 .tabItem {
-                    Image(systemName: "heart.circle.fill")
+                  Image(systemName: "hand.thumbsup.fill")
                     Text("Liked Songs")
                 }
             
@@ -51,6 +50,7 @@ struct MainMenu: View {
                 }
         }
         .font(.title)
+        .navigationBarBackButtonHidden(true)
 
     }
 }

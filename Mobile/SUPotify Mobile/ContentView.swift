@@ -44,6 +44,8 @@ struct TitleView: View {
     @State var isRotated: Bool = false
     
     var body: some View {
+        
+        
         HStack (alignment: .center){
             Text("SUPotify")
                 .font(.largeTitle)

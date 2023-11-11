@@ -124,7 +124,6 @@ struct SignUpView: View {
                         .background(.black.opacity(0.50))
                         .cornerRadius(10)
                         
-                        
                         NavigationLink("", destination: MainMenu(), isActive: $isSignUpSuccessful)
                                             .opacity(0)
                                             .frame(width: 0)

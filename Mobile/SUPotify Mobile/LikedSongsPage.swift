@@ -23,5 +23,18 @@ struct LikedSongsPage: View {
 struct LikedSongs_Previews: PreviewProvider {
     static var previews: some View {
         LikedSongsPage()
+            .preferredColorScheme(.dark)
     }
 }
+
+struct LikedSongsData: Codable {
+    let username: String
+    let likedSongsList: [String]
+}
+
+struct LikedSongsResponse: Codable {
+    let message: String
+    let success: Bool?
+    let userLikedSongs: LikedSongsData?
+}
+

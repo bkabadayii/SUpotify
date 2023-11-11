@@ -97,9 +97,12 @@ struct LoginView: View {
                                 return
                             }
                             
+                            
                             var request = URLRequest(url: url)
                             request.httpMethod = "POST"
                             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                            request.addValue("application/json", forHTTPHeaderField: "Accept")
+                            request.setValue( "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NDE3YTNjZDg3YzQ4YzY0OWFjNGYzYSIsImlhdCI6MTY5OTY4OTU2MiwiZXhwIjoxNjk5OTQ4NzYyfQ.mG2q3PFNvcQ9wv9avIFmOAf7FTpmMVaJKRG5jztV96s", forHTTPHeaderField: "Authorization")
                             
                             
                             do {
@@ -109,6 +112,7 @@ struct LoginView: View {
                                 return
                             }
                             
+                            
                             URLSession.shared.dataTask(with: request) { data, response, error in
                                 if let data = data {
                                     do {
@@ -117,12 +121,14 @@ struct LoginView: View {
                                         let result = try JSONDecoder().decode(LoginResponse.self, from: data)
                                         
                                         
-                                        if let success = result.success, success {
+                                        if let success = result.success, success{
                                             if let userDetails = result.userDetails {
-                                                self.isLoggedin = true
-                                                print("Login successful")
-                                                print("User email: \(userDetails.email)")
-                                                print("User username: \(userDetails.username)")
+                                                if(result.token != nil) {
+                                                    self.isLoggedin = true
+                                                    print("Login successful")
+                                                    print("User email: \(userDetails.email)")
+                                                    print("User username: \(userDetails.username)")
+                                                }
                                             }
                                             else {
                                                 print("Login successful but user details are missing")
@@ -209,6 +215,7 @@ struct LoginResponse: Codable {
     let message: String
     let success: Bool?
     let userDetails: User?
+    let token: String?
 }
 
 struct BackgroundView3: View {
@@ -218,4 +225,19 @@ struct BackgroundView3: View {
             .ignoresSafeArea()
     
     }
+}
+
+
+func loadAPIToken() {
+    do {
+        if let path = Bundle.main.path(forResource: "Config", ofType: "plist"),
+            let configDict = try PropertyListSerialization.propertyList(from: Data(contentsOf: URL(fileURLWithPath: path)), options: [], format: nil) as? [String: Any],
+            let apiToken = configDict["APIToken"] as? String {
+                print("API Token: \(apiToken)")
+        }
+       
+    } catch {
+        print("Error reading Config.plist: \(error)")
+    }
+
 }
