@@ -7,12 +7,22 @@ module.exports.Signup = async (req, res, next) => {
         const { email, password, username, createdAt } = req.body;
         //console.log('Received request body:', req.body);
 
-        const existingUser = await User.findOne({ email });
+        const existingEmail = await User.findOne({ email });
+        const existingUsername = await User.findOne({ username });
 
-        if (existingUser) {
-            //console.log('Found user:', existingUser);
-            return res.json({ message: "User already exists", success: false });
+        if (existingEmail) {
+            return res.json({
+                message: "Email already exists",
+                success: false,
+            });
         }
+        if (existingUsername) {
+            return res.json({
+                message: "Username already exists",
+                success: false,
+            });
+        }
+
         const user = await User.create({
             email,
             password,
