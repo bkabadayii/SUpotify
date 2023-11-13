@@ -56,7 +56,6 @@ module.exports.getTrackFromSpotify = async (req, res) => {
                 albumReleaseDate: spotifyResult.album.release_date,
                 albumURL: spotifyAlbumResult.external_urls.spotify,
                 albumImage: spotifyAlbumResult.images[0].url,
-                // other album info
             },
             artistInfo: {
                 artistNumber: spotifyResult.artists.length,
@@ -164,7 +163,7 @@ module.exports.getArtistFromSpotify = async (req, res) => {
         // Get Spotify access token from environment variables
         const spotifyToken = process.env.SPOTIFY_TOKEN;
 
-        // Send request to Spotify API to get information about the album
+        // Send request to Spotify API to get information about the artist
         const spotifyResponse = await axios.get(`https://api.spotify.com/v1/artists/${artistID}`, {
             headers: {
                 Authorization: `Bearer ${spotifyToken}`,
