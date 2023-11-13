@@ -71,6 +71,7 @@ module.exports.getTrackFromSpotify = async (req, res) => {
                 previewURL: spotifyResult.preview_url,
                 songName: spotifyResult.name,
                 genres: spotifyAlbumResult.genres.map(genre => genre),
+                trackURL: spotifyResult.external_urls.spotify,
             },
         };
 
@@ -128,6 +129,9 @@ module.exports.getAlbumFromSpotify = async (req, res) => {
             albumReleaseDate: spotifyResult.release_date,
             albumGenres: spotifyResult.genres.map(genre=>genre),
             trackIds: spotifyResult.tracks.items.map(track=>track.id),
+            albumArtists: spotifyResult.artists.map(artist=>({
+                artistName: artist.name,
+                artistId: artist.id}))
         };
 
         // Log the organized information to the console
