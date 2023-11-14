@@ -24,7 +24,7 @@ struct MainMenu: View {
                     Text("Tab 2")
                 }
             
-            Text("For you")
+            ForYouView()
                 .tabItem {
                     Image(systemName: "heart.fill")
                     Text("For You")

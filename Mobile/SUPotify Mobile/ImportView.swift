@@ -93,7 +93,7 @@ struct ImportView: View {
             }
              }
                 Text(" ")
-                Text("Please provide a .csv or .txt file that includes the song ids")
+                Text("Please provide a .csv or .txt file")
                     .font(.caption)
                     .opacity(0.6)
                     

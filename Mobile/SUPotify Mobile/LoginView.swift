@@ -102,7 +102,7 @@ struct LoginView: View {
                             request.httpMethod = "POST"
                             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                             request.addValue("application/json", forHTTPHeaderField: "Accept")
-                            request.setValue( "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NDE3YTNjZDg3YzQ4YzY0OWFjNGYzYSIsImlhdCI6MTY5OTY4OTU2MiwiZXhwIjoxNjk5OTQ4NzYyfQ.mG2q3PFNvcQ9wv9avIFmOAf7FTpmMVaJKRG5jztV96s", forHTTPHeaderField: "Authorization")
+                         //   request.setValue( "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NDE3YTNjZDg3YzQ4YzY0OWFjNGYzYSIsImlhdCI6MTY5OTY4OTU2MiwiZXhwIjoxNjk5OTQ4NzYyfQ.mG2q3PFNvcQ9wv9avIFmOAf7FTpmMVaJKRG5jztV96s", forHTTPHeaderField: "Authorization")
                             
                             
                             do {
