@@ -1,46 +1,54 @@
 const axios = require("axios");
 
-module.exports.getTrackFromSpotify = async (req, res) => {
+// Unnecessary information must be removed
+module.exports.getTrackFromSpotify = async (spotifyID) => {
     try {
-        const { songID } = req.body;
-        if (!songID) {
-            return res.status(400).json({ message: 'Bad Request', success: false, error: 'Missing songID in the request body' });
-        }
-
         // Get Spotify access token from environment variables
         const spotifyToken = process.env.SPOTIFY_TOKEN;
 
         // Send request to Spotify API to get information about the track
-        const spotifyResponse = await axios.get(`https://api.spotify.com/v1/tracks/${songID}`, {
-            headers: {
-                Authorization: `Bearer ${spotifyToken}`,
-            },
-        });
+        const spotifyResponse = await axios.get(
+            `https://api.spotify.com/v1/tracks/${spotifyID}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+            }
+        );
 
         // Extract data from the Spotify API response
         const spotifyResult = spotifyResponse.data;
 
         // Send request to Spotify API to get information about the album
-        const spotifyAlbumResponse = await axios.get(`https://api.spotify.com/v1/albums/${spotifyResult.album.id}`, {
-            headers: {
-                Authorization: `Bearer ${spotifyToken}`,
-            },
-        });
+        const spotifyAlbumResponse = await axios.get(
+            `https://api.spotify.com/v1/albums/${spotifyResult.album.id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+            }
+        );
 
         // Extract data from the Spotify API response for the album
         const spotifyAlbumResult = spotifyAlbumResponse.data;
 
         // Fetch detailed artist information for each artist
-        const artistPromises = spotifyResult.artists.map(async artist => {
+        const artistPromises = spotifyResult.artists.map(async (artist) => {
             try {
-                const artistInfoResponse = await axios.get(`https://api.spotify.com/v1/artists/${artist.id}`, {
-                    headers: {
-                        Authorization: `Bearer ${spotifyToken}`,
-                    },
-                });
+                const artistInfoResponse = await axios.get(
+                    `https://api.spotify.com/v1/artists/${artist.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${spotifyToken}`,
+                        },
+                    }
+                );
                 return artistInfoResponse.data;
             } catch (artistError) {
-                console.error('Error fetching artist information:', artistError.message);
+                console.error(
+                    "Error fetching artist information:",
+                    artistError.message
+                );
                 throw artistError;
             }
         });
@@ -59,152 +67,108 @@ module.exports.getTrackFromSpotify = async (req, res) => {
             },
             artistInfo: {
                 artistNumber: spotifyResult.artists.length,
-                artists: detailedArtistInfo.map(artist => ({
+                artists: detailedArtistInfo.map((artist) => ({
                     artistName: artist.name,
                     artistID: artist.id,
-                    artistGenres: artist.genres.map(genre => genre),
+                    artistGenres: artist.genres.map((genre) => genre),
                 })),
             },
             otherInfo: {
                 durationMS: spotifyResult.duration_ms,
                 popularity: spotifyResult.popularity,
                 previewURL: spotifyResult.preview_url,
-                songName: spotifyResult.name,
-                genres: spotifyAlbumResult.genres.map(genre => genre),
-                trackURL: spotifyResult.external_urls.spotify,
+                name: spotifyResult.name,
+                genres: spotifyAlbumResult.genres.map((genre) => genre),
+                spotifyURL: spotifyResult.external_urls.spotify,
             },
         };
 
-        // Log the organized information to the console
-        console.log(returnInfo);
-
-        // Respond with a success message and the organized information
-        res.status(201).json({
-            message: "Retrieved song info successfully",
-            success: true,
-            songInfo: returnInfo,
-        });
+        // Respond with a success message and return the organized information
+        return returnInfo;
     } catch (err) {
         // Log any errors that occur during the process
         console.error(err);
-
-        // Respond with an error message and a 500 Internal Server Error status
-        return res.status(500).json({
-            message: "Internal Server Error",
-            success: false,
-            error: err.message, // Include the error message in the response
-        });
+        return null;
     }
 };
 
-
-module.exports.getAlbumFromSpotify = async (req, res) => {
+module.exports.getAlbumFromSpotify = async (spotifyID) => {
     try {
-        const { albumID } = req.body;
-    if (!albumID) {
-        return res.status(400).json({ message: 'Bad Request', success: false, error: 'Missing albumID in the request body' });
-    }
-
-
         // Get Spotify access token from environment variables
         const spotifyToken = process.env.SPOTIFY_TOKEN;
 
         // Send request to Spotify API to get information about the album
-        const spotifyResponse = await axios.get(`https://api.spotify.com/v1/albums/${albumID}`, {
-            headers: {
-                Authorization: `Bearer ${spotifyToken}`,
-            },
-        });
+        const spotifyResponse = await axios.get(
+            `https://api.spotify.com/v1/albums/${spotifyID}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+            }
+        );
 
         // Extract data from the Spotify API response
         const spotifyResult = spotifyResponse.data;
 
         // Organize the information into a structured format
         const returnInfo = {
-            albumName: spotifyResult.name,
-            albumId: spotifyResult.id,
-            albumImage: spotifyResult.images[0].url,
-            albumTotalTracks: spotifyResult.total_tracks,
-            albumURL: spotifyResult.external_urls.spotify,
-            albumReleaseDate: spotifyResult.release_date,
-            albumGenres: spotifyResult.genres.map(genre=>genre),
-            trackIds: spotifyResult.tracks.items.map(track=>track.id),
-            albumArtists: spotifyResult.artists.map(artist=>({
+            name: spotifyResult.name,
+            releaseDate: spotifyResult.release_date,
+            totalTracks: spotifyResult.total_tracks,
+            genres: spotifyResult.genres.map((genre) => genre),
+            spotifyID: spotifyResult.id,
+            spotifyURL: spotifyResult.external_urls.spotify,
+            imageURL: spotifyResult.images[0].url,
+            trackIDs: spotifyResult.tracks.items.map((track) => track.id),
+            albumArtists: spotifyResult.artists.map((artist) => ({
                 artistName: artist.name,
-                artistId: artist.id}))
+                artistID: artist.id,
+            })),
         };
 
-        // Log the organized information to the console
-        console.log(returnInfo);
-
-        // Respond with a success message and the organized information
-        res.status(201).json({
-            message: "Retrieved album info successfully",
-            success: true,
-            albumInfo: returnInfo,
-        });
+        return returnInfo;
     } catch (err) {
         // Log any errors that occur during the process
         console.error(err);
-
-        // Respond with an error message and a 500 Internal Server Error status
-        return res.status(500).json({
-            message: "Internal Server Error",
-            success: false,
-            error: err.message, // Include the error message in the response
-        });
+        return null;
     }
 };
 
-module.exports.getArtistFromSpotify = async (req, res) => {
+module.exports.getArtistFromSpotify = async (spotifyID) => {
     try {
-        const { artistID } = req.body;
-    if (!artistID) {
-        return res.status(400).json({ message: 'Bad Request', success: false, error: 'Missing artistID in the request body' });
-    }
-
-
         // Get Spotify access token from environment variables
         const spotifyToken = process.env.SPOTIFY_TOKEN;
 
         // Send request to Spotify API to get information about the artist
-        const spotifyResponse = await axios.get(`https://api.spotify.com/v1/artists/${artistID}`, {
-            headers: {
-                Authorization: `Bearer ${spotifyToken}`,
-            },
-        });
+        const spotifyResponse = await axios.get(
+            `https://api.spotify.com/v1/artists/${spotifyID}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+            }
+        );
 
         // Extract data from the Spotify API response
         const spotifyResult = spotifyResponse.data;
 
         // Organize the information into a structured format
         const returnInfo = {
-            artistName: spotifyResult.name,
-            artistId: spotifyResult.id,
-            artistImage: spotifyResult.images[0].url,
-            artistURL: spotifyResult.external_urls.spotify,
-            artistGenres: spotifyResult.genres.map(genre=>genre),
-            artistPopularity: spotifyResult.popularity,
+            name: spotifyResult.name,
+            genres: spotifyResult.genres.map((genre) => genre),
+            popularity: spotifyResult.popularity,
+            spotifyID: spotifyResult.id,
+            spotifyURL: spotifyResult.external_urls.spotify,
+            imageURL: spotifyResult.images[0].url,
         };
 
-        // Log the organized information to the console
-        console.log(returnInfo);
-
         // Respond with a success message and the organized information
-        res.status(201).json({
-            message: "Retrieved artist info successfully",
-            success: true,
-            artistInfo: returnInfo,
-        });
+        console.log("getArtistFromSpotify...");
+        console.log(returnInfo);
+        return returnInfo;
     } catch (err) {
         // Log any errors that occur during the process
         console.error(err);
-
-        // Respond with an error message and a 500 Internal Server Error status
-        return res.status(500).json({
-            message: "Internal Server Error",
-            success: false,
-            error: err.message, // Include the error message in the response
-        });
+        return null;
     }
 };
