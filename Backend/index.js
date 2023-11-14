@@ -14,19 +14,13 @@ const defaultRouter = require("./routes/defaultRouter");
 const authRoute = require("./routes/authRoute"); // route for the authentication
 const likedSongsRoute = require("./routes/likedSongsRoute");
 const spotifyApiRoute = require("./routes/spotifyApiRoute");
+const artistRoute = require("./routes/artistRoute");
 // ----- Routes -----
+
+console.log("Starting SUpotify...");
 
 // Initialize express application
 const app = express();
-
-// Connect to MongoDB database
-mongoose
-    .connect(MONGO_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
-    .then(() => console.log("MongoDB connection is successful."))
-    .catch((err) => console.error(err));
 
 // ----- Middlewares -----
 app.use(
@@ -48,10 +42,19 @@ app.use((req, res, next) => {
 
 async function startServer() {
     try {
-        
         // Get and set a new Spotify access token
         const { getAccessToken } = require("./util/SpotifyAccessToken");
         const accessToken = await getAccessToken();
+        console.log("Spotify connection is successful.");
+
+        // Connect to MongoDB database
+        await mongoose
+            .connect(MONGO_URL, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            })
+            .then(() => console.log("MongoDB connection is successful."))
+            .catch((err) => console.error(err));
 
         // ----- Controllers -----
         app.use("/auth", authRoute);
@@ -59,13 +62,14 @@ async function startServer() {
         app.use("/api", verifyToken); // Set verifyToken middleware for all endpoints belonging to /api
         app.use("/api/likedSongs", likedSongsRoute);
         app.use("/api/default", defaultRouter);
-        app.use("/getFromSpotify", spotifyApiRoute);
+        app.use("/api/artist", artistRoute);
 
+        app.use("/getFromSpotify", spotifyApiRoute);
         // ----- Controllers -----
 
         // Start the server
         const server = app.listen(PORT || 4000, () => {
-            console.log("Welcome to SUpotify");
+            console.log("Welcome to SUpotify!");
         });
     } catch (error) {
         console.error("Error getting Spotify access token:", error.message);
