@@ -143,10 +143,13 @@ module.exports.getLikedSongsForUser = async (req, res) => {
             });
         }
 
+        const populatedLikedSongs = await (
+            await existingUserLikedSongs.populate("likedSongsList")
+        ).populate("likedSongsList.artists");
         res.status(200).json({
             message: "Retrieved liked songs successfully",
             success: true,
-            likedSongs: existingUserLikedSongs,
+            likedSongs: populatedLikedSongs,
         });
     } catch (err) {
         console.error(err);

@@ -7,11 +7,13 @@ const likedSongsSchema = new Schema({
         type: String,
         required: [true, "Your username is required."],
     },
-    likedSongsList: {
-        type: Array,
-        default: [],
-        required: [true, "Liked songs list is required."],
-    },
+    likedSongsList: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Track",
+            default: "",
+        },
+    ],
 });
 
 module.exports = mongoose.model("LikedSongs", likedSongsSchema);
