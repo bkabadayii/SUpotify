@@ -51,7 +51,7 @@ const getTrack = async (spotifyID, albumID) => {
         const existingTrack = await Track.findOne({ spotifyID });
         if (existingTrack) {
             console.log("This track has already been added to the database");
-            return existingTrack;
+            return existingTrack._id;
         }
 
         const trackInformation = await getTrackFromSpotify(spotifyID);
@@ -161,6 +161,7 @@ module.exports.addNewAlbum = async (req, res) => {
             }
         }
 
+        newAlbum._id = albumID;
         await newAlbum.save();
 
         return res.status(201).json({
