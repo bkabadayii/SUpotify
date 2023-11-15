@@ -16,14 +16,14 @@
 		A62625FE2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62625FD2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift */; };
 		A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A626260E2AEFD8C0009F0080 /* LoginView.swift */; };
 		A62626112AF0532F009F0080 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62626102AF0532F009F0080 /* SignUpView.swift */; };
+		A63BAF702B0553B7000076B3 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63BAF6F2B0553B7000076B3 /* SessionManager.swift */; };
 		A64525632AFD80CA00B93D60 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64525622AFD80CA00B93D60 /* ImportView.swift */; };
-		A64525672AFF73C500B93D60 /* userInput.txt in Resources */ = {isa = PBXBuildFile; fileRef = A64525662AFF73C500B93D60 /* userInput.txt */; };
+		A64525672AFF73C500B93D60 /* userInput13.txt in Resources */ = {isa = PBXBuildFile; fileRef = A64525662AFF73C500B93D60 /* userInput13.txt */; };
 		A64525692AFF751B00B93D60 /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = A64525682AFF751B00B93D60 /* Config.plist */; };
 		A645256B2B02399A00B93D60 /* ForYouPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A645256A2B02399A00B93D60 /* ForYouPage.swift */; };
 		B82C84912AED6217000E31FA /* MainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82C84902AED6217000E31FA /* MainPage.swift */; };
 		B837D3912AFDEA5100316541 /* LikedSongsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D3902AFDEA5100316541 /* LikedSongsPage.swift */; };
 		B837D4E72AF3851800880F3A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D4E62AF3851800880F3A /* Profile.swift */; };
-		B8E4C78D2B04DE8D0089C73E /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E4C78C2B04DE8D0089C73E /* SessionManager.swift */; };
 		B8E4C78F2B04DEEC0089C73E /* ExportOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E4C78E2B04DEEC0089C73E /* ExportOptionsView.swift */; };
 /* End PBXBuildFile section */
 
@@ -58,14 +58,14 @@
 		A62625FD2AE148CB009F0080 /* SUPotify_MobileUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUPotify_MobileUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		A626260E2AEFD8C0009F0080 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		A62626102AF0532F009F0080 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		A63BAF6F2B0553B7000076B3 /* SessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 		A64525622AFD80CA00B93D60 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
-		A64525662AFF73C500B93D60 /* userInput.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = userInput.txt; sourceTree = "<group>"; };
+		A64525662AFF73C500B93D60 /* userInput13.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = userInput13.txt; sourceTree = "<group>"; };
 		A64525682AFF751B00B93D60 /* Config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Config.plist; sourceTree = "<group>"; };
 		A645256A2B02399A00B93D60 /* ForYouPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForYouPage.swift; sourceTree = "<group>"; };
 		B82C84902AED6217000E31FA /* MainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPage.swift; sourceTree = "<group>"; };
 		B837D3902AFDEA5100316541 /* LikedSongsPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikedSongsPage.swift; sourceTree = "<group>"; };
 		B837D4E62AF3851800880F3A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
-		B8E4C78C2B04DE8D0089C73E /* SessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SessionManager.swift; path = "../../../../Library/Mobile Documents/.Trash/SUPotify/Mobile/SUPotify Mobile/SessionManager.swift"; sourceTree = "<group>"; };
 		B8E4C78E2B04DEEC0089C73E /* ExportOptionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportOptionsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,7 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				B8E4C78E2B04DEEC0089C73E /* ExportOptionsView.swift */,
-				B8E4C78C2B04DE8D0089C73E /* SessionManager.swift */,
+				A63BAF6F2B0553B7000076B3 /* SessionManager.swift */,
 				B837D3902AFDEA5100316541 /* LikedSongsPage.swift */,
 				A645256A2B02399A00B93D60 /* ForYouPage.swift */,
 				A62625DF2AE148CA009F0080 /* SUPotifyMobileApp.swift */,
@@ -129,10 +129,10 @@
 				A626260E2AEFD8C0009F0080 /* LoginView.swift */,
 				A62626102AF0532F009F0080 /* SignUpView.swift */,
 				A62625E52AE148CA009F0080 /* SUPotify_Mobile.entitlements */,
-				A64525662AFF73C500B93D60 /* userInput.txt */,
+				A64525662AFF73C500B93D60 /* userInput13.txt */,
 				A62625E32AE148CA009F0080 /* Assets.xcassets */,
-				A62625E62AE148CA009F0080 /* Preview Content */,
 				B837D4E62AF3851800880F3A /* Profile.swift */,
+				A62625E62AE148CA009F0080 /* Preview Content */,
 			);
 			path = "SUPotify Mobile";
 			sourceTree = "<group>";
@@ -267,7 +267,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A64525692AFF751B00B93D60 /* Config.plist in Resources */,
-				A64525672AFF73C500B93D60 /* userInput.txt in Resources */,
+				A64525672AFF73C500B93D60 /* userInput13.txt in Resources */,
 				A62625E82AE148CA009F0080 /* Preview Assets.xcassets in Resources */,
 				A62625E42AE148CA009F0080 /* Assets.xcassets in Resources */,
 			);
@@ -296,6 +296,7 @@
 			files = (
 				B8E4C78F2B04DEEC0089C73E /* ExportOptionsView.swift in Sources */,
 				A62625E22AE148CA009F0080 /* ContentView.swift in Sources */,
+				A63BAF702B0553B7000076B3 /* SessionManager.swift in Sources */,
 				A64525632AFD80CA00B93D60 /* ImportView.swift in Sources */,
 				B837D4E72AF3851800880F3A /* Profile.swift in Sources */,
 				A62626112AF0532F009F0080 /* SignUpView.swift in Sources */,
@@ -303,7 +304,6 @@
 				B837D3912AFDEA5100316541 /* LikedSongsPage.swift in Sources */,
 				A62625E02AE148CA009F0080 /* SUPotifyMobileApp.swift in Sources */,
 				A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */,
-				B8E4C78D2B04DE8D0089C73E /* SessionManager.swift in Sources */,
 				B82C84912AED6217000E31FA /* MainPage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

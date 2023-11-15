@@ -135,8 +135,9 @@ private func handleImportedFile(fileURL: URL) {
     do {
         let content = try read(from: fileURL)
         let songIDs = content
-                   .components(separatedBy: "\n")
-                   .filter {!$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+                .components(separatedBy: "\n")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } // Trim whitespace and newlines
+                .filter { !$0.isEmpty } // Filter out any empty strings
         addSongsToLikedSongs(songIDs: songIDs)
     }
     catch {

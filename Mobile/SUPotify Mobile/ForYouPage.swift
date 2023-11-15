@@ -22,7 +22,7 @@ struct ForYouView: View {
                         ForEach(0..<data.count, id: \.self) { index in
                           
                             VStack{
-                                
+                          
                                 Text("")
                                 Text("")
                                 Text("")
@@ -52,7 +52,7 @@ struct ForYouView: View {
                                         .scaleEffect(currentIdx == index ? 1.2 : 0.8)
                                         .offset(x: CGFloat(index - currentIdx) * 300 + dragOffset, y:0)
                                 }
-                                .frame(width: 290, height: 100)
+                                .frame(width: 290, height: 80)
                                 .background(.black.opacity(0.10))
                                 .cornerRadius(100)
                                 
@@ -92,7 +92,6 @@ struct ForYouView: View {
             }
             
         }
-            .navigationTitle("Just For You")
             
                 
             }

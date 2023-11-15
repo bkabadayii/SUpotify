@@ -8,6 +8,7 @@
 import Foundation
 
 class SessionManager {
+    
     static let shared = SessionManager()
     var loginResponse: LoginResponse?
     var token: String

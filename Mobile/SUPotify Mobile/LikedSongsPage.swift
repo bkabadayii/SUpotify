@@ -23,7 +23,7 @@ struct LikedSongsResponse: Codable {
 }
 
 struct LikedSong: Codable {
-    let id: Int
+    let id: String
 }
 
 class LikedSongsViewModel: ObservableObject {
@@ -94,5 +94,6 @@ struct LikedSongsView: View {
 struct LikedSongsView_Previews: PreviewProvider {
     static var previews: some View {
         LikedSongsView()
+            .preferredColorScheme(.dark)
     }
 }
