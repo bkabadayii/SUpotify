@@ -10,6 +10,7 @@ import SwiftUI
 var isAdded: Bool = false
 
 struct ImportView: View {
+    @Environment(\.presentationMode) var presentationMode
     @State var importing = false
     @State var isError = false
     @State var isRotated = false

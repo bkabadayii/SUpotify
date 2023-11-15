@@ -34,34 +34,24 @@ struct MainMenu: View {
                     Text("For You")
                 }
             
-            if likedSongsViewModel.likedSongsCount > 0 {
-                NavigationView {
-                    LikedSongsView()
-                }
-                
-                .tabItem {
-                    Image(systemName: "hand.thumbsup.fill")
-                    Text("Liked Songs")
-                }
+            
+            NavigationView {
+                LikedSongsView()
             }
-            else{
-                NavigationView{
-                    ImportView()
-                }
-                .tabItem {
-                    Image(systemName: "arrow.down.doc.fill")
-                    Text("Import")
-                }
+            
+            .tabItem {
+                Image(systemName: "hand.thumbsup.fill")
+                Text("Liked Songs")
             }
             
             // Profile Tab
-                NavigationView {
-                    Profile()
-                }
-                .tabItem {
-                    Image(systemName: "person.crop.circle.fill")
-                    Text("Profile")
-                }
+            NavigationView {
+                Profile()
+            }
+            .tabItem {
+                Image(systemName: "person.crop.circle.fill")
+                Text("Profile")
+            }
         }
         .font(.title)
         .navigationBarBackButtonHidden(true)

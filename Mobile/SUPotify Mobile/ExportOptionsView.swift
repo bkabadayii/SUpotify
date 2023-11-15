@@ -12,7 +12,7 @@ import Foundation
 struct LikedSongs: Codable {
     var _id: String
     var username: String
-    var likedSongsList: [String]
+    var likedSongsList: [LikedSong]
     var __v: Int
 }
 
@@ -96,9 +96,9 @@ struct ExportOptionsView: View {
                 let fileContent: String
                 switch format {
                 case .csv:
-                    fileContent = songs.joined(separator: ",")
+                    fileContent = createCSVContent(songs: songs)
                 case .txt:
-                    fileContent = songs.joined(separator: "\n")
+                    fileContent = createTXTContent(songs: songs)
                 }
 
                 let fileName = "exported_songs.\(format.rawValue)"
@@ -113,6 +113,15 @@ struct ExportOptionsView: View {
                 completion(nil)
             }
         }.resume()
+    }
+    func createCSVContent(songs: [LikedSong]) -> String {
+        let header = "ID,Name,Popularity,Duration\n"
+        let rows = songs.map { "\($0._id),\($0.name),\($0.popularity),\($0.durationMS)" }
+        return header + rows.joined(separator: "\n")
+    }
+
+    func createTXTContent(songs: [LikedSong]) -> String {
+        return songs.map { "\($0.name) [\($0._id)]" }.joined(separator: "\n")
     }
 }
 

@@ -9,10 +9,46 @@ import SwiftUI
 import Foundation
 import Combine
 
+struct LikedSong: Codable {
+    let _id: String
+    let name: String
+    let popularity: Int
+    let durationMS: Int
+    let album: AlbumData
+    let artists: [ArtistData]
+    let spotifyID: String
+    let spotifyURL: String
+    let previewURL: String?
+    
+    
+}
+struct AlbumData: Codable {
+    let _id: String
+    let name: String
+    let releaseDate: String
+    let totalTracks: Int
+    let genres: [String]
+    let artists: [String]
+    let tracks: [String]
+    
+}
+
+struct ArtistData: Codable {
+    let _id: String
+    let name: String
+    let genres: [String]
+    let popularity: Int
+    let albums: [String]
+    let spotifyID: String
+    let spotifyURL: String
+    let imageURL: String
+    
+}
+
 struct LikedSongsData: Codable {
     let _id: String
     let username: String
-    let likedSongsList: [String]
+    let likedSongsList: [LikedSong]
     let __v: Int
 }
 
@@ -22,12 +58,10 @@ struct LikedSongsResponse: Codable {
     let likedSongs: LikedSongsData
 }
 
-struct LikedSong: Codable {
-    let id: String
-}
+
 
 class LikedSongsViewModel: ObservableObject {
-    @Published var likedSongIDs = [String]()
+    @Published var likedSongs = [LikedSong]()
     private var token: String
     private var cancellables = Set<AnyCancellable>()
     @Published var likedSongsCount: Int = 0
@@ -50,9 +84,14 @@ class LikedSongsViewModel: ObservableObject {
             .decode(type: LikedSongsResponse.self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
-                // Handle completion, errors, etc.
+                switch completion {
+                case .finished:
+                    print("Retrieved data successfully.")
+                case .failure(let error):
+                    print("Error occurred: \(error)")
+                }
             }, receiveValue: { [weak self] response in
-                self?.likedSongIDs = response.likedSongs.likedSongsList
+                self?.likedSongs = response.likedSongs.likedSongsList
                 self?.likedSongsCount = response.likedSongs.likedSongsList.count
             })
             .store(in: &cancellables)
@@ -60,7 +99,9 @@ class LikedSongsViewModel: ObservableObject {
 }
 
 struct LikedSongsView: View {
+    @State private var navigationViewKey = UUID()
     @State private var showExportOptions = false
+    @State private var showImportView = false
     @ObservedObject var viewModel: LikedSongsViewModel
 
     init() {
@@ -70,8 +111,14 @@ struct LikedSongsView: View {
 
     var body: some View {
         NavigationView {
-            List(viewModel.likedSongIDs, id: \.self) { songID in
-                Text("Song ID: \(songID)")
+            List(viewModel.likedSongs, id: \._id) { song in
+                VStack(alignment: .leading) {
+                    Text(song.name)
+                    ForEach(song.artists, id: \._id) { artist in
+                        Text(artist.name)
+                            .font(.custom("Helvetica Neue", size: 10))
+                    }
+                }
             }
             .navigationBarTitle("Liked Songs", displayMode: .inline)
             .toolbar {
@@ -82,11 +129,29 @@ struct LikedSongsView: View {
                         Image(systemName: "square.and.arrow.up") // Share icon
                     }
                 }
+               
+                ToolbarItem(placement: .navigationBarLeading) {
+                   Button(action: {
+                       self.showImportView = true // Trigger to show ImportView
+                   }) {
+                       Image(systemName: "arrow.down.doc") // Import icon, adjust as needed
+                   }
+               }
             }
-            .sheet(isPresented: $showExportOptions) {
+            .sheet(isPresented: $showExportOptions, onDismiss: {
+                navigationViewKey = UUID()
+                showExportOptions = false
+            }) {
                 ExportOptionsView()
             }
+            .sheet(isPresented: $showImportView, onDismiss: {
+                navigationViewKey = UUID()
+                showImportView = false
+            }) {
+                ImportView() // Your ImportView presented as a modal sheet
+            }
         }
+        .id(navigationViewKey)
     }
 }
 
@@ -94,6 +159,6 @@ struct LikedSongsView: View {
 struct LikedSongsView_Previews: PreviewProvider {
     static var previews: some View {
         LikedSongsView()
-            .preferredColorScheme(.dark)
+            .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
     }
 }
