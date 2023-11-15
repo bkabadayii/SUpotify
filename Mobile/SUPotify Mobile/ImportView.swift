@@ -14,30 +14,25 @@ struct ImportView: View {
     @State var isError = false
     @State var isRotated = false
     @State private var arrowOffset: CGFloat = 0
+    //@State private var token: String?
 
+    //init(token: String?){
+    //    self.token = SessionManager.shared.loginResponse?.token
+    //}
     
     var body: some View {
     
         
         ZStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/) {
             BackgroundView()
-            
-            
-            
             VStack{
-                
-            
                 Spacer()
                 Text(" ")
-
                 HStack{
-                   
-                   
                     Text("SUPotify")
                         .font(.title)
                         .fontWeight(.semibold)
                         .foregroundColor(Color.white)
-                    
                     Circle()
                         .strokeBorder(AngularGradient(gradient: Gradient(
                             colors: [.indigo, .blue, .purple, .orange, .red]),
@@ -55,11 +50,7 @@ struct ImportView: View {
                             }
                         }
                         .padding()
-                    
-                    
                 }
-        
-               
                 HStack{
                     Image(systemName: "square.and.arrow.down")
                     Button("Import Your Liked Songs") {
@@ -93,7 +84,7 @@ struct ImportView: View {
             }
              }
                 Text(" ")
-                Text("Please provide a .csv or .txt file")
+                Text("Please provide a .csv or .txt file that includes the song ids")
                     .font(.caption)
                     .opacity(0.6)
                     
@@ -107,7 +98,6 @@ struct ImportView: View {
                                   }
                               }
                       }
-   
             Text(" ")
             Text(" ")
             Image(systemName: "arrowshape.up.fill")
@@ -120,9 +110,7 @@ struct ImportView: View {
                         }
                     }
              Spacer()
-                    
              }
-            
         }
         }
     }
@@ -159,9 +147,14 @@ private func handleImportedFile(fileURL: URL) {
 private func addSongsToLikedSongs(songIDs: [String]) {
     let apiURL = URL(string: "http://localhost:4000/api/likedSongs/addManyToUserLikedSongs")!
     var request = URLRequest(url: apiURL)
+    
+    //var token: String?
+    let token = SessionManager.shared.token
+    
+    
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.setValue( "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NDE3YTNjZDg3YzQ4YzY0OWFjNGYzYSIsImlhdCI6MTY5OTY4OTU2MiwiZXhwIjoxNjk5OTQ4NzYyfQ.mG2q3PFNvcQ9wv9avIFmOAf7FTpmMVaJKRG5jztV96s", forHTTPHeaderField: "Authorization")
+    request.setValue( "Bearer \(token)", forHTTPHeaderField: "Authorization")
 
     let parameters: [String: Any] = ["songIDList": songIDs]
     

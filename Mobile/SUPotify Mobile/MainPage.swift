@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MainMenu: View {
+    @StateObject var likedSongsViewModel = LikedSongsViewModel()
+    
     var body: some View {
         TabView {
             // Tab 1
@@ -18,27 +20,39 @@ struct MainMenu: View {
                 }
             
             // Tab 2
-            Text("Tab 2")
+            Text("Search")
                 .tabItem {
-                    Image(systemName: "2.circle")
+                    Image(systemName: "magnifyingglass")
                     Text("Tab 2")
                 }
             
-            ForYouView()
+            NavigationView{
+                ForYouView()
+            }
                 .tabItem {
                     Image(systemName: "heart.fill")
                     Text("For You")
                 }
             
-            // Liked Songs Tab
+            if likedSongsViewModel.likedSongsCount > 0 {
                 NavigationView {
-                    LikedSongsPage()
+                    LikedSongsView()
                 }
+                
                 .tabItem {
-                  Image(systemName: "hand.thumbsup.fill")
+                    Image(systemName: "hand.thumbsup.fill")
                     Text("Liked Songs")
                 }
-            
+            }
+            else{
+                NavigationView{
+                    ImportView()
+                }
+                .tabItem {
+                    Image(systemName: "arrow.down.doc.fill")
+                    Text("Import")
+                }
+            }
             
             // Profile Tab
                 NavigationView {

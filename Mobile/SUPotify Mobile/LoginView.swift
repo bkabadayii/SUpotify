@@ -102,8 +102,6 @@ struct LoginView: View {
                             request.httpMethod = "POST"
                             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                             request.addValue("application/json", forHTTPHeaderField: "Accept")
-                         //   request.setValue( "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NDE3YTNjZDg3YzQ4YzY0OWFjNGYzYSIsImlhdCI6MTY5OTY4OTU2MiwiZXhwIjoxNjk5OTQ4NzYyfQ.mG2q3PFNvcQ9wv9avIFmOAf7FTpmMVaJKRG5jztV96s", forHTTPHeaderField: "Authorization")
-                            
                             
                             do {
                                 request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
@@ -119,15 +117,20 @@ struct LoginView: View {
                                         // print("Response JSON: \(String(data: data, encoding: .utf8) ?? "No data")") for debug purposes
                                         
                                         let result = try JSONDecoder().decode(LoginResponse.self, from: data)
-                                        
+                                        SessionManager.shared.loginResponse = result
+                                        SessionManager.shared.token = result.token
                                         
                                         if let success = result.success, success{
                                             if let userDetails = result.userDetails {
-                                                if(result.token != nil) {
+                                                if(!result.token.isEmpty) {
+
                                                     self.isLoggedin = true
                                                     print("Login successful")
                                                     print("User email: \(userDetails.email)")
                                                     print("User username: \(userDetails.username)")
+                                                    print("Token: \(result.token)")
+                                                    
+                                                    
                                                 }
                                             }
                                             else {
@@ -215,7 +218,7 @@ struct LoginResponse: Codable {
     let message: String
     let success: Bool?
     let userDetails: User?
-    let token: String?
+    let token: String
 }
 
 struct BackgroundView3: View {
