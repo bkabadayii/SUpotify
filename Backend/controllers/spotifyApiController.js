@@ -199,7 +199,9 @@ module.exports.searchFromSpotify = async (req, res) => {
                             artists: item.artists.map((artist) => artist.name),
                             albumName: item.album.name,
                             albumID: item.album.id,
-                            image: item.album.images[0].url,
+                            image: item.album.images[0]
+                                ? item.album.images[0].url
+                                : null,
                         };
                     }),
 
@@ -208,7 +210,7 @@ module.exports.searchFromSpotify = async (req, res) => {
                             name: item.name,
                             id: item.id,
                             artists: item.artists.map((artist) => artist.name),
-                            image: item.images[0].url,
+                            image: item.images[0] ? item.images[0].url : null,
                         };
                     }),
 
@@ -216,7 +218,7 @@ module.exports.searchFromSpotify = async (req, res) => {
                         return {
                             name: item.name,
                             id: item.id,
-                            image: item.images[0].url,
+                            image: item.images[0] ? item.images[0].url : null,
                         };
                     }),
                 };
