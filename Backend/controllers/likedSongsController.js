@@ -1,4 +1,6 @@
 const LikedSongs = require("../models/likedSongsModel");
+const Track = require("../models/trackModel");
+const { getAlbumWithSpotifyID } = require("../operations/addAlbum");
 
 module.exports.createLikedSongsForUser = async (req, res) => {
     try {
@@ -67,6 +69,66 @@ module.exports.addToUserLikedSongs = async (req, res) => {
 
         res.status(201).json({
             message: `Added songID: ${songID}, to liked songs of user: ${username}`,
+            success: true,
+        });
+    } catch (err) {
+        console.error(err);
+        return res
+            .status(500)
+            .json({ message: "Internal Server Error", success: false });
+    }
+};
+
+// Adds a song to user liked songs by track spotify id and album spotify id
+module.exports.addToUserLikedSongsBySpotifyID = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get songID from request body
+        const { spotifyID, albumSpotifyID } = req.body;
+        let existingUserLikedSongs = await LikedSongs.findOne({ username });
+
+        // If liked songs list is not initialized for user, throw error
+        if (!existingUserLikedSongs) {
+            return res.json({
+                message: "User liked songs does not exist!",
+                success: false,
+            });
+        }
+
+        // If user already liked the song with songID, throw error
+        const duplicate = (
+            await existingUserLikedSongs.populate("likedSongsList")
+        ).likedSongsList.find(
+            (existingSong) => spotifyID === existingSong.spotifyID
+        );
+
+        if (duplicate) {
+            return res.json({
+                message: "Song already exists in user liked songs!",
+                success: false,
+            });
+        }
+
+        // Check if the song is in database
+        let existingTrackID = await Track.findOne({ spotifyID });
+        // If not, add its album to the database
+        if (!existingTrackID) {
+            const albumID = await getAlbumWithSpotifyID(albumSpotifyID, false);
+            if (!albumID) {
+                throw new Error("Error in spotify request!!");
+            }
+            // Set track ID again after it is added.
+            existingTrackID = await Track.findOne({ spotifyID });
+        }
+
+        existingUserLikedSongs.likedSongsList.push(existingTrackID);
+        await existingUserLikedSongs.save();
+
+        res.status(201).json({
+            message: `Added track with spotify ID: ${spotifyID}, to liked songs of user: ${username}`,
             success: true,
         });
     } catch (err) {

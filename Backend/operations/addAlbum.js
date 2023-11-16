@@ -95,7 +95,80 @@ const getTrack = async (spotifyID, albumID) => {
     }
 };
 
-// Adds an album to the database
+// Returns an album if it exists in the database, else, adds it and returns.
+// Returns the Album ID.
+// Returns null if there is an error getting the album.
+// If you already know that the album does not exist in database, set checkExistance = false
+module.exports.getAlbumWithSpotifyID = async (spotifyID, checkExistance) => {
+    try {
+        // Return if the album exist in database
+        if (checkExistance) {
+            const existingAlbum = await Album.findOne({ spotifyID });
+            if (existingAlbum) {
+                return existingAlbum._id;
+            }
+        }
+
+        const albumInformation = await getAlbumFromSpotify(spotifyID);
+        if (!albumInformation) {
+            return;
+        }
+
+        const {
+            name,
+            releaseDate,
+            totalTracks,
+            genres,
+            albumArtists,
+            trackIDs,
+            spotifyURL,
+            imageURL,
+        } = albumInformation;
+
+        // Check if artists exist in database, if they do not exist, add them to the database
+        let artists = [];
+        for (let i = 0; i < albumArtists.length; i++) {
+            const artistSpotifyID = albumArtists[i].artistID;
+            const artistID = await getArtist(artistSpotifyID);
+            if (artistID) {
+                artists.push(artistID);
+            }
+        }
+
+        // Initialize the album
+        const newAlbum = await Album.create({
+            name,
+            releaseDate,
+            totalTracks,
+            genres,
+            artists,
+            tracks: [],
+            spotifyID,
+            spotifyURL,
+            imageURL,
+        });
+
+        // Add all tracks in the album
+        const albumID = newAlbum._id;
+        for (let i = 0; i < trackIDs.length; i++) {
+            const trackSpotifyID = trackIDs[i];
+            const trackID = await getTrack(trackSpotifyID, albumID);
+            if (trackID) {
+                newAlbum.tracks.push(trackID);
+            }
+        }
+
+        newAlbum._id = albumID;
+        await newAlbum.save();
+
+        return newAlbum._id;
+    } catch (err) {
+        console.error(err);
+        return;
+    }
+};
+
+// Adds an album to the database, designed to be endpoint
 module.exports.addNewAlbum = async (req, res) => {
     try {
         const { spotifyID } = req.body;
