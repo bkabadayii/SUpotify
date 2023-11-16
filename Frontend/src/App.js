@@ -6,6 +6,7 @@ import Signup from './Signup';
 import ProtectedRoute from './ProtectedRoute';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import LikedSongs from './LikedSongs';
+import MyProfile from './MyProfile';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -36,6 +37,9 @@ const App = () => {
             </Route>
             <Route path='/likedsongs'>
               <LikedSongs />
+            </Route>
+            <Route path='/myprofile'>
+              <MyProfile />
             </Route>
           </Switch>
         </div>
