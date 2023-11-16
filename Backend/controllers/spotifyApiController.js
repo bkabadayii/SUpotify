@@ -172,3 +172,66 @@ module.exports.getArtistFromSpotify = async (spotifyID) => {
         return null;
     }
 };
+
+module.exports.searchFromSpotify = async (req, res) => {
+    try {
+        // Get Spotify access token from environment variables
+        const spotifyToken = process.env.SPOTIFY_TOKEN;
+
+        const { searchTerm } = req.params;
+        const data = await axios
+            .get(`https://api.spotify.com/v1/search`, {
+                params: {
+                    q: searchTerm,
+                    type: "album,artist,track",
+                    limit: 5,
+                },
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+            })
+            .then((response) => {
+                const data = {
+                    Tracks: response.data.tracks.items.map((item) => {
+                        return {
+                            name: item.name,
+                            id: item.id,
+                            artists: item.artists.map((artist) => artist.name),
+                            albumName: item.album.name,
+                            albumID: item.album.id,
+                            image: item.album.images[0].url,
+                        };
+                    }),
+
+                    Albums: response.data.albums.items.map((item) => {
+                        return {
+                            name: item.name,
+                            id: item.id,
+                            artists: item.artists.map((artist) => artist.name),
+                            image: item.images[0].url,
+                        };
+                    }),
+
+                    Artists: response.data.artists.items.map((item) => {
+                        return {
+                            name: item.name,
+                            id: item.id,
+                            image: item.images[0].url,
+                        };
+                    }),
+                };
+                return data;
+            });
+        res.status(201).json({
+            message: "Search results returned successfully",
+            success: true,
+            data: data,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Internal Server Error",
+            success: false,
+        });
+    }
+};

@@ -66,7 +66,7 @@ async function startServer() {
         app.use("/api/album", addAlbumRoute);
         app.use("/api/search", searchRoute);
 
-        app.use("/getFromSpotify", spotifyApiRoute);
+        app.use("/api/getFromSpotify", spotifyApiRoute);
 
         // ----- Controllers -----
 
