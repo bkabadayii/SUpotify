@@ -159,7 +159,7 @@ module.exports.removeFromUserLikedSongs = async (req, res) => {
 
         // If user have not liked the song with songID, throw error
         const existingSongID = existingUserLikedSongs.likedSongsList.find(
-            (existingSongID) => songID === existingSongID
+            (existingSongID) => songID === String(existingSongID)
         );
 
         if (!existingSongID) {
