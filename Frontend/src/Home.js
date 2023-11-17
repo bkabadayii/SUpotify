@@ -2,6 +2,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import './Home.css'; // Ensure you have this CSS file in the same directory as your Home.js
+import SearchBar from './SearchBar';
 
 const Home = () => {
   const history = useHistory();
@@ -38,6 +39,9 @@ const Home = () => {
 
   return (
     <div className="home-container">
+      <div>
+        <SearchBar />
+      </div>
       <div className="card" style={cardStyle} onClick={goToLikedSongs}>
         <div style={cardContentStyle}>
           <h2>Liked Songs</h2>

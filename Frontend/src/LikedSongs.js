@@ -216,10 +216,22 @@ const LikedSongs = () => {
       <p></p>
       <ul>
         {likedSongs.map((song) => (
-        <li key={song._id} className="liked-song-item">
-        <span className="liked-song-name">{song.name} by {song.artists.map(artist => artist.name).join(', ')}</span>
-        <button onClick={() => removeFromLikedSongs(song._id)} className="dislike-button">Dislike</button>
-        </li>
+          <li key={song._id} className="liked-song-item">
+            <img
+              src={song.album.imageURL}
+              alt={`Album cover for ${song.album.name}`}
+              className="album-cover" // Add this class if you want to style the images
+            />
+            <span className="liked-song-name">
+              {song.name} by {song.artists.map(artist => artist.name).join(', ')}
+            </span>
+            <button
+              onClick={() => removeFromLikedSongs(song._id)}
+              className="dislike-button"
+            >
+              Dislike
+            </button>
+          </li>
         ))}
       </ul>
     </div>

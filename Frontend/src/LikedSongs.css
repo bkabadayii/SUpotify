@@ -92,3 +92,11 @@
   border-color: rgb(37, 27, 106); /* Changes border color to purple when focused */
   box-shadow: 0 0 0 2px rgba(37, 27, 106, 0.2); /* Adds a glow effect when focused */
 }
+
+.album-cover {
+  width: 50px; /* Adjust the width as needed */
+  height: 50px; /* Adjust the height as needed */
+  object-fit: cover; /* This ensures the image covers the area without distortion */
+  border-radius: 4px; /* Optional: Adds rounded corners to the image */
+  margin-right: 10px; /* Adds some space between the image and the song name */
+}
