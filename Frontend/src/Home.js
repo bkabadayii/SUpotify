@@ -1,11 +1,14 @@
 // Home.js
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import './Home.css'; // Ensure you have this CSS file in the same directory as your Home.js
-import SearchBar from './SearchBar';
+import './Home.css';
 
 const Home = () => {
   const history = useHistory();
+
+  const goToSearch = () => {
+    history.push('/search');
+  };
 
   const goToLikedSongs = () => {
     history.push('/likedsongs');
@@ -39,9 +42,12 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <div>
-        <SearchBar />
+      <div className="card" style={cardStyle} onClick={goToSearch}>
+        <div style={cardContentStyle}>
+          <h2>Search</h2>
+        </div>
       </div>
+  
       <div className="card" style={cardStyle} onClick={goToLikedSongs}>
         <div style={cardContentStyle}>
           <h2>Liked Songs</h2>

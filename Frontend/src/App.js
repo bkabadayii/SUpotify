@@ -7,6 +7,7 @@ import ProtectedRoute from './ProtectedRoute';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import LikedSongs from './LikedSongs';
 import MyProfile from './MyProfile';
+import SearchBar from './SearchBar';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -40,6 +41,9 @@ const App = () => {
             </Route>
             <Route path='/myprofile'>
               <MyProfile />
+            </Route>
+            <Route exact path='/search'>
+              <SearchBar />
             </Route>
           </Switch>
         </div>

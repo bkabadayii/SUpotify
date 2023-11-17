@@ -1,0 +1,38 @@
+.main-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.profile-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.profile-photo img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgb(37, 27, 106);
+}
+
+.profile-info {
+  text-align: center;
+}
+
+.playlists-container {
+  flex: 1;
+  padding: 20px;
+}
+
+.playlist-item {
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
