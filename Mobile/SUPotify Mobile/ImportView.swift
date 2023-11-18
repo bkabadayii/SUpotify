@@ -16,13 +16,13 @@ struct ImportView: View {
     @State var isRotated = false
     @State private var arrowOffset: CGFloat = 0
     //@State private var token: String?
-
+    
     //init(token: String?){
     //    self.token = SessionManager.shared.loginResponse?.token
     //}
     
     var body: some View {
-    
+        
         
         ZStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/) {
             BackgroundView()
@@ -55,53 +55,53 @@ struct ImportView: View {
                 HStack{
                     Image(systemName: "square.and.arrow.down")
                     Button("Import Your Liked Songs") {
-                    importing = true
+                        importing = true
+                    }
                 }
+                .padding()
+                .font(.headline)
+                .foregroundColor(.white.opacity(0.90))
+                .frame(width: 300, height: 50)
+                .background(Color.black.opacity(0.50))
+                .cornerRadius(10)
+                .alert(isPresented: $isError, content: {
+                    Alert(
+                        title: Text("Importing Failed"),
+                        message: Text("Something went wrong while uploading the file. Please check the file type and try again"),
+                        dismissButton: .default(Text("OK"))
+                    )
+                })
+                .fileImporter(
+                    isPresented: $importing,
+                    allowedContentTypes: [.plainText]
+                ) { result in
+                    switch result {
+                    case .success(let file):
+                        print(file.absoluteString)
+                        handleImportedFile(fileURL: file)
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                        isError = true
+                    }
                 }
-             .padding()
-             .font(.headline)
-             .foregroundColor(.white.opacity(0.90))
-             .frame(width: 300, height: 50)
-             .background(Color.black.opacity(0.50))
-             .cornerRadius(10)
-             .alert(isPresented: $isError, content: {
-                 Alert(
-                     title: Text("Importing Failed"),
-                     message: Text("Something went wrong while uploading the file. Please check the file type and try again"),
-                     dismissButton: .default(Text("OK"))
-                 )
-             })
-             .fileImporter(
-             isPresented: $importing,
-             allowedContentTypes: [.plainText]
-             ) { result in
-             switch result {
-             case .success(let file):
-                 print(file.absoluteString)
-                 handleImportedFile(fileURL: file)
-             case .failure(let error):
-                 print(error.localizedDescription)
-                 isError = true
-            }
-             }
                 Text(" ")
                 Text("Please provide a .csv or .txt file that includes the song ids")
                     .font(.caption)
                     .opacity(0.6)
-                    
+                
                 if isAdded {
-                        Image(systemName: "checkmark.circle.fill")
-                              .font(.system(size: 80))
-                              .foregroundColor(.green)
-                              .onAppear {
-                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                      isAdded = false
-                                  }
-                              }
-                      }
-            Text(" ")
-            Text(" ")
-            Image(systemName: "arrowshape.up.fill")
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(.green)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                isAdded = false
+                            }
+                        }
+                }
+                Text(" ")
+                Text(" ")
+                Image(systemName: "arrowshape.up.fill")
                     .font(.largeTitle)
                     .padding(20)
                     .offset(y: arrowOffset)
@@ -110,11 +110,11 @@ struct ImportView: View {
                             arrowOffset = -20
                         }
                     }
-             Spacer()
-             }
-        }
+                Spacer()
+            }
         }
     }
+}
 
 #Preview {
     ImportView()
@@ -128,7 +128,7 @@ func read(from url: URL) throws -> String {
             url.stopAccessingSecurityScopedResource()
         }
     }
-
+    
     return try String(contentsOf: url)
 }
 
@@ -136,9 +136,9 @@ private func handleImportedFile(fileURL: URL) {
     do {
         let content = try read(from: fileURL)
         let songIDs = content
-                .components(separatedBy: "\n")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } // Trim whitespace and newlines
-                .filter { !$0.isEmpty } // Filter out any empty strings
+            .components(separatedBy: "\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } // Trim whitespace and newlines
+            .filter { !$0.isEmpty } // Filter out any empty strings
         addSongsToLikedSongs(songIDs: songIDs)
     }
     catch {
@@ -157,7 +157,7 @@ private func addSongsToLikedSongs(songIDs: [String]) {
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue( "Bearer \(token)", forHTTPHeaderField: "Authorization")
-
+    
     let parameters: [String: Any] = ["songIDList": songIDs]
     
     do {
@@ -169,7 +169,7 @@ private func addSongsToLikedSongs(songIDs: [String]) {
         print("Error encoding parameters: \(error)")
         return
     }
-
+    
     URLSession.shared.dataTask(with: request) { data, response, error in
         if let error = error {
             print("Error making network request: \(error)")

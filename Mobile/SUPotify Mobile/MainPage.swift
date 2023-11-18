@@ -14,40 +14,30 @@ struct MainMenu: View {
         TabView {
             // Tab 1
             Text("Home page")
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Home")
-                }
-            
-            // Tab 2
+            .tabItem {
+                Image(systemName: "house.fill")
+                Text("Home")
+            }
+
             Text("Search")
-                .tabItem {
-                    Image(systemName: "magnifyingglass")
-                    Text("Tab 2")
-                }
-            
-            NavigationView{
-                ForYouView()
+            .tabItem {
+                Image(systemName: "magnifyingglass")
+                Text("Tab 2")
             }
-                .tabItem {
-                    Image(systemName: "heart.fill")
-                    Text("For You")
-                }
-            
-            
-            NavigationView {
-                LikedSongsView()
+
+            ForYouView()
+            .tabItem {
+                Image(systemName: "heart.fill")
+                Text("For You")
             }
-            
+
+            LikedSongsV2()
             .tabItem {
                 Image(systemName: "hand.thumbsup.fill")
                 Text("Liked Songs")
             }
             
-            // Profile Tab
-            NavigationView {
-                Profile()
-            }
+            Profile()
             .tabItem {
                 Image(systemName: "person.crop.circle.fill")
                 Text("Profile")

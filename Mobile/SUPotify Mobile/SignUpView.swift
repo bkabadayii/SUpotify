@@ -58,7 +58,7 @@ struct SignUpView: View {
         
                 
                 ZStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, content: {
-                    BackgroundVieww()
+                    BackgroundView3()
                     VStack{
                         Circle()
                             .strokeBorder(AngularGradient(gradient: Gradient(
@@ -89,17 +89,20 @@ struct SignUpView: View {
                             .padding()
                             .frame(width: 300, height: 50)
                             .background(Color.black.opacity(0.50))
+                            .autocapitalization(.none)
                             .cornerRadius(10)
                         TextField("Username", text: $username)
                             .padding()
                             .frame(width: 300, height: 50)
                             .background(Color.black.opacity(0.50))
+                            .autocapitalization(.none)
                             .cornerRadius(10)
                         
                         SecureField("Password", text: $password)
                             .padding()
                             .frame(width: 300, height: 50)
                             .background(Color.black.opacity(0.50))
+                            .autocapitalization(.none)
                             .cornerRadius(10)
                         
                         if let errorMessage = errorMessage {
@@ -139,13 +142,4 @@ struct SignUpView: View {
 #Preview {
     SignUpView()
         .preferredColorScheme(.dark)
-}
-
-
-struct BackgroundVieww: View {
-    var body: some View {
-        LinearGradient(colors: [.blue, .indigo, .blue, .indigo, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
-            .opacity(0.6)
-            .ignoresSafeArea()
-    }
 }

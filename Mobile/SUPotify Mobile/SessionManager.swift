@@ -12,8 +12,10 @@ class SessionManager {
     static let shared = SessionManager()
     var loginResponse: LoginResponse?
     var token: String
+    var username: String
 
     private init() {
         self.token = ""
+        self.username = ""
     } // Private initialization to ensure just one instance is created.
 }

@@ -120,8 +120,10 @@ struct LoginView: View {
                                         SessionManager.shared.loginResponse = result
                                         SessionManager.shared.token = result.token
                                         
+                                        
                                         if let success = result.success, success{
                                             if let userDetails = result.userDetails {
+                                                
                                                 if(!result.token.isEmpty) {
 
                                                     self.isLoggedin = true
@@ -130,7 +132,7 @@ struct LoginView: View {
                                                     print("User username: \(userDetails.username)")
                                                     print("Token: \(result.token)")
                                                     
-                                                    
+                                                    SessionManager.shared.username = userDetails.username
                                                 }
                                             }
                                             else {
