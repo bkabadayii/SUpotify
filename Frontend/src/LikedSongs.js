@@ -151,26 +151,25 @@ const LikedSongs = () => {
 
   const removeFromLikedSongs = async (songId) => {
     try {
-      const response = await axios.post(
+      const response = await axios.delete(
         'http://localhost:4000/api/likedSongs/removeFromUserLikedSongs',
-        { songID: songId },
         {
+          data : {
+            songID: songId, 
+          },
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
   
-      console.log('Response:', response.data);
+      console.log('Response:', response);
   
       // Check if the removal was successful
-      if (response.data.success) {
+      if (response.data.message) {
         // Update the UI by filtering out the removed song
-        const updatedSongs = likedSongs.filter((song) => song._id !== songId);
-        setLikedSongs(updatedSongs);
         alert('Successfully removed from liked songs.');
       } else {
-        console.error('Failed to remove the song:', response.data.message);
         alert('Failed to remove the song.');
       }
     } catch (error) {
