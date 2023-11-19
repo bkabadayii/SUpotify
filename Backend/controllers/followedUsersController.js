@@ -95,7 +95,7 @@ module.exports.removeFromUserFollowedUsers = async (req, res) => {
             });
         }
 
-        // If user have not liked the song with songID, throw error
+        // If user have not followed the user, throw error
         const existingFollowedUsername = existingUserFollowedUsers.followedUsersList.find(
             (existingFollowedUsername) => followedUsername === String(existingFollowedUsername)
         );
@@ -108,10 +108,10 @@ module.exports.removeFromUserFollowedUsers = async (req, res) => {
             });
         }
 
-        // If there are no errors, remove the song from liked songs list
+        // If there are no errors, remove the user from followed users list
         const updatedFollowedUsers = await FollowedUsers.findOneAndUpdate(
             { username: username },
-            { $pull: { followedUsersList: followedUsername } }, // Pulling item from the liked songs list
+            { $pull: { followedUsersList: followedUsername } }, // Pulling item from the followed users list
             { new: true }
         );
 
