@@ -19,7 +19,7 @@ struct MainMenu: View {
                 Text("Home")
             }
 
-            Text("Search")
+            SearchView()
             .tabItem {
                 Image(systemName: "magnifyingglass")
                 Text("Tab 2")

@@ -232,17 +232,3 @@ struct BackgroundView3: View {
     }
 }
 
-
-func loadAPIToken() {
-    do {
-        if let path = Bundle.main.path(forResource: "Config", ofType: "plist"),
-            let configDict = try PropertyListSerialization.propertyList(from: Data(contentsOf: URL(fileURLWithPath: path)), options: [], format: nil) as? [String: Any],
-            let apiToken = configDict["APIToken"] as? String {
-                print("API Token: \(apiToken)")
-        }
-       
-    } catch {
-        print("Error reading Config.plist: \(error)")
-    }
-
-}
