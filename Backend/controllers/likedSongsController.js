@@ -1,6 +1,7 @@
 const LikedSongs = require("../models/likedSongsModel");
 const Track = require("../models/trackModel");
 const { getAlbumWithSpotifyID } = require("../operations/addAlbum");
+const { addCustomTrack } = require("./tracksController");
 
 module.exports.createLikedSongsForUser = async (req, res) => {
     try {
@@ -129,6 +130,62 @@ module.exports.addToUserLikedSongsBySpotifyID = async (req, res) => {
 
         res.status(201).json({
             message: `Added track with spotify ID: ${spotifyID}, to liked songs of user: ${username}`,
+            success: true,
+        });
+    } catch (err) {
+        console.error(err);
+        return res
+            .status(500)
+            .json({ message: "Internal Server Error", success: false });
+    }
+};
+
+/*
+body: {
+    trackName: String
+    albumName: String
+    by: "name" or "id"
+    artists: [String] if by === "name"
+    artists: [ObjectID] if by === "id"
+}
+*/
+module.exports.addCustomToUserLikedSongs = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get necessary variables from request body
+        const { trackName, albumName, artists, by } = req.body;
+        let existingUserLikedSongs = await LikedSongs.findOne({ username });
+
+        // If liked songs list is not initialized for user, throw error
+        if (!existingUserLikedSongs) {
+            return res.json({
+                message: "User liked songs does not exist!",
+                success: false,
+            });
+        }
+
+        // If there are no errors, add track to user's liked songs list
+        const newTrackId = await addCustomTrack(
+            trackName,
+            albumName,
+            artists,
+            by
+        );
+        if (!newTrackId) {
+            return res.json({
+                message: "Cannot add custom track to user's liked songs list!",
+                success: false,
+            });
+        }
+
+        existingUserLikedSongs.likedSongsList.push(newTrackId);
+        await existingUserLikedSongs.save();
+
+        res.status(201).json({
+            message: `Added custom song to liked songs of user: ${username}`,
             success: true,
         });
     } catch (err) {
