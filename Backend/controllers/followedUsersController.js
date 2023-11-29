@@ -1,4 +1,5 @@
 const FollowedUsers = require("../models/followedUsersModel");
+const User =require("../models/userModel")
 
 module.exports.createFollowedUsersForUser = async (req, res) => {
     try {
@@ -40,6 +41,38 @@ module.exports.addToUserFollowedUsers = async (req, res) => {
         // Get followedUsername from request body
         const { followedUsername } = req.body;
         let existingUserFollowedUsers = await FollowedUsers.findOne({ username });
+
+        const checkUsernameExists = async (usernameToCheck) => {
+            try {
+                const existingUser = await User.findOne({ username: usernameToCheck });
+        
+                if (existingUser) {
+                    return true; //User exists in database
+                } else {;
+                    return false; //User does not exists in database
+                }
+            } catch (error) {
+                console.error('Error occurred while checking username:', error);
+                return false;
+            }
+        };
+        const exists = await checkUsernameExists(followedUsername);
+
+        // If given username does not exist in database, throw error
+        if (!exists){
+            return res.json({
+                message: "This user does not exist!",
+                success: false,
+            });
+        } 
+
+        // If given username is same with the users name, throw error
+        if (followedUsername==username){
+            return res.json({
+                message: "Username cannot be the users username!",
+                success: false,
+            });
+        }
 
         // If followed users list is not initialized for user, throw error
         if (!existingUserFollowedUsers) {
@@ -122,6 +155,39 @@ module.exports.removeFromUserFollowedUsers = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({
+            message: "Internal Server Error",
+            success: false,
+        });
+    }
+};
+
+module.exports.getAllFollowedUsersForUser = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Find the user's followed users list
+        const existingUserFollowedUsers = await FollowedUsers.findOne({ username });
+
+        // Check if the Followed Users List is initialized or not
+        if (!existingUserFollowedUsers) {
+            return res.json({
+                message: "User followed users list does not exist!",
+                success: false,
+            });
+        }
+
+        const followedUsers = existingUserFollowedUsers.followedUsersList;
+
+        res.status(200).json({
+            message: "Retrieved followed users successfully",
+            success: true,
+            followedUsers,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
             message: "Internal Server Error",
             success: false,
         });
