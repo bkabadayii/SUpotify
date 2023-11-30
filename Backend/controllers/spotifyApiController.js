@@ -173,6 +173,52 @@ module.exports.getArtistFromSpotify = async (spotifyID) => {
     }
 };
 
+// Looks for exact matches from spotify by trackName, albumName and artistName
+// Cannot be used directly. It is used via file import
+module.exports.exactSearchFromSpotify = async (
+    trackName,
+    albumName,
+    artistName
+) => {
+    try {
+        // Get Spotify access token from environment variables
+        const spotifyToken = process.env.SPOTIFY_TOKEN;
+        const data = await axios
+            .get(`https://api.spotify.com/v1/search`, {
+                params: {
+                    q: `track:${trackName} album:${albumName} artist:${artistName}`,
+                    type: "track",
+                    limit: 5,
+                },
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+            })
+            .then((response) => {
+                const data = {
+                    Tracks: response.data.tracks.items.map((item) => {
+                        return {
+                            name: item.name,
+                            id: item.id,
+                            artists: item.artists.map((artist) => artist.name),
+                            albumName: item.album.name,
+                            albumID: item.album.id,
+                            image: item.album.images[0]
+                                ? item.album.images[0].url
+                                : null,
+                        };
+                    }),
+                };
+                return data;
+            });
+        return data;
+    } catch (err) {
+        console.log("Error in exactSearchFromSpotify!");
+        console.log(err);
+        return null;
+    }
+};
+
 module.exports.searchFromSpotify = async (req, res) => {
     try {
         // Get Spotify access token from environment variables
