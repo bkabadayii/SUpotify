@@ -266,8 +266,8 @@ module.exports.getLikedSongsForUser = async (req, res) => {
         const populatedLikedSongs = await (
             await (
                 await existingUserLikedSongs.populate("likedSongsList")
-            ).populate("likedSongsList.artists")
-        ).populate("likedSongsList.album");
+            ).populate("likedSongsList.artists", "name")
+        ).populate("likedSongsList.album", ["name", "imageURL"]);
         res.status(200).json({
             message: "Retrieved liked songs successfully",
             success: true,
