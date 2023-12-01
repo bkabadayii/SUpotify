@@ -15,7 +15,8 @@ const authRoute = require("./routes/authRoute"); // route for the authentication
 const likedSongsRoute = require("./routes/likedSongsRoute");
 const spotifyApiRoute = require("./routes/spotifyApiRoute");
 const addAlbumRoute = require("./routes/addAlbumRoute");
-const followedUsersRoute= require("./routes/followedUsersRoute");
+const followedUsersRoute = require("./routes/followedUsersRoute");
+const playlistRoute = require("./routes/playlistRoute");
 // ----- Routes -----
 
 console.log("Starting SUpotify...");
@@ -64,7 +65,8 @@ async function startServer() {
         app.use("/api/likedSongs", likedSongsRoute);
         app.use("/api/default", defaultRouter);
         app.use("/api/album", addAlbumRoute);
-        app.use("/api/followedUsers",followedUsersRoute);
+        app.use("/api/followedUsers", followedUsersRoute);
+        app.use("/api/playlists", playlistRoute);
 
         app.use("/api/getFromSpotify", spotifyApiRoute);
 
