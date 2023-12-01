@@ -12,7 +12,7 @@ const playlistSchema = new Schema({
         required: true,
         ref: "User",
     },
-    trackList: [
+    tracks: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Track",
