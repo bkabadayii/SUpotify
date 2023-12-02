@@ -96,7 +96,6 @@ module.exports.addNewRating = async (req, res) => {
                 success: false,
             });
         }
-
         // Check if ID and ratingType is valid
         let existingEntry;
         if (ratingType === "TRACK") {
@@ -154,25 +153,29 @@ module.exports.addNewRating = async (req, res) => {
         if (ratingType === "TRACK") {
             existingUserToRatings.trackRatings.push({
                 track: relatedID,
-                rating,
+                rating: rating.toFixed(1),
                 ratedAt: new Date(),
             });
         } else if (ratingType === "ALBUM") {
             existingUserToRatings.albumRatings.push({
                 album: relatedID,
-                rating,
+                rating: rating.toFixed(1),
                 ratedAt: new Date(),
             });
         } else if (ratingType === "ARTIST") {
             existingUserToRatings.artistRatings.push({
                 artist: relatedID,
-                rating,
+                rating: rating.toFixed(1),
                 ratedAt: new Date(),
             });
         }
 
         // Add rating entry in Rating model
-        allRatings.ratings.push({ username, rating, ratedAt: new Date() });
+        allRatings.ratings.push({
+            username,
+            rating: rating.toFixed(1),
+            ratedAt: new Date(),
+        });
 
         // Save database
         const updatedUserToRatings = await existingUserToRatings.save();
@@ -284,6 +287,214 @@ module.exports.deleteRating = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ message: "Delete Rating!" });
+        return res.status(500).json({ message: "Delete Rating Failed!" });
+    }
+};
+
+// In order for a user to change their rating
+// ratingType is "TRACK" or "ALBUM" or "ARTIST"
+// relatedID is the id of the track / album / artist
+/*
+    body: {
+        ratingType: String,
+        relatedID: ObjectID,
+        rating: Number
+    }
+*/
+module.exports.updateRating = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        const { ratingType, relatedID, rating } = req.body;
+
+        if (
+            ratingType !== "TRACK" &&
+            ratingType !== "ALBUM" &&
+            ratingType !== "ARTIST"
+        ) {
+            return res.json({
+                message: "Invalid Rating Type!",
+                success: false,
+            });
+        }
+        // Get userToRatings
+        const existingUserToRatings = await UserToRatings.findOne({
+            username,
+        });
+
+        if (!existingUserToRatings) {
+            return res.json({
+                message: "Ratings for this user does not exist",
+                success: false,
+            });
+        }
+
+        // Get rating information for the track / album / artist
+        let allRatings = await Rating.findOne({ ratingType, relatedID });
+        // If it does not exist throw error
+        if (!allRatings) {
+            return res.json({
+                message: `Ratings does not exist for this ${ratingType}`,
+                success: false,
+            });
+        }
+
+        // Check if user already rated
+        const userRating = allRatings.ratings.find(
+            (rating) => rating.username === username
+        );
+        if (!userRating) {
+            return res.json({
+                message: "Cannot update rating: user has not rated",
+                success: false,
+            });
+        }
+        // Update in user's ratings
+        let updatedUserToRatings;
+        if (ratingType === "TRACK") {
+            updatedUserToRatings = await UserToRatings.findOneAndUpdate(
+                { username: username, "trackRatings.track": relatedID },
+                {
+                    $set: {
+                        "trackRatings.$.rating": rating.toFixed(1),
+                        "trackRatings.$.ratedAt": new Date(),
+                    },
+                },
+                { new: true }
+            );
+        } else if (ratingType === "ALBUM") {
+            updatedUserToRatings = await UserToRatings.findOneAndUpdate(
+                { username: username, "albumRatings.album": relatedID },
+                {
+                    $set: {
+                        "albumRatings.$.rating": rating.toFixed(1),
+                        "albumRatings.$.ratedAt": new Date(),
+                    },
+                },
+                { new: true }
+            );
+        } else if (ratingType === "ARTIST") {
+            updatedUserToRatings = await UserToRatings.findOneAndUpdate(
+                { username: username, "artistRatings.artist": relatedID },
+                {
+                    $set: {
+                        "artistRatings.$.rating": rating.toFixed(1),
+                        "artistRatings.$.ratedAt": new Date(),
+                    },
+                },
+                { new: true }
+            );
+        }
+        // Update in all ratings
+        const updatedAllRatings = await Rating.findOneAndUpdate(
+            { ratingType, relatedID, "ratings.username": username },
+            {
+                $set: {
+                    "ratings.$.rating": rating.toFixed(1),
+                    "ratings.$.ratedAt": new Date(),
+                },
+            },
+            { new: true }
+        );
+
+        res.status(201).json({
+            message: "Updated rating successfully",
+            success: true,
+            updatedUserToRatings,
+            updatedAllRatings,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Update Rating Failed!" });
+    }
+};
+
+// In order for a user to get rating information of a track / album / artist
+// ratingType is "TRACK" or "ALBUM" or "ARTIST"
+// relatedID is the id of the track / album / artist
+/*
+    params: {
+        ratingType: String,
+        relatedID: ObjectID,
+    }
+    returns: {
+        selfRating: Number,
+        averageRating: Number,
+        numUsersRated: Number
+        -- planned --
+        friendRatings: [{username: String, rating: Number}]
+        friendsAverageRating: Number (-1 if no friends rated)
+        -- planned -- 
+    }
+*/
+
+module.exports.getRatingInfo = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        const { ratingType, relatedID } = req.params;
+
+        if (
+            ratingType !== "TRACK" &&
+            ratingType !== "ALBUM" &&
+            ratingType !== "ARTIST"
+        ) {
+            return res.json({
+                message: "Invalid Rating Type!",
+                success: false,
+            });
+        }
+
+        // Get rating information for the track / album / artist
+        let allRatings = await Rating.findOne({ ratingType, relatedID });
+        // If it does not exist throw error
+        if (!allRatings) {
+            return res.json({
+                message: `Ratings does not exist for this ${ratingType}`,
+                success: false,
+            });
+        }
+
+        // Return information
+        let selfRating;
+        let averageRating;
+        let numUsersRated;
+        /*  --- TODO ---
+        let friendRatings;
+        let friendsAverageRating;
+            --- TODO --- */
+        // Set user's rating
+        const userRating = allRatings.ratings.find(
+            (rating) => rating.username === username
+        );
+        if (userRating) {
+            selfRating = userRating.rating;
+        }
+
+        // Calculate averageRating and numUsersRated
+        numUsersRated = allRatings.ratings.length;
+        if (numUsersRated !== 0) {
+            const ratingSum = allRatings.ratings.reduce(
+                (accumulator, obj) => accumulator + obj["rating"],
+                0
+            );
+            averageRating = ratingSum / numUsersRated;
+        }
+
+        /* TODO: Calculate Friend Ratings */
+        res.status(201).json({
+            message: "Returned rating info successfully",
+            success: true,
+            selfRating,
+            averageRating,
+            numUsersRated,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Get Rating Info Failed!" });
     }
 };
