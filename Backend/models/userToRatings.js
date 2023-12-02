@@ -10,7 +10,7 @@ const userToRatings = new Schema({
     // Lists that keep all ratings of the user
     trackRatings: [
         {
-            trackID: {
+            track: {
                 type: String,
                 ref: "Track",
             },
@@ -20,7 +20,7 @@ const userToRatings = new Schema({
     ],
     albumRatings: [
         {
-            albumID: {
+            album: {
                 type: String,
                 ref: "Album",
             },
@@ -30,7 +30,7 @@ const userToRatings = new Schema({
     ],
     artistRatings: [
         {
-            artistID: {
+            artist: {
                 type: String,
                 ref: "Artist",
             },
