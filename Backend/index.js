@@ -17,6 +17,7 @@ const spotifyApiRoute = require("./routes/spotifyApiRoute");
 const addAlbumRoute = require("./routes/addAlbumRoute");
 const followedUsersRoute = require("./routes/followedUsersRoute");
 const playlistRoute = require("./routes/playlistRoute");
+const ratingRoute = require("./routes/ratingRoute");
 // ----- Routes -----
 
 console.log("Starting SUpotify...");
@@ -67,6 +68,7 @@ async function startServer() {
         app.use("/api/album", addAlbumRoute);
         app.use("/api/followedUsers", followedUsersRoute);
         app.use("/api/playlists", playlistRoute);
+        app.use("/api/ratings", ratingRoute);
 
         app.use("/api/getFromSpotify", spotifyApiRoute);
 
