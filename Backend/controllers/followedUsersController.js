@@ -193,3 +193,54 @@ module.exports.getAllFollowedUsersForUser = async (req, res) => {
         });
     }
 };
+    module.exports.isFriend = async (user1, user2) => {
+        const checkUsernameExists = async (usernameToCheck) => {
+            try {
+                const existingUser = await User.findOne({ username: usernameToCheck });
+        
+                if (existingUser) {
+                    return true; //User exists in database
+                } else {;
+                    return false; //User does not exists in database
+                }
+            } catch (error) {
+                console.error('Error occurred while checking username:', error);
+                return false;
+            }
+        };
+
+        try {
+            const exists1 = await checkUsernameExists(user1);
+            const exists2 = await checkUsernameExists(user2);
+           
+            if (!exists1||!exists2){
+                return {
+                    message: "One of the users does not exist!",
+                    success: false,
+                };
+            } 
+
+            // Check if user1 follows user2
+            const user1FollowsUser2 = await FollowedUsers.findOne({
+                username: user1,
+                followedUsersList: user2,
+            }).lean();
+        
+            // Check if user2 follows user1
+            const user2FollowsUser1 = await FollowedUsers.findOne({
+                username: user2,
+                followedUsersList: user1,
+            }).lean();
+        
+            const followsData = {
+                user1FollowsUser2: !!user1FollowsUser2,
+                user2FollowsUser1: !!user2FollowsUser1,
+                followsEachOther: !!user1FollowsUser2 && !!user2FollowsUser1,
+            };
+        
+            return followsData;
+        } catch (error) {
+            console.error("Error:", error);
+            res.status(500).json({ error: "An error occurred while checking follows." });
+        }
+    };
