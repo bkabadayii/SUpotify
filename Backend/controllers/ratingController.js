@@ -72,6 +72,7 @@ module.exports.getUserToRatings = async (req, res) => {
 };
 
 // Adds a new rating for a given user, ratingType, and relatedID,
+// If user already rated, updates their rating
 // ratingType is "TRACK" or "ALBUM" or "ARTIST"
 // relatedID is the id of the track / album / artist
 /*
@@ -81,7 +82,7 @@ module.exports.getUserToRatings = async (req, res) => {
         rating: Number
     }
 */
-module.exports.addNewRating = async (req, res) => {
+module.exports.rateContent = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
         const user = req.user;
@@ -143,48 +144,91 @@ module.exports.addNewRating = async (req, res) => {
             (rating) => rating.username === username
         );
 
+        // If user already rated, update their rating
+        let updatedUserToRatings;
         if (userRating) {
-            return res.json({
-                message: `User has already rated this ${ratingType}`,
-                success: false,
-            });
-        }
-        // Add rating entry in UserToRatings model
-        if (ratingType === "TRACK") {
-            existingUserToRatings.trackRatings.push({
-                track: relatedID,
-                rating: rating.toFixed(1),
-                ratedAt: new Date(),
-            });
-        } else if (ratingType === "ALBUM") {
-            existingUserToRatings.albumRatings.push({
-                album: relatedID,
-                rating: rating.toFixed(1),
-                ratedAt: new Date(),
-            });
-        } else if (ratingType === "ARTIST") {
-            existingUserToRatings.artistRatings.push({
-                artist: relatedID,
-                rating: rating.toFixed(1),
-                ratedAt: new Date(),
-            });
-        }
+            // Update in user's ratings
+            if (ratingType === "TRACK") {
+                updatedUserToRatings = await UserToRatings.findOneAndUpdate(
+                    { username: username, "trackRatings.track": relatedID },
+                    {
+                        $set: {
+                            "trackRatings.$.rating": rating.toFixed(1),
+                            "trackRatings.$.ratedAt": new Date(),
+                        },
+                    },
+                    { new: true }
+                );
+            } else if (ratingType === "ALBUM") {
+                updatedUserToRatings = await UserToRatings.findOneAndUpdate(
+                    { username: username, "albumRatings.album": relatedID },
+                    {
+                        $set: {
+                            "albumRatings.$.rating": rating.toFixed(1),
+                            "albumRatings.$.ratedAt": new Date(),
+                        },
+                    },
+                    { new: true }
+                );
+            } else if (ratingType === "ARTIST") {
+                updatedUserToRatings = await UserToRatings.findOneAndUpdate(
+                    { username: username, "artistRatings.artist": relatedID },
+                    {
+                        $set: {
+                            "artistRatings.$.rating": rating.toFixed(1),
+                            "artistRatings.$.ratedAt": new Date(),
+                        },
+                    },
+                    { new: true }
+                );
+            }
+            // Update in all ratings
+            const updatedAllRatings = await Rating.findOneAndUpdate(
+                { ratingType, relatedID, "ratings.username": username },
+                {
+                    $set: {
+                        "ratings.$.rating": rating.toFixed(1),
+                        "ratings.$.ratedAt": new Date(),
+                    },
+                },
+                { new: true }
+            );
+        } else {
+            // Else, add rating entry in UserToRatings model
+            if (ratingType === "TRACK") {
+                existingUserToRatings.trackRatings.push({
+                    track: relatedID,
+                    rating: rating.toFixed(1),
+                    ratedAt: new Date(),
+                });
+            } else if (ratingType === "ALBUM") {
+                existingUserToRatings.albumRatings.push({
+                    album: relatedID,
+                    rating: rating.toFixed(1),
+                    ratedAt: new Date(),
+                });
+            } else if (ratingType === "ARTIST") {
+                existingUserToRatings.artistRatings.push({
+                    artist: relatedID,
+                    rating: rating.toFixed(1),
+                    ratedAt: new Date(),
+                });
+            }
 
-        // Add rating entry in Rating model
-        allRatings.ratings.push({
-            username,
-            rating: rating.toFixed(1),
-            ratedAt: new Date(),
-        });
-
-        // Save database
-        const updatedUserToRatings = await existingUserToRatings.save();
-        const updatedAllRatings = await allRatings.save();
+            // Add rating entry in Rating model
+            allRatings.ratings.push({
+                username,
+                rating: rating.toFixed(1),
+                ratedAt: new Date(),
+            });
+            // Save database
+            updatedUserToRatings = await existingUserToRatings.save();
+            const updatedAllRatings = await allRatings.save();
+        }
         res.status(201).json({
             message: "Added new rating successfully",
             success: true,
             updatedUserToRatings,
-            updatedAllRatings,
         });
     } catch (err) {
         console.error(err);
@@ -288,126 +332,6 @@ module.exports.deleteRating = async (req, res) => {
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Delete Rating Failed!" });
-    }
-};
-
-// In order for a user to change their rating
-// ratingType is "TRACK" or "ALBUM" or "ARTIST"
-// relatedID is the id of the track / album / artist
-/*
-    body: {
-        ratingType: String,
-        relatedID: ObjectID,
-        rating: Number
-    }
-*/
-module.exports.updateRating = async (req, res) => {
-    try {
-        // Get user information from the information coming from verifyToken middleware
-        const user = req.user;
-        const { username } = user;
-
-        const { ratingType, relatedID, rating } = req.body;
-
-        if (
-            ratingType !== "TRACK" &&
-            ratingType !== "ALBUM" &&
-            ratingType !== "ARTIST"
-        ) {
-            return res.json({
-                message: "Invalid Rating Type!",
-                success: false,
-            });
-        }
-        // Get userToRatings
-        const existingUserToRatings = await UserToRatings.findOne({
-            username,
-        });
-
-        if (!existingUserToRatings) {
-            return res.json({
-                message: "Ratings for this user does not exist",
-                success: false,
-            });
-        }
-
-        // Get rating information for the track / album / artist
-        let allRatings = await Rating.findOne({ ratingType, relatedID });
-        // If it does not exist throw error
-        if (!allRatings) {
-            return res.json({
-                message: `Ratings does not exist for this ${ratingType}`,
-                success: false,
-            });
-        }
-
-        // Check if user already rated
-        const userRating = allRatings.ratings.find(
-            (rating) => rating.username === username
-        );
-        if (!userRating) {
-            return res.json({
-                message: "Cannot update rating: user has not rated",
-                success: false,
-            });
-        }
-        // Update in user's ratings
-        let updatedUserToRatings;
-        if (ratingType === "TRACK") {
-            updatedUserToRatings = await UserToRatings.findOneAndUpdate(
-                { username: username, "trackRatings.track": relatedID },
-                {
-                    $set: {
-                        "trackRatings.$.rating": rating.toFixed(1),
-                        "trackRatings.$.ratedAt": new Date(),
-                    },
-                },
-                { new: true }
-            );
-        } else if (ratingType === "ALBUM") {
-            updatedUserToRatings = await UserToRatings.findOneAndUpdate(
-                { username: username, "albumRatings.album": relatedID },
-                {
-                    $set: {
-                        "albumRatings.$.rating": rating.toFixed(1),
-                        "albumRatings.$.ratedAt": new Date(),
-                    },
-                },
-                { new: true }
-            );
-        } else if (ratingType === "ARTIST") {
-            updatedUserToRatings = await UserToRatings.findOneAndUpdate(
-                { username: username, "artistRatings.artist": relatedID },
-                {
-                    $set: {
-                        "artistRatings.$.rating": rating.toFixed(1),
-                        "artistRatings.$.ratedAt": new Date(),
-                    },
-                },
-                { new: true }
-            );
-        }
-        // Update in all ratings
-        const updatedAllRatings = await Rating.findOneAndUpdate(
-            { ratingType, relatedID, "ratings.username": username },
-            {
-                $set: {
-                    "ratings.$.rating": rating.toFixed(1),
-                    "ratings.$.ratedAt": new Date(),
-                },
-            },
-            { new: true }
-        );
-
-        res.status(201).json({
-            message: "Updated rating successfully",
-            success: true,
-            updatedUserToRatings,
-            updatedAllRatings,
-        });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Update Rating Failed!" });
     }
 };
 
