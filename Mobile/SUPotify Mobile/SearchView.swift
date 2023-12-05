@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct SearchResult: Codable {
@@ -39,20 +38,21 @@ struct SearchView: View {
     @ObservedObject var viewModel = SearchViewModel()
     @State private var searchTerm = ""
     @State private var isFavorited: Bool = false
+    @State private var hasSearched = false
     
     var body: some View {
         NavigationStack {
             ZStack {
                 BackgroundView()
                 VStack {
-                
-                    HStack{
+                    HStack(){
                         TextField("Type a song, artist or album name", text: $searchTerm)
                                     .padding(10)
                                     .padding(.horizontal, 25)
                                     .background(Color(.systemGray6))
                                     .cornerRadius(5)
                                     .font(.subheadline)
+                                    .autocapitalization(.none)
                                     .overlay(
                                         HStack {
                                             Image(systemName: "magnifyingglass")
@@ -74,9 +74,12 @@ struct SearchView: View {
                                         }
                                     )
                                     .padding(.horizontal, 10)
+                                    
                                 
                         Button(action: {
+                            hasSearched = true
                             viewModel.performSearch(with: searchTerm)
+                          
                         })
                         {
                             Text("Search")
@@ -90,155 +93,28 @@ struct SearchView: View {
                                 .cornerRadius(30)
                                 
                         }
-                        
+
                         
                     }
                     .padding(.horizontal, 10)
                     
-                    
                     if viewModel.isLoading {
                         ProgressView(isRotated: true)
-                    } else if viewModel.tracks.isEmpty {
-                        EmptyStateView()
-                    } else {
-                        List {
-                                               if !viewModel.tracks.isEmpty {
-                                                   Section(header: Text("Tracks").foregroundStyle(.indigo).font(.largeTitle)) {
-                                                       ForEach(viewModel.tracks, id: \.id) { track in
-                                                           HStack{
-                                                               if(track.image == nil){
-                                                                   Image(systemName: "music.note")
-                                                                               .resizable()
-                                                                               .frame(width: 50, height: 50)
-                                                                               .cornerRadius(8)
-                                                                               .foregroundColor(.gray)
-                                                                    }
-                                                               else{
-                                                                   AsyncImage(url: URL(string: (track.image)!)) { image in
-                                                                       image.resizable()
-                                                                   } placeholder: {
-                                                                       Color.gray
-                                                                   }
-                                                                   .frame(width: 50, height: 50)
-                                                                   .cornerRadius(8)
-                                                               }
-                                                               
-                                                               VStack (alignment: .leading) {
-                                                                   Text(track.name)
-                                                                       .fontWeight(.medium)
-                                                                   Text(track.artists[0])
-                                                                       .font(.caption)
-                                                                       .foregroundColor(.secondary)
-                                                               }
-                                                               
-                                                               Spacer()
-                                                               
-                                                               Image(systemName: "plus.circle.fill")
-                                                                   .padding()
-                                                                   .foregroundColor(.indigo)
-                                                                   .onTapGesture {
-                                                                       //Handle add to playlist
-                                                                   }
-                                                               
-                                                               Image(systemName: viewModel.favoritedTracks.contains(track.id) ? "heart.fill" : "heart")
-                                                                    .foregroundColor(.pink)
-                                                                    .onTapGesture {
-                                                                        viewModel.addTrackToLikedSongs(trackId: track.id)
-                                                                    }
-                                                               
-                                                           }
-                                                       }
-                                                   }
-                                                   
-                                               }
-
-                                               if !viewModel.artists.isEmpty {
-                                                   Section(header: Text("Artists").font(.largeTitle).foregroundStyle(.indigo)) {
-                                                       ForEach(viewModel.artists, id: \.id) { artist in
-                                                        
-                                                           HStack{
-                                                               if(artist.image == nil){
-                                                                   Image(systemName: "music.mic")
-                                                                               .resizable()
-                                                                               .frame(width: 50, height: 50)
-                                                                               .cornerRadius(8)
-                                                                               .foregroundColor(.gray)
-                                                               }
-                                                               else{
-                                                                   AsyncImage(url: URL(string: artist.image!)) { image in
-                                                                       image.resizable()
-                                                                   } placeholder: {
-                                                                       Color.gray
-                                                                   }
-                                                                   .frame(width: 50, height: 50)
-                                                                   .cornerRadius(8)
-                                                                   
-                                                                   
-                                                               }
-                                                               Text(artist.name)
-                                                                   .font(.subheadline)
-                                                               Spacer()
-                                                               
-                                                               Image(systemName: isFavorited ? "heart.fill" : "heart")
-                                                                   .foregroundColor(.pink)
-                                                                   .onTapGesture {
-                                                                       isFavorited.toggle()
-                                                                       //handle add to liked songs
-                                                                   }
-                                                           }
-                                                          
-                                                       }
-                                                   }
-                                               }
-
-                                               if !viewModel.albums.isEmpty {
-                                                   Section(header: Text("Albums").font(.largeTitle).foregroundStyle(.indigo)) {
-                                                       ForEach(viewModel.albums, id: \.id) { album in
-                                                           HStack{
-                                                               if(album.image == nil){
-                                                                   Image(systemName: "music.quarternote.3")
-                                                                       .resizable()
-                                                                       .frame(width: 50, height: 50)
-                                                                       .cornerRadius(8)
-                                                               }
-                                                                else {
-                                                                       AsyncImage(url: URL(string: album.image!)) { image in
-                                                                           image.resizable()
-                                                                       } placeholder: {
-                                                                           Color.gray
-                                                                       }
-                                                                       .frame(width: 50, height: 50)
-                                                                       .cornerRadius(8)
-                                                                }
-                                                              
-                                                               VStack (alignment: .leading){
-                                                                   Text(album.name)
-                                                                       .font(.subheadline)
-                                                                   Text(album.artists[0])
-                                                                       .font(.caption)
-                                                               }
-                                                               Spacer()
-                                                               
-                                                               Image(systemName: "plus.circle.fill")
-                                                                   .padding()
-                                                                   .foregroundColor(.indigo)
-                                                                   .onTapGesture{
-                                                                       //Handle add to playlist
-                                                                   }
-                                                               
-                                                               Image(systemName: isFavorited ? "heart.fill" : "heart")
-                                                                    .foregroundColor(.pink)
-                                                                    .onTapGesture {
-                                                                        isFavorited.toggle()
-                                                                        //Handle like album
-                                                                    }
-                                                           }
-                                                          
-                                                       }
-                                                   }
-                                               }
-                                           }
                     }
+                   
+                    else {
+                                           if searchTerm.isEmpty {
+                                               EmptyStateView()
+                                           } else if !hasSearched {
+                                               EmptyStateView()
+
+                                           } else if viewModel.isNotFound {
+                                               NoResultsView()
+                                           }
+                                            else {
+                                               ResultsListView(viewModel: viewModel)
+                                           }
+                                       }
                 }
                 
             }
@@ -269,6 +145,165 @@ struct SearchView: View {
                 .foregroundColor(.white.opacity(0.70))
             }
             .navigationBarTitle("Music Search")
+        }
+    }
+    
+    struct NoResultsView: View {
+        var body: some View {
+            VStack {
+                Spacer()
+                Text("No results found :(")
+                    .foregroundColor(.secondary)
+                    .padding()
+                Spacer()
+            }
+        }
+    }
+
+    
+    struct ResultsListView: View {
+        @ObservedObject var viewModel: SearchViewModel
+        @State private var isFavorited: Bool = false
+
+
+        var body: some View {
+                List {
+                                   if !viewModel.tracks.isEmpty {
+                                       Section(header: Text("Tracks").foregroundStyle(.indigo).font(.largeTitle)) {
+                                           ForEach(viewModel.tracks, id: \.id) { track in
+                                               HStack{
+                                                   if(track.image == nil){
+                                                       Image(systemName: "music.note")
+                                                                   .resizable()
+                                                                   .frame(width: 50, height: 50)
+                                                                   .cornerRadius(8)
+                                                                   .foregroundColor(.gray)
+                                                        }
+                                                   else{
+                                                       AsyncImage(url: URL(string: (track.image)!)) { image in
+                                                           image.resizable()
+                                                       } placeholder: {
+                                                           Color.gray
+                                                       }
+                                                       .frame(width: 50, height: 50)
+                                                       .cornerRadius(8)
+                                                   }
+                                                   
+                                                   VStack (alignment: .leading) {
+                                                       Text(track.name)
+                                                           .fontWeight(.medium)
+                                                       Text(track.artists[0])
+                                                           .font(.caption)
+                                                           .foregroundColor(.secondary)
+                                                   }
+                                                   
+                                                   Spacer()
+                                                   
+                                                   Image(systemName: "plus.circle.fill")
+                                                       .padding()
+                                                       .foregroundColor(.indigo)
+                                                       .onTapGesture {
+                                                           //Handle add to playlist
+                                                       }
+                                                   
+                                                   Image(systemName: viewModel.favoritedTracks.contains(track.id) ? "heart.fill" : "heart")
+                                                        .foregroundColor(.pink)
+                                                        .onTapGesture {
+                                                            viewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
+                                                        }
+                                                   
+                                               }
+                                           }
+                                       }
+                                       
+                                   }
+
+                                   if !viewModel.artists.isEmpty {
+                                       Section(header: Text("Artists").font(.largeTitle).foregroundStyle(.indigo)) {
+                                           ForEach(viewModel.artists, id: \.id) { artist in
+                                            
+                                               HStack{
+                                                   if(artist.image == nil){
+                                                       Image(systemName: "music.mic")
+                                                                   .resizable()
+                                                                   .frame(width: 50, height: 50)
+                                                                   .cornerRadius(8)
+                                                                   .foregroundColor(.gray)
+                                                   }
+                                                   else{
+                                                       AsyncImage(url: URL(string: artist.image!)) { image in
+                                                           image.resizable()
+                                                       } placeholder: {
+                                                           Color.gray
+                                                       }
+                                                       .frame(width: 50, height: 50)
+                                                       .cornerRadius(8)
+                                                       
+                                                       
+                                                   }
+                                                   Text(artist.name)
+                                                       .font(.subheadline)
+                                                   Spacer()
+                                                   
+                                                   Image(systemName: isFavorited ? "heart.fill" : "heart")
+                                                       .foregroundColor(.pink)
+                                                       .onTapGesture {
+                                                           isFavorited.toggle()
+                                                           //handle add to liked songs
+                                                       }
+                                               }
+                                              
+                                           }
+                                       }
+                                   }
+
+                                   if !viewModel.albums.isEmpty {
+                                       Section(header: Text("Albums").font(.largeTitle).foregroundStyle(.indigo)) {
+                                           ForEach(viewModel.albums, id: \.id) { album in
+                                               HStack{
+                                                   if(album.image == nil){
+                                                       Image(systemName: "music.quarternote.3")
+                                                           .resizable()
+                                                           .frame(width: 50, height: 50)
+                                                           .cornerRadius(8)
+                                                   }
+                                                    else {
+                                                           AsyncImage(url: URL(string: album.image!)) { image in
+                                                               image.resizable()
+                                                           } placeholder: {
+                                                               Color.gray
+                                                           }
+                                                           .frame(width: 50, height: 50)
+                                                           .cornerRadius(8)
+                                                    }
+                                                  
+                                                   VStack (alignment: .leading){
+                                                       Text(album.name)
+                                                           .font(.subheadline)
+                                                       Text(album.artists[0])
+                                                           .font(.caption)
+                                                   }
+                                                   Spacer()
+                                                   
+                                                   Image(systemName: "plus.circle.fill")
+                                                       .padding()
+                                                       .foregroundColor(.indigo)
+                                                       .onTapGesture{
+                                                           //Handle add to playlist
+                                                       }
+                                                   
+                                                   Image(systemName: isFavorited ? "heart.fill" : "heart")
+                                                        .foregroundColor(.pink)
+                                                        .onTapGesture {
+                                                            isFavorited.toggle()
+                                                            //Handle like album
+                                                        }
+                                               }
+                                              
+                                           }
+                                       }
+                                   }
+            }
         }
     }
     
@@ -314,6 +349,7 @@ struct SearchView: View {
         @Published var albums: [Album] = []
         @Published var isLoading = false
         @Published var favoritedTracks: Set<String> = []
+        @Published var isNotFound: Bool = false
         
         
         init() {
@@ -332,11 +368,15 @@ struct SearchView: View {
         func performSearch(with searchTerm: String) {
             guard !searchTerm.isEmpty else {
                 self.tracks = []
+                self.artists = []
+                self.albums = []
+                self.isNotFound = false
                 return
             }
             
             let encodedSearchTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-            let urlString = "http://localhost:4000/api/getFromSpotify/search/\(encodedSearchTerm)"
+            let urlString = "http://localhost:4000/api/getFromSpotify/search/:\(encodedSearchTerm)"
+            
             
             guard let url = URL(string: urlString) else { return }
             
@@ -346,28 +386,40 @@ struct SearchView: View {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             
+            
+            
             URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
                 DispatchQueue.main.async {
                     self?.isLoading = false
-                    if let data = data {
+                   // self?.isInitial = false
+                    if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                        print(responseString)
                         do {
                             let searchResult = try JSONDecoder().decode(SearchResult.self, from: data)
                             self?.tracks = searchResult.data.Tracks ?? []
                             self?.artists = searchResult.data.Artists ?? []
                             self?.albums = searchResult.data.Albums ?? []
+                            self?.isNotFound = self?.tracks.isEmpty ?? true &&
+                                                                  self?.artists.isEmpty ?? true &&
+                                                                  self?.albums.isEmpty ?? true
+                          
                         } catch {
                             print("Decoding error: \(error)")
+                            self?.isNotFound = true
+                        
                         }
                     }
+                    else{
+                        self?.isNotFound = true
+                    }
                 }
-            
                 
             }.resume()
         
         
         }
         
-        func addTrackToLikedSongs(trackId: String) {
+        func addTrackToLikedSongs(trackId: String, albumId: String) {
                 let urlString = "http://localhost:4000/api/addToUserLikedSongsBySpotifyID"
                 guard let url = URL(string: urlString) else { return }
 
@@ -377,7 +429,8 @@ struct SearchView: View {
                 request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 
                 let body: [String: String] = [
-                    "spotifyID": trackId
+                    "spotifyID": trackId,
+                    "albumSpotifyID": albumId
                 ]
                 
                 request.httpBody = try? JSONSerialization.data(withJSONObject: body)
