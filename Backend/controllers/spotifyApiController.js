@@ -149,8 +149,22 @@ module.exports.getArtistFromSpotify = async (spotifyID) => {
             }
         );
 
+        const albumResponse = await axios.get(
+            `https://api.spotify.com/v1/artists/${spotifyID}/albums`,
+            {
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+                params: {
+                    limit: 50,
+                    include_groups: "album,single",
+                },
+            }
+        );
+
         // Extract data from the Spotify API response
         const spotifyResult = spotifyResponse.data;
+        const albumResult = albumResponse.data;
 
         // Organize the information into a structured format
         const returnInfo = {
@@ -160,11 +174,10 @@ module.exports.getArtistFromSpotify = async (spotifyID) => {
             spotifyID: spotifyResult.id,
             spotifyURL: spotifyResult.external_urls.spotify,
             imageURL: spotifyResult.images[0].url,
+            albums: albumResult.items.map((item) => item.id),
         };
 
         // Respond with a success message and the organized information
-        console.log("getArtistFromSpotify...");
-        console.log(returnInfo);
         return returnInfo;
     } catch (err) {
         // Log any errors that occur during the process

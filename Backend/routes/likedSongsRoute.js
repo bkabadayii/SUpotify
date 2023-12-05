@@ -1,22 +1,24 @@
 const {
-    createLikedSongsForUser,
-    addToUserLikedSongs,
-    addToUserLikedSongsBySpotifyID,
-    addCustomToUserLikedSongs,
-    addManyToUserLikedSongs,
-    removeFromUserLikedSongs,
-    getLikedSongsForUser,
-} = require("../controllers/likedSongsController");
+    createLikedContent,
+    getLikedContent,
+    likeContent,
+    likeTrackBySpotifyID,
+    likeCustomTrack,
+    addManyToLikedTracks,
+    removeFromLikedContent,
+} = require("../controllers/likedContentController");
 
 const router = require("express").Router();
 
-router.post("/createLikedSongsForUser", createLikedSongsForUser);
-router.post("/addToUserLikedSongs", addToUserLikedSongs);
-router.post("/addToUserLikedSongsBySpotifyID", addToUserLikedSongsBySpotifyID);
-router.post("/addManyToUserLikedSongs", addManyToUserLikedSongs);
-router.post("/addCustomToUserLikedSongs", addCustomToUserLikedSongs);
+router.post("/createLikedContent", createLikedContent);
+router.get("/getLikedContent/:contentType", getLikedContent);
 
-router.delete("/removeFromUserLikedSongs", removeFromUserLikedSongs);
-router.get("/getLikedSongsForUser", getLikedSongsForUser);
+// router.post("/likeContent", likeContent);
+router.delete("/removeFromLikedContent", removeFromLikedContent);
+
+router.post("/likeTrackBySpotifyID", likeTrackBySpotifyID);
+router.post("/likeCustomTrack", likeCustomTrack);
+
+router.post("/addManyToLikedTracks", addManyToLikedTracks);
 
 module.exports = router;
