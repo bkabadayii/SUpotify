@@ -1,9 +1,3 @@
-//
-//  Profile.swift
-//  SUPotify Mobile App
-//
-//  Created by Alkım Özyüzer on 2.11.2023.
-//
 
 import SwiftUI
 
@@ -51,6 +45,9 @@ struct Profile: View {
         }.resume()
     }
     
+    @State private var selectedTab = 0
+
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -69,64 +66,49 @@ struct Profile: View {
                             }
                         }
                         Spacer()
-                    }
-                    HStack {
-                        VStack(alignment: .leading, spacing: 9) {
-                            Text("\(username)")
-                                .font(.title)
+                        
+                        
+                        HStack {
+                            VStack(alignment: .leading, spacing: 9) {
+                                Text("\(username)")
+                                    .font(.title)
+                            }
+                            .padding(.horizontal, 16)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 100, height: 100)
+                                .foregroundColor(.indigo)
+                                .padding()
                         }
-                        .padding(.horizontal, 16)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 100, height: 100)
-                            .foregroundColor(.indigo)
-                    }
-                    .padding(.top, 16)
-                    .padding(.horizontal, 16)
-                    
-                    Divider()
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-                    
-                    HStack {
-                        Spacer()
-                        Text("Playlists")
-                            .font(.headline)
-                        
-                        Spacer()
-                        Text("Friends")
-                            .font(.headline)
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    
-                    Divider()
-                        .padding(.horizontal, 16)
                         .padding(.top, 16)
-                    
-                    HStack(spacing: 10) {
-                        NavigationLink(destination: PlaylistView()){
-                            SquareIcon(imageStr: "weeknd")
-                                .padding()
-                        }
-                        NavigationLink(destination: PlaylistView()){
-                            SquareIcon(imageStr: "inji")
-                                .padding()
-                        }
+                        .padding(.horizontal, 16)
+                        
+                        Picker("Options", selection: $selectedTab) {
+                                               Text("Playlists").tag(0)
+                                               Text("Friends").tag(1)
+                            }
+                            .pickerStyle(SegmentedPickerStyle())
+                            .padding()
+
+                            // Display content based on selected tab
+                            if selectedTab == 0 {
+                                PlaylistGrid() // Your Playlist view
+                            } else {
+                                FriendsView(username: "SampleUser") // Your Friends view
+                            }
                     }
-                    
-                    Spacer()
                 }
+                    
             }
             //.navigationTitle("Profile")
             //.navigationBarHidden(isLogoutSuccessful)
             .background(NavigationLink("", destination: ContentView(), isActive: $isLogoutSuccessful))
         }
+            .navigationBarTitle("Profile", displayMode: .inline)
     }
 }
 
@@ -134,20 +116,6 @@ struct LogoutResponse: Codable {
     let message: String
     let success: Bool
 }
-
-struct SquareIcon: View {
-    let imageStr: String
-    
-    var body: some View {
-        Image(imageStr)
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: 150, height: 150)
-            .clipped()
-            .border(Color.black, width: 1)
-    }
-}
-
 
 struct Profile_Previews: PreviewProvider {
     static var previews: some View {

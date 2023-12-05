@@ -20,6 +20,9 @@
 		A64525632AFD80CA00B93D60 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64525622AFD80CA00B93D60 /* ImportView.swift */; };
 		A64525672AFF73C500B93D60 /* userInput13.txt in Resources */ = {isa = PBXBuildFile; fileRef = A64525662AFF73C500B93D60 /* userInput13.txt */; };
 		A645256B2B02399A00B93D60 /* ForYouPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A645256A2B02399A00B93D60 /* ForYouPage.swift */; };
+		A661F14C2B1F4B8700E52D46 /* PlaylistGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = A661F14B2B1F4B8700E52D46 /* PlaylistGrid.swift */; };
+		A661F14E2B1F4BB000E52D46 /* CreatePlaylistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A661F14D2B1F4BB000E52D46 /* CreatePlaylistView.swift */; };
+		A661F1502B1F4C0400E52D46 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A661F14F2B1F4C0400E52D46 /* FriendsView.swift */; };
 		A6BFEE872B0B741400D75D9F /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6BFEE862B0B741400D75D9F /* SearchView.swift */; };
 		B82C84912AED6217000E31FA /* MainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82C84902AED6217000E31FA /* MainPage.swift */; };
 		B837D4E72AF3851800880F3A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837D4E62AF3851800880F3A /* Profile.swift */; };
@@ -66,6 +69,9 @@
 		A64525622AFD80CA00B93D60 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
 		A64525662AFF73C500B93D60 /* userInput13.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = userInput13.txt; sourceTree = "<group>"; };
 		A645256A2B02399A00B93D60 /* ForYouPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForYouPage.swift; sourceTree = "<group>"; };
+		A661F14B2B1F4B8700E52D46 /* PlaylistGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistGrid.swift; sourceTree = "<group>"; };
+		A661F14D2B1F4BB000E52D46 /* CreatePlaylistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePlaylistView.swift; sourceTree = "<group>"; };
+		A661F14F2B1F4C0400E52D46 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		A6BFEE862B0B741400D75D9F /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		B82C84902AED6217000E31FA /* MainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPage.swift; sourceTree = "<group>"; };
 		B837D4E62AF3851800880F3A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -128,6 +134,7 @@
 				B89AF72C2B082620001750E8 /* PlaylistView.swift */,
 				B8E4C78E2B04DEEC0089C73E /* ExportOptionsView.swift */,
 				A63BAF6F2B0553B7000076B3 /* SessionManager.swift */,
+				A661F14D2B1F4BB000E52D46 /* CreatePlaylistView.swift */,
 				A645256A2B02399A00B93D60 /* ForYouPage.swift */,
 				A6BFEE862B0B741400D75D9F /* SearchView.swift */,
 				A62625DF2AE148CA009F0080 /* SUPotifyMobileApp.swift */,
@@ -140,11 +147,13 @@
 				A64525662AFF73C500B93D60 /* userInput13.txt */,
 				A62625E32AE148CA009F0080 /* Assets.xcassets */,
 				B837D4E62AF3851800880F3A /* Profile.swift */,
+				A661F14F2B1F4C0400E52D46 /* FriendsView.swift */,
 				A62625E62AE148CA009F0080 /* Preview Content */,
 				B8DBAD6B2B0693C100F2FBFD /* LImage_RText.swift */,
 				B8DBAD6D2B075F9C00F2FBFD /* LikedSongsV2.swift */,
 				B8DBAD6F2B07BFBB00F2FBFD /* ImageLoader.swift */,
 				B89AF7302B08EAC5001750E8 /* IconView.swift */,
+				A661F14B2B1F4B8700E52D46 /* PlaylistGrid.swift */,
 			);
 			path = "SUPotify Mobile";
 			sourceTree = "<group>";
@@ -313,13 +322,16 @@
 				A63BAF702B0553B7000076B3 /* SessionManager.swift in Sources */,
 				A64525632AFD80CA00B93D60 /* ImportView.swift in Sources */,
 				B837D4E72AF3851800880F3A /* Profile.swift in Sources */,
+				A661F14C2B1F4B8700E52D46 /* PlaylistGrid.swift in Sources */,
 				A62626112AF0532F009F0080 /* SignUpView.swift in Sources */,
 				B89AF72D2B082620001750E8 /* PlaylistView.swift in Sources */,
 				A645256B2B02399A00B93D60 /* ForYouPage.swift in Sources */,
 				A62625E02AE148CA009F0080 /* SUPotifyMobileApp.swift in Sources */,
 				A6BFEE872B0B741400D75D9F /* SearchView.swift in Sources */,
 				B89AF7312B08EAC5001750E8 /* IconView.swift in Sources */,
+				A661F1502B1F4C0400E52D46 /* FriendsView.swift in Sources */,
 				A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */,
+				A661F14E2B1F4BB000E52D46 /* CreatePlaylistView.swift in Sources */,
 				B82C84912AED6217000E31FA /* MainPage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
