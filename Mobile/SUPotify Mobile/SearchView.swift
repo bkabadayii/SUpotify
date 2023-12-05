@@ -39,7 +39,7 @@ struct SearchView: View {
     @State private var searchTerm = ""
     @State private var isFavorited: Bool = false
     @State private var hasSearched = false
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -60,7 +60,7 @@ struct SearchView: View {
                                                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                                                 .padding(.leading, 10)
                                                 .font(.caption)
-                                            
+
                                             if !searchTerm.isEmpty {
                                                 Button(action: {
                                                     self.searchTerm = ""
@@ -74,12 +74,12 @@ struct SearchView: View {
                                         }
                                     )
                                     .padding(.horizontal, 10)
-                                    
-                                
+
+
                         Button(action: {
                             hasSearched = true
                             viewModel.performSearch(with: searchTerm)
-                          
+
                         })
                         {
                             Text("Search")
@@ -91,17 +91,17 @@ struct SearchView: View {
                                 .background(Color.indigo.opacity(0.50))
                                 .frame(width: 120, height: 60)
                                 .cornerRadius(30)
-                                
+
                         }
 
-                        
+
                     }
                     .padding(.horizontal, 10)
-                    
+
                     if viewModel.isLoading {
                         ProgressView(isRotated: true)
                     }
-                   
+
                     else {
                                            if searchTerm.isEmpty {
                                                EmptyStateView()
@@ -116,30 +116,30 @@ struct SearchView: View {
                                            }
                                        }
                 }
-                
+
             }
             .navigationBarTitle("Music Search")
         }
     }
-    
-    
+
+
     struct EmptyStateView: View {
         @State var isRotated: Bool = true
         var body: some View {
-            
+
             NavigationStack{
                 VStack {
-                    
+
                     Spacer()
                     Image(systemName: "music.note")
                         .font(.system(size:85))
                         .padding(.bottom)
                         .foregroundColor(.white.opacity(0.70))
-                    
+
                     Text("Start searching for music...")
                         .font(.title)
                     Spacer()
-                    
+
                 }
                 .padding()
                 .foregroundColor(.white.opacity(0.70))
@@ -147,7 +147,7 @@ struct SearchView: View {
             .navigationBarTitle("Music Search")
         }
     }
-    
+
     struct NoResultsView: View {
         var body: some View {
             VStack {
@@ -160,7 +160,7 @@ struct SearchView: View {
         }
     }
 
-    
+
     struct ResultsListView: View {
         @ObservedObject var viewModel: SearchViewModel
         @State private var isFavorited: Bool = false
@@ -188,7 +188,7 @@ struct SearchView: View {
                                                        .frame(width: 50, height: 50)
                                                        .cornerRadius(8)
                                                    }
-                                                   
+
                                                    VStack (alignment: .leading) {
                                                        Text(track.name)
                                                            .fontWeight(.medium)
@@ -196,32 +196,32 @@ struct SearchView: View {
                                                            .font(.caption)
                                                            .foregroundColor(.secondary)
                                                    }
-                                                   
+
                                                    Spacer()
-                                                   
+
                                                    Image(systemName: "plus.circle.fill")
                                                        .padding()
                                                        .foregroundColor(.indigo)
                                                        .onTapGesture {
                                                            //Handle add to playlist
                                                        }
-                                                   
+
                                                    Image(systemName: viewModel.favoritedTracks.contains(track.id) ? "heart.fill" : "heart")
                                                         .foregroundColor(.pink)
                                                         .onTapGesture {
                                                             viewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
                                                         }
-                                                   
+
                                                }
                                            }
                                        }
-                                       
+
                                    }
 
                                    if !viewModel.artists.isEmpty {
                                        Section(header: Text("Artists").font(.largeTitle).foregroundStyle(.indigo)) {
                                            ForEach(viewModel.artists, id: \.id) { artist in
-                                            
+
                                                HStack{
                                                    if(artist.image == nil){
                                                        Image(systemName: "music.mic")
@@ -238,13 +238,13 @@ struct SearchView: View {
                                                        }
                                                        .frame(width: 50, height: 50)
                                                        .cornerRadius(8)
-                                                       
-                                                       
+
+
                                                    }
                                                    Text(artist.name)
                                                        .font(.subheadline)
                                                    Spacer()
-                                                   
+
                                                    Image(systemName: isFavorited ? "heart.fill" : "heart")
                                                        .foregroundColor(.pink)
                                                        .onTapGesture {
@@ -252,7 +252,7 @@ struct SearchView: View {
                                                            //handle add to liked songs
                                                        }
                                                }
-                                              
+
                                            }
                                        }
                                    }
@@ -276,7 +276,7 @@ struct SearchView: View {
                                                            .frame(width: 50, height: 50)
                                                            .cornerRadius(8)
                                                     }
-                                                  
+
                                                    VStack (alignment: .leading){
                                                        Text(album.name)
                                                            .font(.subheadline)
@@ -284,14 +284,14 @@ struct SearchView: View {
                                                            .font(.caption)
                                                    }
                                                    Spacer()
-                                                   
+
                                                    Image(systemName: "plus.circle.fill")
                                                        .padding()
                                                        .foregroundColor(.indigo)
                                                        .onTapGesture{
                                                            //Handle add to playlist
                                                        }
-                                                   
+
                                                    Image(systemName: isFavorited ? "heart.fill" : "heart")
                                                         .foregroundColor(.pink)
                                                         .onTapGesture {
@@ -299,22 +299,22 @@ struct SearchView: View {
                                                             //Handle like album
                                                         }
                                                }
-                                              
+
                                            }
                                        }
                                    }
             }
         }
     }
-    
-    
+
+
     struct SearchView_Previews: PreviewProvider {
         static var previews: some View {
             SearchView()
                 .preferredColorScheme(.dark)
         }
     }
-    
+
     struct ProgressView : View {
         @State var isRotated : Bool
         var body: some View {
@@ -339,24 +339,24 @@ struct SearchView: View {
             }
         }
     }
-    
+
     class SearchViewModel: ObservableObject {
-        
+
         private var token : String
-        
+
         @Published var tracks: [Track] = []
         @Published var artists: [Artist] = []
         @Published var albums: [Album] = []
         @Published var isLoading = false
         @Published var favoritedTracks: Set<String> = []
         @Published var isNotFound: Bool = false
-        
-        
+
+
         init() {
             self.token = SessionManager.shared.token
         }
-        
-        
+
+
         func toggleFavorite(for trackId: String) {
                if favoritedTracks.contains(trackId) {
                    favoritedTracks.remove(trackId)
@@ -364,7 +364,7 @@ struct SearchView: View {
                    favoritedTracks.insert(trackId)
                }
            }
-        
+
         func performSearch(with searchTerm: String) {
             guard !searchTerm.isEmpty else {
                 self.tracks = []
@@ -373,21 +373,21 @@ struct SearchView: View {
                 self.isNotFound = false
                 return
             }
-            
+
             let encodedSearchTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
             let urlString = "http://localhost:4000/api/getFromSpotify/search/:\(encodedSearchTerm)"
-            
-            
+
+
             guard let url = URL(string: urlString) else { return }
-            
+
             isLoading = true
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            
-            
-            
+
+
+
             URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
                 DispatchQueue.main.async {
                     self?.isLoading = false
@@ -402,23 +402,23 @@ struct SearchView: View {
                             self?.isNotFound = self?.tracks.isEmpty ?? true &&
                                                                   self?.artists.isEmpty ?? true &&
                                                                   self?.albums.isEmpty ?? true
-                          
+
                         } catch {
                             print("Decoding error: \(error)")
                             self?.isNotFound = true
-                        
+
                         }
                     }
                     else{
                         self?.isNotFound = true
                     }
                 }
-                
+
             }.resume()
-        
-        
+
+
         }
-        
+
         func addTrackToLikedSongs(trackId: String, albumId: String) {
                 let urlString = "http://localhost:4000/api/addToUserLikedSongsBySpotifyID"
                 guard let url = URL(string: urlString) else { return }
@@ -427,12 +427,12 @@ struct SearchView: View {
                 request.httpMethod = "POST"
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-                
+
                 let body: [String: String] = [
                     "spotifyID": trackId,
                     "albumSpotifyID": albumId
                 ]
-                
+
                 request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
                 URLSession.shared.dataTask(with: request) { [weak self] _, response, error in
