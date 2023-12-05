@@ -32,6 +32,7 @@ struct MainMenu: View {
             }
 
             LikedSongsV2()
+            .environmentObject(likedSongsViewModel)
             .tabItem {
                 Image(systemName: "hand.thumbsup.fill")
                 Text("Liked Songs")
