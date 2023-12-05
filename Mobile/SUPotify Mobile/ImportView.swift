@@ -15,11 +15,6 @@ struct ImportView: View {
     @State var isError = false
     @State var isRotated = false
     @State private var arrowOffset: CGFloat = 0
-    //@State private var token: String?
-    
-    //init(token: String?){
-    //    self.token = SessionManager.shared.loginResponse?.token
-    //}
     
     var body: some View {
         
@@ -132,57 +127,57 @@ func read(from url: URL) throws -> String {
     return try String(contentsOf: url)
 }
 
-private func handleImportedFile(fileURL: URL) {
+func handleImportedFile(fileURL: URL) {
     do {
         let content = try read(from: fileURL)
-        let songIDs = content
+        let trackList = content
             .components(separatedBy: "\n")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } // Trim whitespace and newlines
             .filter { !$0.isEmpty } // Filter out any empty strings
-        addSongsToLikedSongs(songIDs: songIDs)
+            .compactMap { line -> [String: String]? in
+                let components = line.components(separatedBy: ",")
+                guard components.count == 3 else { return nil }
+                return ["trackName": components[0], "albumName": components[1], "artistName": components[2]]
+            }
+        addSongsToLikedSongs(trackList: trackList)
     }
     catch {
         print(error.localizedDescription)
+        
     }
 }
 
-private func addSongsToLikedSongs(songIDs: [String]) {
+func addSongsToLikedSongs(trackList: [[String: String]]) {
     let apiURL = URL(string: "http://localhost:4000/api/likedSongs/addManyToUserLikedSongs")!
     var request = URLRequest(url: apiURL)
-    
-    //var token: String?
     let token = SessionManager.shared.token
-    
     
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.setValue( "Bearer \(token)", forHTTPHeaderField: "Authorization")
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     
-    let parameters: [String: Any] = ["songIDList": songIDs]
+    let parameters: [String: Any] = ["trackList": trackList]
     
     do {
         request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
-        print("the songs are added to user liked songs")
-        isAdded = true
         
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error making network request: \(error)")
+                    isAdded = false // Update UI for error
+                } else if let data = data {
+                    // Process the data, update UI, etc.
+                    isAdded = true
+                    print("Received data: \(String(data: data, encoding: .utf8) ?? "")")
+                } else {
+                    print("No data received.")
+                    isAdded = false // Update UI for error
+                }
+            }
+        }.resume()
     } catch {
         print("Error encoding parameters: \(error)")
-        return
+        isAdded = false // Update UI for error
     }
-    
-    URLSession.shared.dataTask(with: request) { data, response, error in
-        if let error = error {
-            print("Error making network request: \(error)")
-        } else {
-            // Handle the response if needed
-            if let data = data {
-                // Process the data, update UI, etc.
-                isAdded = true
-                print("Received data: \(String(data: data, encoding: .utf8) ?? "")")
-            } else {
-                print("No data received.")
-            }
-        }
-    }.resume()
 }
-
