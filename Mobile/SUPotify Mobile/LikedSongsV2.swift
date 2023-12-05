@@ -25,28 +25,12 @@ struct LikedSong: Codable {
 struct AlbumData: Codable {
     let _id: String
     let name: String
-    let releaseDate: String
-    let totalTracks: Int
-    let genres: [String]
-    let artists: [String]
-    let tracks: [String]
-    let spotifyID: String
-    let spotifyURL: String
     let imageURL: String
-    let __v: Int
-    
 }
 
 struct ArtistData: Codable {
     let _id: String
-    let name: String
-    let genres: [String]
-    let popularity: Int
-    let albums: [String]
-    let spotifyID: String
-    let spotifyURL: String
-    let imageURL: String
-    
+    let name: String    
 }
 
 struct LikedSongsData: Codable {
@@ -65,6 +49,7 @@ struct LikedSongsResponse: Codable {
 
 
 class LikedSongsViewModel: ObservableObject {
+    static let shared = LikedSongsViewModel()
     @Published var likedSongs = [LikedSong]()
     private var token: String
     private var cancellables = Set<AnyCancellable>()
@@ -100,10 +85,61 @@ class LikedSongsViewModel: ObservableObject {
             })
             .store(in: &cancellables)
     }
+
+  func removeFromUserLikedSongs(songID: String, userToken: String, completion: @escaping (Result<ResponseStruct, Error>) -> Void) {
+    guard let url = URL(string: "http://localhost:4000/api/likedSongs/removeFromUserLikedSongs") else {
+      completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
+      return
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "DELETE"
+    request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    let requestBody = ["songID": songID]
+    request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody)
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      if let error = error {
+        completion(.failure(error))
+        return
+      }
+      guard let data = data else {
+        completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"])))
+        return
+      }
+
+      do {
+        let decodedResponse = try JSONDecoder().decode(ResponseStruct.self, from: data)
+        completion(.success(decodedResponse))
+      } catch {
+        completion(.failure(error))
+      }
+    }
+
+    task.resume()
+  }
+
+  // Usage example
+  // Call this function when the button is clicked
+  // removeFromUserLikedSongs(songID: "656e633f60712a3abffe2671", userToken: "yourUserTokenHere") { result in
+  //     switch result {
+  //     case .success(let response):
+  //         print("Success: \(response)")
+  //     case .failure(let error):
+  //         print("Error: \(error.localizedDescription)")
+  //
+
+  func refreshLikedSongs() {
+      DispatchQueue.main.async {
+          self.fetchLikedSongs()
+      }
+  }
 }
 
 struct LikedSongsV2: View {
-    
+    //@State private var refreshID = UUID()
    // var topSpacer_height:CGFloat = 400
     @State var searchBox_offset:CGFloat = 30
     
@@ -112,11 +148,7 @@ struct LikedSongsV2: View {
     
     @State private var showExportOptions = false
     @State private var showImportView = false
-    @ObservedObject var viewModel: LikedSongsViewModel
-    
-    init(){
-        viewModel = LikedSongsViewModel()
-    }
+    @EnvironmentObject var viewModel: LikedSongsViewModel
     
     var body: some View {
         ZStack{
@@ -165,7 +197,7 @@ struct LikedSongsV2: View {
                             let artists = song.artists.map { $0.name }.joined(separator: ", ")
                             let albumImageURL = song.album.imageURL
                             HStack{
-                                LImage_RText(songName: song.name, artistNames: artists, imageURL: albumImageURL)
+                              LImage_RText(songID: song._id, songName: song.name, artistNames: artists, imageURL: albumImageURL)
                                 Spacer()
                             }
                         }
@@ -183,8 +215,7 @@ struct LikedSongsV2: View {
                     }.background(Color.black)
                 }
             }
-            
-            
+
             // Layer 2
             VStack (spacing:0) {
                 LinearGradient(colors:

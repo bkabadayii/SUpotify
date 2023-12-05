@@ -42,7 +42,10 @@ struct ImageView: View {
                 // Add your desired frame and other modifiers
         } else {
             // Placeholder or loading view
-            Text("Loading...")
+            //Text("Loading...")
+            Image(systemName: "music.note")
+                .resizable()
+                .frame(width: 20, height: 31)
         }
     }
 }
