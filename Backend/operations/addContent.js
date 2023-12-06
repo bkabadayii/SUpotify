@@ -21,7 +21,7 @@ const getArtist = async (spotifyID) => {
         }
 
         // Else create new artist.
-        const artistInfo = await getArtistFromSpotify(spotifyID);
+        const artistInfo = await getArtistFromSpotify(spotifyID, 1);
         // If the artist has missing information, pass it
         if (!artistInfo) {
             return null;
@@ -35,6 +35,7 @@ const getArtist = async (spotifyID) => {
             spotifyID,
             spotifyURL,
             imageURL,
+            albums: [],
         });
 
         return newArtist._id;
@@ -161,10 +162,67 @@ module.exports.getAlbumWithSpotifyID = async (spotifyID, checkExistance) => {
         newAlbum._id = albumID;
         await newAlbum.save();
 
+        // Add album to artists' albums
+        for (let artistID of artists) {
+            const newArtist = await Artist.findById(artistID);
+            newArtist.albums.push(albumID);
+            newArtist.save();
+        }
+
         return newAlbum._id;
     } catch (err) {
         console.error(err);
         return;
+    }
+};
+
+// Returns the Artist ID.
+// Returns null if there is an error getting the artist.
+// Adds artist and its "albumCount" number of albums to the database
+module.exports.getArtistWithSpotifyID = async (spotifyID, albumCount) => {
+    try {
+        const artistInformation = await getArtistFromSpotify(
+            spotifyID,
+            albumCount
+        );
+        if (!artistInformation) {
+            return;
+        }
+
+        const { albums } = artistInformation;
+
+        for (let albumSpotifyID of albums) {
+            // Add album to the database
+            const newAlbum = await this.getAlbumWithSpotifyID(
+                albumSpotifyID,
+                true
+            );
+        }
+
+        // Find the artist and return it
+        const artist = await Artist.findOne({ spotifyID });
+        return artist;
+    } catch (err) {
+        console.error(err);
+        return;
+    }
+};
+
+module.exports.addNewArtist = async (req, res) => {
+    try {
+        const { spotifyID, albumCount } = req.body;
+        const artist = await this.getArtistWithSpotifyID(spotifyID, albumCount);
+
+        return res.status(201).json({
+            message: "Success!",
+            artist,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Add New Artist Failed!",
+            success: false,
+        });
     }
 };
 
