@@ -192,7 +192,7 @@ module.exports.likeContent = async (req, res) => {
             });
         }
 
-        // await existingLikedContent.save();
+        await existingLikedContent.save();
 
         res.status(201).json({
             message: `Added contentID: ${contentID}, to liked contents of user: ${username}`,

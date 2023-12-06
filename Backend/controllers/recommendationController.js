@@ -1,4 +1,4 @@
-const LikedSongs = require("../models/likedSongsModel");
+const LikedContent = require("../models/likedContentModel");
 const FollowedUsers = require("../models/followedUsersModel");
 const {
   isFriend,
@@ -11,26 +11,26 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
     const user = req.user;
     const { username } = user;
 
-    // Get users likedSongsList
-    const likedSongs = await LikedSongs.findOne({ username }).populate({
-      path: 'likedSongsList',
+    // Get users likedTracks
+    const likedContent = await LikedContent.findOne({ username }).populate({
+      path: 'likedTracks.track',
       populate: {
         path: 'artists',
         select: 'genres',
       },
     }).lean();
 
-    if (!likedSongs || !likedSongs.likedSongsList || likedSongs.likedSongsList.length === 0) {
+    if (!likedContent || !likedContent.likedTracks || likedContent.likedTracks.length === 0) {
       return res.json({
-        message: "No liked songs found for the user or user doesn't exist.",
+        message: "No liked tracks found for the user or user doesn't exist.",
         success: false,
       });
     }
 
     const genreCount = {};
 
-    for (const song of likedSongs.likedSongsList) {
-      const artists = song.artists;
+    for (const trackObj of likedContent.likedTracks) {
+      const artists = trackObj.track.artists;
       
       if (!artists || !Array.isArray(artists) || artists.length === 0) {
         console.log('No artists or empty artists array found:', song);
@@ -76,29 +76,29 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
     async function findTracksByGenre(username,followedUsername, genre,trackNum) {
       try {
         // Find the followed user's liked songs list
-        const followedLikedSongsFirst= await LikedSongs.findOne({ username: followedUsername })
-        const followedLikedSongs = await followedLikedSongsFirst.populate({
-          path: 'likedSongsList',
+        const followedLikedContentFirst= await LikedContent.findOne({ username: followedUsername })
+        const followedLikedContent = await followedLikedContentFirst.populate({
+          path: 'likedTracks.track',
           populate: {
             path: 'artists',
             select: 'genres',
           },
         });
         
-        const likedSongs=await LikedSongs.findOne({username});
+        const likedContent=await LikedContent.findOne({username});
         
         // Return empty array if followed user does not exist or has no liked songs
-        if (!followedLikedSongs) {
+        if (!followedLikedContent) {
           console.log('User not found or no liked songs.');
           return [];
         }
 
         // Filter tracks by the specified genre
-        const tracksWithGenre = followedLikedSongs.likedSongsList.filter(track =>
-          track.artists.some(artist => artist.genres.includes(genre))
+        const tracksWithGenre = followedLikedContent.likedTracks.filter(trackList =>
+          trackList.track.artists.some(artist => artist.genres.includes(genre))
         );
         
-        const existingTrackIds = likedSongs.likedSongsList.map(track => track._id);
+        const existingTrackIds = likedContent.likedTracks.map(trackList => trackList.track._id);
         
         //Delete track from recommendation if the recommended track is in users likedSongsList,
         const filteredTracks = tracksWithGenre.filter(track => !existingTrackIds.includes(track._id)); 
@@ -127,4 +127,4 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
     console.error(err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}; 
