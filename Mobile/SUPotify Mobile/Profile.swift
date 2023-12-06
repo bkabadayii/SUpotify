@@ -96,9 +96,10 @@ struct Profile: View {
 
                             // Display content based on selected tab
                             if selectedTab == 0 {
-                                PlaylistGrid() // Your Playlist view
+                               PlaylistGrid()
+                                
                             } else {
-                                FriendsView(username: "SampleUser") // Your Friends view
+                                FriendsView(username: "SampleUser")
                             }
                     }
                 }
@@ -122,3 +123,5 @@ struct Profile_Previews: PreviewProvider {
         Profile().preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
     }
 }
+
+

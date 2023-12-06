@@ -148,7 +148,7 @@ func handleImportedFile(fileURL: URL) {
 }
 
 func addSongsToLikedSongs(trackList: [[String: String]]) {
-    let apiURL = URL(string: "http://localhost:4000/api/likedSongs/addManyToUserLikedSongs")!
+    let apiURL = URL(string: "http://localhost:4000/api/likedContent/addManyToLikedTracks")!
     var request = URLRequest(url: apiURL)
     let token = SessionManager.shared.token
     
