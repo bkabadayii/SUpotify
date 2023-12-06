@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 import Combine
 
-struct LikedSong: Codable {
+struct TrackData: Codable {
     let _id: String
     let name: String
     let popularity: Int
@@ -19,9 +19,9 @@ struct LikedSong: Codable {
     let spotifyID: String
     let spotifyURL: String
     let previewURL: String?
-    
-    
+    let __v: Int
 }
+
 struct AlbumData: Codable {
     let _id: String
     let name: String
@@ -33,24 +33,26 @@ struct ArtistData: Codable {
     let name: String    
 }
 
-struct LikedSongsData: Codable {
+struct LikedContent: Codable {
+    let track: TrackData
+    let likedAt: String
     let _id: String
-    let username: String
-    let likedSongsList: [LikedSong]
-    let __v: Int
 }
 
 struct LikedSongsResponse: Codable {
     let message: String
     let success: Bool
-    let likedSongs: LikedSongsData
+    let likedContent: [LikedContent]
 }
 
+struct RemoveResponseStruct: Codable {
+  var message: String
+}
 
 
 class LikedSongsViewModel: ObservableObject {
     static let shared = LikedSongsViewModel()
-    @Published var likedSongs = [LikedSong]()
+    @Published var likedSongs = [TrackData]()
     private var token: String
     private var cancellables = Set<AnyCancellable>()
     @Published var likedSongsCount: Int = 0
@@ -60,34 +62,35 @@ class LikedSongsViewModel: ObservableObject {
         fetchLikedSongs()
     }
     
-    func fetchLikedSongs() {
+  func fetchLikedSongs() {
+      let contentType = "TRACK"
+      guard let url = URL(string: "http://localhost:4000/api/likedContent/getLikedContent/\(contentType)") else { return }
 
-        guard let url = URL(string: "http://localhost:4000/api/likedSongs/getLikedSongsForUser") else { return }
+      var request = URLRequest(url: url)
+      request.httpMethod = "GET"
+      request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+      URLSession.shared.dataTaskPublisher(for: request)
+          .tryMap { $0.data }
+          .decode(type: LikedSongsResponse.self, decoder: JSONDecoder())
+          .receive(on: DispatchQueue.main)
+          .sink(receiveCompletion: { completion in
+              switch completion {
+              case .finished:
+                  print("Retrieved data successfully.")
+              case .failure(let error):
+                  print("Error occurred: \(error)")
+              }
+          }, receiveValue: { [weak self] response in
+              self?.likedSongs = response.likedContent.map { $0.track }
+              self?.likedSongsCount = response.likedContent.count
+          })
+          .store(in: &cancellables)
+  }
 
-        URLSession.shared.dataTaskPublisher(for: request)
-            .tryMap { $0.data }
-            .decode(type: LikedSongsResponse.self, decoder: JSONDecoder())
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case .finished:
-                    print("Retrieved data successfully.")
-                case .failure(let error):
-                    print("Error occurred: \(error)")
-                }
-            }, receiveValue: { [weak self] response in
-                self?.likedSongs = response.likedSongs.likedSongsList
-                self?.likedSongsCount = response.likedSongs.likedSongsList.count
-            })
-            .store(in: &cancellables)
-    }
 
-  func removeFromUserLikedSongs(songID: String, userToken: String, completion: @escaping (Result<ResponseStruct, Error>) -> Void) {
-    guard let url = URL(string: "http://localhost:4000/api/likedSongs/removeFromUserLikedSongs") else {
+  func removeFromUserLikedSongs(songID: String, userToken: String, completion: @escaping (Result<RemoveResponseStruct, Error>) -> Void) {
+    guard let url = URL(string: "http://localhost:4000/api/likedContent/removeFromLikedContent") else {
       completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
       return
     }
@@ -97,7 +100,7 @@ class LikedSongsViewModel: ObservableObject {
     request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    let requestBody = ["songID": songID]
+    let requestBody = ["contentID": songID, "contentType": "TRACK"]
     request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody)
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -111,7 +114,7 @@ class LikedSongsViewModel: ObservableObject {
       }
 
       do {
-        let decodedResponse = try JSONDecoder().decode(ResponseStruct.self, from: data)
+        let decodedResponse = try JSONDecoder().decode(RemoveResponseStruct.self, from: data)
         completion(.success(decodedResponse))
       } catch {
         completion(.failure(error))
@@ -121,16 +124,6 @@ class LikedSongsViewModel: ObservableObject {
     task.resume()
   }
 
-  // Usage example
-  // Call this function when the button is clicked
-  // removeFromUserLikedSongs(songID: "656e633f60712a3abffe2671", userToken: "yourUserTokenHere") { result in
-  //     switch result {
-  //     case .success(let response):
-  //         print("Success: \(response)")
-  //     case .failure(let error):
-  //         print("Error: \(error.localizedDescription)")
-  //
-
   func refreshLikedSongs() {
       DispatchQueue.main.async {
           self.fetchLikedSongs()
@@ -139,8 +132,6 @@ class LikedSongsViewModel: ObservableObject {
 }
 
 struct LikedSongsV2: View {
-    //@State private var refreshID = UUID()
-   // var topSpacer_height:CGFloat = 400
     @State var searchBox_offset:CGFloat = 30
     
     @State private var searchText = ""

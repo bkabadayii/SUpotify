@@ -8,19 +8,6 @@
 import SwiftUI
 import Foundation
 
-struct ResponseStruct: Codable {
-  var message: String
-  var updatedLikedSongs: LikedSongs
-
-  struct LikedSongs: Codable {
-    var _id: String
-    var username: String
-    var likedSongsList: [String]
-    var __v: Int
-  }
-}
-
-
 struct LImage_RText: View {
 
   @EnvironmentObject var viewModel: LikedSongsViewModel
