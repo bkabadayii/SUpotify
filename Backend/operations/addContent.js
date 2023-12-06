@@ -21,7 +21,7 @@ const getArtist = async (spotifyID) => {
         }
 
         // Else create new artist.
-        const artistInfo = await getArtistFromSpotify(spotifyID);
+        const artistInfo = await getArtistFromSpotify(spotifyID, 1);
         // If the artist has missing information, pass it
         if (!artistInfo) {
             return null;
@@ -178,10 +178,13 @@ module.exports.getAlbumWithSpotifyID = async (spotifyID, checkExistance) => {
 
 // Returns the Artist ID.
 // Returns null if there is an error getting the artist.
-// If you already know that the artist does not exist in database, set checkExistance = false
-const getArtistWithSpotifyID = async (spotifyID) => {
+// Adds artist and its "albumCount" number of albums to the database
+const getArtistWithSpotifyID = async (spotifyID, albumCount) => {
     try {
-        const artistInformation = await getArtistFromSpotify(spotifyID);
+        const artistInformation = await getArtistFromSpotify(
+            spotifyID,
+            albumCount
+        );
         if (!artistInformation) {
             return;
         }
@@ -207,8 +210,8 @@ const getArtistWithSpotifyID = async (spotifyID) => {
 
 module.exports.addNewArtist = async (req, res) => {
     try {
-        const { spotifyID } = req.body;
-        const artist = await getArtistWithSpotifyID(spotifyID);
+        const { spotifyID, albumCount } = req.body;
+        const artist = await getArtistWithSpotifyID(spotifyID, albumCount);
 
         return res.status(201).json({
             message: "Success!",

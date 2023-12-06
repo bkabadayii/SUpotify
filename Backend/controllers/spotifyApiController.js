@@ -134,7 +134,9 @@ module.exports.getAlbumFromSpotify = async (spotifyID) => {
     }
 };
 
-module.exports.getArtistFromSpotify = async (spotifyID) => {
+// Returns Artist information from spotify with spotifyID,
+// Returns "albumCount" number of Albums
+module.exports.getArtistFromSpotify = async (spotifyID, albumCount) => {
     try {
         // Get Spotify access token from environment variables
         const spotifyToken = process.env.SPOTIFY_TOKEN;
@@ -156,7 +158,7 @@ module.exports.getArtistFromSpotify = async (spotifyID) => {
                     Authorization: `Bearer ${spotifyToken}`,
                 },
                 params: {
-                    limit: 50,
+                    limit: albumCount,
                     include_groups: "album,single",
                 },
             }
