@@ -63,7 +63,7 @@ async function startServer() {
         app.use("/auth", authRoute);
 
         app.use("/api", verifyToken); // Set verifyToken middleware for all endpoints belonging to /api
-        app.use("/api/likedSongs", likedContentRoute);
+        app.use("/api/likedContent", likedContentRoute);
         app.use("/api/default", defaultRouter);
         app.use("/api/album", addAlbumRoute);
         app.use("/api/followedUsers", followedUsersRoute);
