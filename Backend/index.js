@@ -12,9 +12,9 @@ const { verifyToken } = require("./middlewares/verifyToken");
 // ----- Routes -----
 const defaultRouter = require("./routes/defaultRouter");
 const authRoute = require("./routes/authRoute"); // route for the authentication
-const likedSongsRoute = require("./routes/likedSongsRoute");
+const likedContentRoute = require("./routes/likedContentRoute");
 const spotifyApiRoute = require("./routes/spotifyApiRoute");
-const addAlbumRoute = require("./routes/addAlbumRoute");
+const contentRoute = require("./routes/contentRoute");
 const followedUsersRoute = require("./routes/followedUsersRoute");
 const playlistRoute = require("./routes/playlistRoute");
 const ratingRoute = require("./routes/ratingRoute");
@@ -63,9 +63,9 @@ async function startServer() {
         app.use("/auth", authRoute);
 
         app.use("/api", verifyToken); // Set verifyToken middleware for all endpoints belonging to /api
-        app.use("/api/likedSongs", likedSongsRoute);
+        app.use("/api/likedContent", likedContentRoute);
         app.use("/api/default", defaultRouter);
-        app.use("/api/album", addAlbumRoute);
+        app.use("/api/content", contentRoute);
         app.use("/api/followedUsers", followedUsersRoute);
         app.use("/api/playlists", playlistRoute);
         app.use("/api/ratings", ratingRoute);
