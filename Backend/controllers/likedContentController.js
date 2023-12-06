@@ -142,17 +142,17 @@ module.exports.likeContent = async (req, res) => {
             duplicate = existingLikedContent.likedTracks.find(
                 (existingTrack) => contentID === String(existingTrack.track)
             );
-            validContent = Track.findById(contentID);
+            validContent = await Track.findById(contentID);
         } else if (contentType === "ALBUM") {
             duplicate = existingLikedContent.likedAlbums.find(
                 (existingTrack) => contentID === String(existingTrack.album)
             );
-            validContent = Album.findById(contentID);
+            validContent = await Album.findById(contentID);
         } else if (contentType === "ARTIST") {
             duplicate = existingLikedContent.likedArtists.find(
                 (existingTrack) => contentID === String(existingTrack.artist)
             );
-            validContent = Artist.findById(contentID);
+            validContent = await Artist.findById(contentID);
         } else {
             return res.json({
                 message:
@@ -192,7 +192,7 @@ module.exports.likeContent = async (req, res) => {
             });
         }
 
-        await existingLikedContent.save();
+        // await existingLikedContent.save();
 
         res.status(201).json({
             message: `Added contentID: ${contentID}, to liked contents of user: ${username}`,

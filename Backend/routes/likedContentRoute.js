@@ -14,7 +14,7 @@ const router = require("express").Router();
 
 router.post("/createLikedContent", createLikedContent);
 router.get("/getLikedContent/:contentType", getLikedContent);
-// router.post("/likeContent", likeContent);
+router.post("/likeContent", likeContent);
 router.delete("/removeFromLikedContent", removeFromLikedContent);
 
 router.post("/likeTrackBySpotifyID", likeTrackBySpotifyID);
