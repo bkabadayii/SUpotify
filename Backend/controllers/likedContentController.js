@@ -2,10 +2,14 @@ const LikedContent = require("../models/likedContentModel");
 const Track = require("../models/trackModel");
 const Album = require("../models/albumModel");
 const Artist = require("../models/artistModel");
-const { getAlbumWithSpotifyID } = require("../operations/addAlbum");
+const {
+    getAlbumWithSpotifyID,
+    getArtistWithSpotifyID,
+} = require("../operations/addContent");
 const { addCustomTrack } = require("./tracksController");
 const { exactSearchFromSpotify } = require("./spotifyApiController");
 
+/* ----- INITIALIZER ----- */
 module.exports.createLikedContent = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
@@ -40,6 +44,9 @@ module.exports.createLikedContent = async (req, res) => {
             .json({ message: "Create Liked Content Failed!" });
     }
 };
+/* ----- INITIALIZER ----- */
+
+/* ----- GENERAL CONTENT OPERATIONS ----- */
 
 // In order for a user to get their liked content
 /*
@@ -54,7 +61,7 @@ module.exports.getLikedContent = async (req, res) => {
         const { contentType } = req.params;
         const existingLikedContent = await LikedContent.findOne({ username });
 
-        // If user does not have liked songs, throw an error
+        // If liked content is not initialized for the user, throw an error
         if (!existingLikedContent) {
             res.status(500).json({
                 message:
@@ -81,7 +88,7 @@ module.exports.getLikedContent = async (req, res) => {
             populatedLikedContent = await existingLikedContent.populate(
                 "likedArtists.artist"
             );
-            populatedLikedContent = populatedLikedContent.likedTracks;
+            populatedLikedContent = populatedLikedContent.likedArtists;
         } else {
             res.json({
                 message:
@@ -120,7 +127,7 @@ module.exports.likeContent = async (req, res) => {
 
         let existingLikedContent = await LikedContent.findOne({ username });
 
-        // If liked songs list is not initialized for user, throw error
+        // If liked content is not initialized for user, throw error
         if (!existingLikedContent) {
             return res.json({
                 message: "Liked Content for this user does not exist!",
@@ -214,11 +221,11 @@ module.exports.removeFromLikedContent = async (req, res) => {
         const user = req.user;
         const { username } = user;
 
-        // Get songID from request body
+        // Get contentID and contentType from request body
         const { contentID, contentType } = req.body;
         let existingLikedContent = await LikedContent.findOne({ username });
 
-        // If liked songs list is not initialized for user, throw error
+        // If liked content is not initialized for user, throw error
         if (!existingLikedContent) {
             return res.json({
                 message: "Liked Content for this user does not exist!",
@@ -264,14 +271,24 @@ module.exports.removeFromLikedContent = async (req, res) => {
     }
 };
 
+/* ----- GENERAL CONTENT OPERATIONS ----- */
+
+/* ----- TRACK SPECIALIZED OPERATIONS ----- */
+
 // Adds a track to liked tracks by track spotify id and album spotify id
+/*
+    body: {
+        spotifyID: String,
+        albumSpotifyID: String,
+    }
+*/
 module.exports.likeTrackBySpotifyID = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
         const user = req.user;
         const { username } = user;
 
-        // Get songID from request body
+        // Get spotifyID and albumSpotifyID from request body
         const { spotifyID, albumSpotifyID } = req.body;
         let existingLikedContent = await LikedContent.findOne({ username });
 
@@ -283,7 +300,7 @@ module.exports.likeTrackBySpotifyID = async (req, res) => {
             });
         }
 
-        // If user already liked the song with songID, throw error
+        // If user already liked the track with spotifyID, throw error
         const duplicate = (
             await existingLikedContent.populate("likedTracks.track")
         ).likedTracks.find(
@@ -507,3 +524,145 @@ module.exports.addManyToLikedTracks = async (req, res) => {
             .json({ message: "Internal Server Error", success: false });
     }
 };
+
+/* ----- TRACK SPECIALIZED OPERATIONS ----- */
+
+/* ----- ALBUM SPECIALIZED OPERATIONS ----- */
+
+// Adds an album to liked albums by album spotify id
+/*
+    body: {
+        spotifyID: String,
+    }
+*/
+module.exports.likeAlbumBySpotifyID = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get spotifyID from request body
+        const { spotifyID } = req.body;
+        let existingLikedContent = await LikedContent.findOne({ username });
+
+        // If liked content not initialized for user, throw error
+        if (!existingLikedContent) {
+            return res.json({
+                message: "Liked content does not exist for this user!",
+                success: false,
+            });
+        }
+
+        // If user already liked the album with spotifyID, throw error
+        const duplicate = (
+            await existingLikedContent.populate("likedAlbums.album")
+        ).likedAlbums.find(
+            (existingAlbum) =>
+                spotifyID === String(existingAlbum.album.spotifyID)
+        );
+
+        if (duplicate) {
+            return res.json({
+                message: "Album already exists in liked content of the user!",
+                success: false,
+            });
+        }
+
+        // Get album from the database
+        let existingAlbumID = await getAlbumWithSpotifyID(spotifyID, true);
+
+        // If spotify request fails, throw error
+        if (!existingAlbumID) {
+            throw new Error("Error in spotify request!!");
+        }
+
+        existingLikedContent.likedAlbums.push({
+            album: existingAlbumID,
+            likedAt: new Date(),
+        });
+        await existingLikedContent.save();
+
+        res.status(201).json({
+            message: `Added album with spotify ID: ${spotifyID}, to liked content of user: ${username}`,
+            success: true,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Like Album By Spotify ID Failed!",
+            success: false,
+        });
+    }
+};
+/* ----- ALBUM SPECIALIZED OPERATIONS ----- */
+
+/* ----- ARTIST SPECIALIZED OPERATIONS ----- */
+
+// Adds an artist to liked artist by artist spotify id
+// Initializes the artist with 5 albums if the artist does not have 5 albums already
+/*
+    body: {
+        spotifyID: String,
+    }
+*/
+module.exports.likeArtistBySpotifyID = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get spotifyID from request body
+        const { spotifyID } = req.body;
+        let existingLikedContent = await LikedContent.findOne({ username });
+
+        // If liked content not initialized for user, throw error
+        if (!existingLikedContent) {
+            return res.json({
+                message: "Liked content does not exist for this user!",
+                success: false,
+            });
+        }
+
+        // If user already liked the artist with spotifyID, throw error
+        const duplicate = (
+            await existingLikedContent.populate("likedArtists.artist")
+        ).likedArtists.find(
+            (existingArtist) =>
+                spotifyID === String(existingArtist.artist.spotifyID)
+        );
+
+        if (duplicate) {
+            return res.json({
+                message: "Artist already exists in liked content of the user!",
+                success: false,
+            });
+        }
+
+        // Get artist from the database
+        let existingArtistID = await getArtistWithSpotifyID(spotifyID, 5);
+
+        // If spotify request fails, throw error
+        if (!existingArtistID) {
+            throw new Error("Error in spotify request!!");
+        }
+
+        existingLikedContent.likedArtists.push({
+            artist: existingArtistID,
+            likedAt: new Date(),
+        });
+        await existingLikedContent.save();
+
+        res.status(201).json({
+            message: `Added artist with spotify ID: ${spotifyID}, to liked content of user: ${username}`,
+            success: true,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Like Artist By Spotify ID Failed!",
+            success: false,
+        });
+    }
+};
+
+/* ----- ARTIST SPECIALIZED OPERATIONS ----- */
