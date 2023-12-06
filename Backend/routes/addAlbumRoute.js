@@ -1,5 +1,4 @@
-const { addNewAlbum } = require("../operations/addAlbum");
-const { addNewArtist } = require("../operations/addContent");
+const { addNewAlbum, addNewArtist } = require("../operations/addContent");
 
 const router = require("express").Router();
 
