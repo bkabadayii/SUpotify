@@ -348,10 +348,9 @@ module.exports.deleteRating = async (req, res) => {
         selfRating: Number,
         averageRating: Number,
         numUsersRated: Number
-        -- planned --
-        friendRatings: [{username: String, rating: Number}]
-        friendsAverageRating: Number (-1 if no friends rated)
-        -- planned -- 
+        numFriendsRated: Number,
+        friendsAverageRating: Number (null if no friends rated)
+        friendRatings: [{username: String, rating: Number, ratedAt: Date}]
     }
 */
 
