@@ -21,21 +21,22 @@ struct LImage_RText: View {
 
     VStack {
       HStack {
+        NavigationLink(destination: SongDetailsView(songID: songID, songName: songName, artistNames: artistNames, imageURL: imageURL)) {
+          ImageView(urlString: imageURL)
+            .aspectRatio(contentMode: .fill)
+            .frame(width:55, height:55)
 
-        ImageView(urlString: imageURL)
-          .aspectRatio(contentMode: .fill)
-          .frame(width:55, height:55)
-
-          .clipped()
-          .border(Color.gray, width: 1)
-          .padding(.leading, 10)
-        Text("\(songName)")
-          .padding(.leading, 15)
-          .font(.system(size: 14, weight: .bold))
-        Spacer()
-        Text("\(artistNames)")
-          .padding(.trailing, 15)
-          .font(.system(size: 12, weight: .medium))
+            .clipped()
+            .border(Color.gray, width: 1)
+            .padding(.leading, 10)
+          Text("\(songName)")
+            .padding(.leading, 15)
+            .font(.system(size: 14, weight: .bold))
+          Spacer()
+          Text("\(artistNames)")
+            .padding(.trailing, 15)
+            .font(.system(size: 12, weight: .medium))
+        }
         /*
          Image(systemName: "timelapse")
          .resizable()

@@ -298,8 +298,3 @@ struct LikedSongsV2: View {
             array.joined(separator: ", ")
     }
 }
-
-#Preview {
-    LikedSongsV2()
-        .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
-}
