@@ -3,6 +3,7 @@ const Album = require("../models/albumModel");
 const Artist = require("../models/artistModel");
 const Rating = require("../models/ratingModel");
 const UserToRatings = require("../models/userToRatings");
+const { isFriend } = require("./followedUsersController");
 
 module.exports.createUserToRatings = async (req, res) => {
     try {
@@ -387,10 +388,10 @@ module.exports.getRatingInfo = async (req, res) => {
         let selfRating;
         let averageRating;
         let numUsersRated;
-        /*  --- TODO ---
-        let friendRatings;
+        let numFriendsRated;
+        let friendRatings = [];
         let friendsAverageRating;
-            --- TODO --- */
+
         // Set user's rating
         const userRating = allRatings.ratings.find(
             (rating) => rating.username === username
@@ -409,13 +410,34 @@ module.exports.getRatingInfo = async (req, res) => {
             averageRating = ratingSum / numUsersRated;
         }
 
-        /* TODO: Calculate Friend Ratings */
+        // Calculate friendsAverageRating and numFriendsRated
+        let friendRatingsSum = 0;
+        for (let rating of allRatings.ratings) {
+            const ratedUser = rating.username;
+            const followInformation = await isFriend(username, ratedUser);
+            if (followInformation && followInformation.followsEachOther) {
+                friendRatings.push({
+                    friendUsername: ratedUser,
+                    ratedAt: rating.ratedAt,
+                    rating: rating.rating,
+                });
+                friendRatingsSum += rating.rating;
+            }
+        }
+        numFriendsRated = friendRatings.length;
+        if (numFriendsRated !== 0) {
+            friendsAverageRating = friendRatingsSum / numFriendsRated;
+        }
+
         res.status(201).json({
             message: "Returned rating info successfully",
             success: true,
             selfRating,
             averageRating,
             numUsersRated,
+            numFriendsRated,
+            friendsAverageRating,
+            friendRatings,
         });
     } catch (err) {
         console.error(err);

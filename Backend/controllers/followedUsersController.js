@@ -1,5 +1,5 @@
 const FollowedUsers = require("../models/followedUsersModel");
-const User =require("../models/userModel")
+const User = require("../models/userModel");
 
 module.exports.createFollowedUsersForUser = async (req, res) => {
     try {
@@ -7,7 +7,9 @@ module.exports.createFollowedUsersForUser = async (req, res) => {
         const user = req.user;
         const { username } = user;
 
-        const existingUserFollowedUsers = await FollowedUsers.findOne({ username });
+        const existingUserFollowedUsers = await FollowedUsers.findOne({
+            username,
+        });
 
         if (existingUserFollowedUsers) {
             return res.json({
@@ -40,34 +42,38 @@ module.exports.addToUserFollowedUsers = async (req, res) => {
 
         // Get followedUsername from request body
         const { followedUsername } = req.body;
-        let existingUserFollowedUsers = await FollowedUsers.findOne({ username });
+        let existingUserFollowedUsers = await FollowedUsers.findOne({
+            username,
+        });
 
         const checkUsernameExists = async (usernameToCheck) => {
             try {
-                const existingUser = await User.findOne({ username: usernameToCheck });
-        
+                const existingUser = await User.findOne({
+                    username: usernameToCheck,
+                });
+
                 if (existingUser) {
                     return true; //User exists in database
-                } else {;
+                } else {
                     return false; //User does not exists in database
                 }
             } catch (error) {
-                console.error('Error occurred while checking username:', error);
+                console.error("Error occurred while checking username:", error);
                 return false;
             }
         };
         const exists = await checkUsernameExists(followedUsername);
 
         // If given username does not exist in database, throw error
-        if (!exists){
+        if (!exists) {
             return res.json({
                 message: "This user does not exist!",
                 success: false,
             });
-        } 
+        }
 
         // If given username is same with the users name, throw error
-        if (followedUsername==username){
+        if (followedUsername == username) {
             return res.json({
                 message: "Username cannot be the users username!",
                 success: false,
@@ -84,12 +90,14 @@ module.exports.addToUserFollowedUsers = async (req, res) => {
 
         // If user already followed the other user, throw error
         const duplicate = existingUserFollowedUsers.followedUsersList.find(
-            (existingFollowedUsername) => followedUsername === existingFollowedUsername
+            (existingFollowedUsername) =>
+                followedUsername === existingFollowedUsername
         );
 
         if (duplicate) {
             return res.json({
-                message: "Followed username already exists in user followed users list!",
+                message:
+                    "Followed username already exists in user followed users list!",
                 success: false,
             });
         }
@@ -118,7 +126,9 @@ module.exports.removeFromUserFollowedUsers = async (req, res) => {
 
         // Get followedUsername from request body
         const { followedUsername } = req.body;
-        let existingUserFollowedUsers = await FollowedUsers.findOne({ username });
+        let existingUserFollowedUsers = await FollowedUsers.findOne({
+            username,
+        });
 
         // If followed users list is not initialized for user, throw error
         if (!existingUserFollowedUsers) {
@@ -129,9 +139,11 @@ module.exports.removeFromUserFollowedUsers = async (req, res) => {
         }
 
         // If user have not followed the user, throw error
-        const existingFollowedUsername = existingUserFollowedUsers.followedUsersList.find(
-            (existingFollowedUsername) => followedUsername === String(existingFollowedUsername)
-        );
+        const existingFollowedUsername =
+            existingUserFollowedUsers.followedUsersList.find(
+                (existingFollowedUsername) =>
+                    followedUsername === String(existingFollowedUsername)
+            );
 
         if (!existingFollowedUsername) {
             return res.status(404).json({
@@ -168,7 +180,9 @@ module.exports.getAllFollowedUsersForUser = async (req, res) => {
         const { username } = user;
 
         // Find the user's followed users list
-        const existingUserFollowedUsers = await FollowedUsers.findOne({ username });
+        const existingUserFollowedUsers = await FollowedUsers.findOne({
+            username,
+        });
 
         // Check if the Followed Users List is initialized or not
         if (!existingUserFollowedUsers) {
@@ -193,54 +207,56 @@ module.exports.getAllFollowedUsersForUser = async (req, res) => {
         });
     }
 };
-    module.exports.isFriend = async (user1, user2) => {
-        const checkUsernameExists = async (usernameToCheck) => {
-            try {
-                const existingUser = await User.findOne({ username: usernameToCheck });
-        
-                if (existingUser) {
-                    return true; //User exists in database
-                } else {;
-                    return false; //User does not exists in database
-                }
-            } catch (error) {
-                console.error('Error occurred while checking username:', error);
-                return false;
-            }
-        };
 
+module.exports.isFriend = async (user1, user2) => {
+    const checkUsernameExists = async (usernameToCheck) => {
         try {
-            const exists1 = await checkUsernameExists(user1);
-            const exists2 = await checkUsernameExists(user2);
-           
-            if (!exists1||!exists2){
-                return {
-                    message: "One of the users does not exist!",
-                    success: false,
-                };
-            } 
+            const existingUser = await User.findOne({
+                username: usernameToCheck,
+            });
 
-            // Check if user1 follows user2
-            const user1FollowsUser2 = await FollowedUsers.findOne({
-                username: user1,
-                followedUsersList: user2,
-            }).lean();
-        
-            // Check if user2 follows user1
-            const user2FollowsUser1 = await FollowedUsers.findOne({
-                username: user2,
-                followedUsersList: user1,
-            }).lean();
-        
-            const followsData = {
-                user1FollowsUser2: !!user1FollowsUser2,
-                user2FollowsUser1: !!user2FollowsUser1,
-                followsEachOther: !!user1FollowsUser2 && !!user2FollowsUser1,
-            };
-        
-            return followsData;
+            if (existingUser) {
+                return true; //User exists in database
+            } else {
+                return false; //User does not exists in database
+            }
         } catch (error) {
-            console.error("Error:", error);
-            res.status(500).json({ error: "An error occurred while checking follows." });
+            console.error("Error occurred while checking username:", error);
+            return false;
         }
     };
+
+    try {
+        const exists1 = await checkUsernameExists(user1);
+        const exists2 = await checkUsernameExists(user2);
+
+        if (!exists1 || !exists2) {
+            return {
+                message: "One of the users does not exist!",
+                success: false,
+            };
+        }
+
+        // Check if user1 follows user2
+        const user1FollowsUser2 = await FollowedUsers.findOne({
+            username: user1,
+            followedUsersList: user2,
+        }).lean();
+
+        // Check if user2 follows user1
+        const user2FollowsUser1 = await FollowedUsers.findOne({
+            username: user2,
+            followedUsersList: user1,
+        }).lean();
+
+        const followsData = {
+            user1FollowsUser2: !!user1FollowsUser2,
+            user2FollowsUser1: !!user2FollowsUser1,
+            followsEachOther: !!user1FollowsUser2 && !!user2FollowsUser1,
+        };
+
+        return followsData;
+    } catch (error) {
+        throw error;
+    }
+};
