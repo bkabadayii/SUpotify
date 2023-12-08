@@ -3,7 +3,7 @@
 4) Top average rating by genre - artist
 TODO */
 
-const Rating = require("../models/ratingModel");
+const LikedContent = require("../models/likedContentModel");
 const UserToRatings = require("../models/userToRatings");
 
 const compareRating = (a, b) => {
@@ -133,6 +133,125 @@ const filterRating = (rating, filters) => {
     }
     return true;
 };
+
+const filterContent = (content, filters) => {
+    const {
+        likeDate,
+        trackReleaseDate,
+        albumReleaseDate,
+        trackGenres,
+        albumGenres,
+        artistGenres,
+        trackArtists,
+        albumArtists,
+    } = filters;
+    // If rateDate is specified, apply filter
+    if (likeDate) {
+        const startDate = new Date(rateDate[0]);
+        const endDate = new Date(rateDate[1]);
+        if (content.likedAt > endDate || content.likedAt < startDate) {
+            return false;
+        }
+    }
+    // If trackReleaseDate is specified, apply filter
+    if (trackReleaseDate) {
+        const startDate = new Date(trackReleaseDate[0]);
+        const endDate = new Date(trackReleaseDate[1]);
+        if (
+            content.track.album.releaseDate > endDate ||
+            content.track.album.releaseDate < startDate
+        ) {
+            return false;
+        }
+    }
+    if (albumReleaseDate) {
+        const startDate = new Date(albumReleaseDate[0]);
+        const endDate = new Date(albumReleaseDate[1]);
+        if (
+            content.album.releaseDate > endDate ||
+            content.album.releaseDate < startDate
+        ) {
+            return false;
+        }
+    }
+    if (trackGenres) {
+        const genres = content.track.artists[0].genres;
+        let genreMatch;
+        for (const genre of genres) {
+            genreMatch = trackGenres.find((filterGenre) => {
+                return genre === filterGenre;
+            });
+            if (genreMatch) {
+                break;
+            }
+        }
+        if (!genreMatch) {
+            return false;
+        }
+    }
+    if (albumGenres) {
+        const genres = content.album.artists[0].genres;
+        let genreMatch;
+        for (const genre of genres) {
+            genreMatch = albumGenres.find((filterGenre) => {
+                return genre === filterGenre;
+            });
+            if (genreMatch) {
+                break;
+            }
+        }
+        if (!genreMatch) {
+            return false;
+        }
+    }
+    if (artistGenres) {
+        const genres = content.artist.genres;
+        let genreMatch;
+        for (const genre of genres) {
+            genreMatch = artistGenres.find((filterGenre) => {
+                return genre === filterGenre;
+            });
+            if (genreMatch) {
+                break;
+            }
+        }
+        if (!genreMatch) {
+            return false;
+        }
+    }
+    if (trackArtists) {
+        const artists = content.track.artists;
+        let artistMatch;
+        for (const artist of artists) {
+            artistMatch = trackArtists.find((filterArtist) => {
+                return String(artist._id) === filterArtist;
+            });
+            if (artistMatch) {
+                break;
+            }
+        }
+        if (!artistMatch) {
+            return false;
+        }
+    }
+    if (albumArtists) {
+        const artists = content.album.artists;
+        let artistMatch;
+        for (const artist of artists) {
+            artistMatch = albumArtists.find((filterArtist) => {
+                return String(artist._id) === filterArtist;
+            });
+            if (artistMatch) {
+                break;
+            }
+        }
+        if (!artistMatch) {
+            return false;
+        }
+    }
+    return true;
+};
+
 /*
 Get top rated tracks
     * Filter by rate date
@@ -187,6 +306,11 @@ module.exports.getTopRatedTracks = async (req, res) => {
         const { filters, numItems } = req.body;
 
         const userToRatings = UserToRatings.findOne({ username });
+        if (!userToRatings) {
+            return res.status(404).json({
+                message: "User to Ratings does not exist for specified user!",
+            });
+        }
         // Populate necessary fields
         const populatedRatings = await userToRatings
             .populate("trackRatings.track")
@@ -354,6 +478,11 @@ module.exports.getTopRatedAlbums = async (req, res) => {
         const { filters, numItems } = req.body;
 
         const userToRatings = UserToRatings.findOne({ username });
+        if (!userToRatings) {
+            return res.status(404).json({
+                message: "User to Ratings does not exist for specified user!",
+            });
+        }
         // Populate necessary fields
         const populatedRatings = await userToRatings
             .populate("albumRatings.album")
@@ -497,6 +626,11 @@ module.exports.getTopRatedArtists = async (req, res) => {
         const { filters, numItems } = req.body;
 
         const userToRatings = UserToRatings.findOne({ username });
+        if (!userToRatings) {
+            return res.status(404).json({
+                message: "User to Ratings does not exist for specified user!",
+            });
+        }
         // Populate necessary fields
         const populatedRatings = await userToRatings.populate(
             "artistRatings.artist",
@@ -551,5 +685,233 @@ module.exports.getTopRatedArtists = async (req, res) => {
         return res
             .status(500)
             .json({ message: "Get Top Rated Artists Failed!" });
+    }
+};
+
+/*
+Get liked content statistics
+    * Filter by like date
+    * Filter by content release date
+    * Filter by genre
+    * Filter by artist
+    * Number of items: (5, 20)  
+    
+    - Returned Display Options -
+    * All tracks list (length = numItems)
+    * Genre statistics
+    * Artist statistics
+    * Track era statistics, ex: 2000-2010
+
+    body: {
+        filters: {
+            likeDate: [Date, Date] -> Range
+            releaseDate: [Date, Date] -> Range
+            genres: [String],
+            artists: [ObjectID]
+        },
+        numItems: Number,
+        contentType: "TRACK", "ALBUM" or "ARTIST"
+    }
+
+    returns: {
+        likedContentList: [Content]
+        genreToStatistics : [{
+            genre: String,
+            numContent: Number
+        }]
+        artistToStatistics: [{
+            artist: Artist,
+            numcontents: number
+        }]: NULL if contentType === "ARTIST"
+        eraToStatistics: [{
+            era: String,
+            numContent: number
+        }]: NULL if contentType === "ARTIST"
+    }
+*/
+module.exports.getLikedContentStatistics = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get filters and numItems and contentType
+        const { filters, numItems, contentType } = req.body;
+
+        // Get liked content of the user
+        const likedContent = LikedContent.findOne({ username });
+        if (!likedContent) {
+            return res.status(404).json({
+                message: "Liked Content does not exist for specified user!",
+            });
+        }
+
+        // Populate necessary fields for content
+        let populatedContent;
+        let filteredContent;
+        if (contentType === "TRACK") {
+            populatedContent = await likedContent
+                .populate("likedTracks.track")
+                .then((populatedContent) => {
+                    return populatedContent.populate(
+                        "likedTracks.track.album",
+                        ["name", "releaseDate", "imageURL"]
+                    );
+                })
+                .then((populatedContent) => {
+                    return populatedContent.populate(
+                        "likedTracks.track.artists",
+                        [
+                            "name",
+                            "genres",
+                            "popularity",
+                            "spotifyURL",
+                            "imageURL",
+                        ]
+                    );
+                });
+            filteredContent = populatedContent.likedTracks.filter(
+                (likedTrack) => {
+                    return filterContent(likedTrack, {
+                        likeDate: filters.likeDate,
+                        trackReleaseDate: filters.releaseDate,
+                        trackGenres: filters.genres
+                            ? filters.genres.length !== 0
+                                ? filters.genres
+                                : null
+                            : null,
+                        trackArtists: filters.artists
+                            ? filters.artists.length !== 0
+                                ? filters.artists
+                                : null
+                            : null,
+                    });
+                }
+            );
+        } else if (contentType === "ALBUM") {
+            populatedContent = await likedContent
+                .populate("likedAlbums.album", [
+                    "name",
+                    "releaseDate",
+                    "totalTracks",
+                    "artists",
+                    "spotifyURL",
+                    "imageURL",
+                ])
+                .then((populatedContent) =>
+                    populatedContent.populate("likedAlbums.album.artists", [
+                        "name",
+                        "genres",
+                        "popularity",
+                        "spotifyURL",
+                        "imageURL",
+                    ])
+                );
+            filteredContent = populatedContent.likedAlbums.filter(
+                (likedAlbum) => {
+                    return filterContent(likedAlbum, {
+                        likeDate: filters.likeDate,
+                        albumReleaseDate: filters.releaseDate,
+                        albumGenres: filters.genres
+                            ? filters.genres.length !== 0
+                                ? filters.genres
+                                : null
+                            : null,
+                        albumArtists: filters.artists
+                            ? filters.artists.length !== 0
+                                ? filters.artists
+                                : null
+                            : null,
+                    });
+                }
+            );
+        } else if (contentType === "ARTIST") {
+            populatedContent = await likedContent.populate(
+                "likedArtists.artist",
+                ["name", "genres", "popularity", "spotifyURL", "imageURL"]
+            );
+            filteredContent = populatedContent.likedArtists.filter(
+                (likedArtist) => {
+                    return filterContent(likedArtist, {
+                        likeDate: filters.likeDate,
+                        artistGenres: filters.genres
+                            ? filters.genres.length !== 0
+                                ? filters.genres
+                                : null
+                            : null,
+                    });
+                }
+            );
+        } else {
+            res.status(500).json({
+                message: "Invalid Content Type! Must be TRACK, ALBUM or ARTIST",
+            });
+        }
+
+        // Calculate statistics
+        let genreToStatistics = {};
+        let artistToStatistics = {};
+        let eraToStatistics = {};
+
+        for (let content of filteredContent) {
+            let genres = [];
+            let artists = [];
+            let releaseYear;
+            if (contentType === "TRACK") {
+                genres = content.track.artists[0].genres;
+                artists = content.track.artists;
+                releaseYear = content.track.album.releaseDate.getFullYear();
+            } else if (contentType === "ALBUM") {
+                genres = content.album.artists[0].genres;
+                artists = content.album.artists;
+                releaseYear = content.album.releaseDate.getFullYear();
+            } else if (contentType === "ARTIST") {
+                genres = content.artist.genres;
+            }
+
+            // Calculate genreToStatistics
+            for (let genre of genres) {
+                if (!genreToStatistics[genre]) {
+                    genreToStatistics[genre] = { numItems: 0 };
+                }
+                genreToStatistics[genre].numItems += 1;
+            }
+
+            // Calculate artistToStatistics
+            for (let artist of artists) {
+                if (!artistToStatistics[artist._id]) {
+                    artistToStatistics[artist._id] = {
+                        artistName: artist.name,
+                        artistImage: artist.imageURL,
+                        numItems: 0,
+                    };
+                }
+                artistToStatistics[artist._id].numItems += 1;
+            }
+
+            // Calculate eraToStatistics
+            if (releaseYear) {
+                const releaseEra = releaseYear - (releaseYear % 10);
+                if (!eraToStatistics[releaseEra]) {
+                    eraToStatistics[releaseEra] = { numItems: 0 };
+                }
+                eraToStatistics[releaseEra].numItems += 1;
+            }
+        }
+        // Calculate genre like statistics
+
+        return res.status(201).json({
+            message: "Liked Content statistics returned successfully",
+            success: true,
+            likedContentList: filteredContent.slice(0, numItems),
+            genreToStatistics,
+            artistToStatistics,
+            eraToStatistics,
+        });
+    } catch (err) {
+        console.error(err);
+        return res
+            .status(500)
+            .json({ message: "Get Liked Content Statistics Failed!" });
     }
 };
