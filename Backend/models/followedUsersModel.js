@@ -14,6 +14,13 @@ const followedUsersSchema = new Schema({
             default: "",
         },
     ],
+    recommendationBlockedUsersList: [
+        {
+            type: mongoose.Schema.Types.String,
+            ref: "User",
+            default: "",
+        },
+    ],
 });
 
 module.exports = mongoose.model("FollowedUsers", followedUsersSchema);
