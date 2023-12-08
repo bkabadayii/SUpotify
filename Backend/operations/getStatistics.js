@@ -1,27 +1,5 @@
 /* TODO
 
-2) Get top rated albums
-    * Filter by rate date
-    * Filter by album
-    * Filter by genre
-    * Filter by artist
-    * Number of items: (5, 20)  
-    
-    - Display Options -
-    * All albums list
-    * Genre count
-    * Artist count
-    * Track era count, ex: 2000-2010
-
-3) Get top rated artists
-    * Filter by rate date
-    * Filter by genre
-    * Number of items: (5, 20)  
-    
-    - Display Options -
-    * All artists list
-    * Genre count
-
 4) Top average rating by genre - artist
 TODO */
 
@@ -45,6 +23,7 @@ const filterRating = (rating, filters) => {
         albumReleaseDate,
         trackGenres,
         albumGenres,
+        artistGenres,
         trackArtists,
         albumArtists,
     } = filters;
@@ -107,6 +86,21 @@ const filterRating = (rating, filters) => {
             return false;
         }
     }
+    if (artistGenres) {
+        const genres = rating.artist.genres;
+        let genreMatch;
+        for (const genre of genres) {
+            genreMatch = artistGenres.find((filterGenre) => {
+                return genre === filterGenre;
+            });
+            if (genreMatch) {
+                break;
+            }
+        }
+        if (!genreMatch) {
+            return false;
+        }
+    }
     if (trackArtists) {
         const artists = rating.track.artists;
         let artistMatch;
@@ -149,14 +143,14 @@ Get top rated tracks
     
     - Returned Display Options -
     * All tracks list
-    * Genre count
-    * Artist count
-    * Track era count, ex: 2000-2010
+    * Genre statistics
+    * Artist statistics
+    * Track era statistics, ex: 2000-2010
 
     body: {
         filters: {
             rateDate: [Date, Date] -> Range
-            trackReleaseDate: [Date, Date] -> Range
+            releaseDate: [Date, Date] -> Range
             genres: [String],
             artists: [ObjectID]
         }
@@ -304,5 +298,258 @@ module.exports.getTopRatedTracks = async (req, res) => {
         return res
             .status(500)
             .json({ message: "Get Top Rated Tracks Failed!" });
+    }
+};
+
+/*
+Get top rated albums
+    * Filter by rate date
+    * Filter by album release date
+    * Filter by genre
+    * Filter by artist
+    * Number of items: (5, 20)  
+    
+    - Returned Display Options -
+    * All albums list
+    * Genre statistics
+    * Artist statistics
+    * Track era statistics, ex: 2000-2010
+
+    body: {
+        filters: {
+            rateDate: [Date, Date] -> Range
+            releaseDate: [Date, Date] -> Range
+            genres: [String],
+            artists: [ObjectID]
+        }
+        numItems: Number 
+    }
+
+    returns: {
+        albumRatings: [{Album, Rating}]
+        genreToRating : [{
+            genre: String,
+            numAlbums: Number
+            avgRating: Number
+        }]
+        artistToRating: [{
+            artist: Artist,
+            numAlbums: number
+            avgRating: Number
+        }]
+        eraToRating: [{
+            era: String,
+            numAlbums: number
+            avgRating
+        }]
+    }
+*/
+module.exports.getTopRatedAlbums = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get filters and numItems
+        const { filters, numItems } = req.body;
+
+        const userToRatings = UserToRatings.findOne({ username });
+        // Populate necessary fields
+        const populatedRatings = await userToRatings
+            .populate("albumRatings.album")
+            .then((userToRatings) =>
+                userToRatings.populate("albumRatings.album.artists", [
+                    "name",
+                    "genres",
+                    "popularity",
+                    "spotifyURL",
+                    "imageURL",
+                ])
+            );
+
+        // Filter tracks
+        let filteredRatings = populatedRatings.albumRatings.filter((rating) => {
+            return filterRating(rating, {
+                rateDate: filters.rateDate,
+                albumReleaseDate: filters.releaseDate,
+                albumGenres:
+                    filters.genres.length !== 0 ? filters.genres : null,
+                trackArtists:
+                    filters.artists.length !== 0 ? filters.artists : null,
+            });
+        });
+
+        // Sort by rating
+        filteredRatings = filteredRatings.sort(compareRating);
+
+        // Calculate genre, artist and era statistics
+        let genreToRating = {};
+        let artistToRating = {};
+        let eraToRating = {};
+
+        for (let rating of filteredRatings) {
+            // Calculate genreToRatings
+            let genres = rating.album.artists[0].genres;
+            for (let genre of genres) {
+                if (!genreToRating[genre]) {
+                    genreToRating[genre] = { numAlbums: 0, ratingSum: 0 };
+                }
+                genreToRating[genre].numAlbums += 1;
+                genreToRating[genre].ratingSum += rating.rating;
+            }
+
+            // Calculate artistToRating
+            let artists = rating.album.artists;
+            for (let artist of artists) {
+                if (!artistToRating[artist._id]) {
+                    artistToRating[artist._id] = {
+                        artistName: artist.name,
+                        artistImage: artist.imageURL,
+                        numAlbums: 0,
+                        ratingSum: 0,
+                    };
+                }
+                artistToRating[artist._id].numAlbums += 1;
+                artistToRating[artist._id].ratingSum += rating.rating;
+            }
+
+            // Calculate eraToRating
+            const releaseYear = rating.album.releaseDate.getFullYear();
+            const releaseEra = releaseYear - (releaseYear % 10);
+            if (!eraToRating[releaseEra]) {
+                eraToRating[releaseEra] = { numAlbums: 0, ratingSum: 0 };
+            }
+            eraToRating[releaseEra].numAlbums += 1;
+            eraToRating[releaseEra].ratingSum += rating.rating;
+        }
+
+        // Calculate genre average ratings
+        for (const [key, value] of Object.entries(genreToRating)) {
+            genreToRating[key].avgRating = (
+                value.ratingSum / value.numAlbums
+            ).toFixed(2);
+            delete genreToRating[key].ratingSum;
+        }
+        // Calculate artist average ratings
+        for (const [key, value] of Object.entries(artistToRating)) {
+            artistToRating[key].avgRating = (
+                value.ratingSum / value.numAlbums
+            ).toFixed(2);
+            delete artistToRating[key].ratingSum;
+        }
+        // Calculate era average ratings
+        for (const [key, value] of Object.entries(eraToRating)) {
+            eraToRating[key].avgRating = (
+                value.ratingSum / value.numAlbums
+            ).toFixed(2);
+            delete eraToRating[key].ratingSum;
+        }
+
+        return res.status(201).json({
+            message: "Returned top rated albums sucessfully",
+            success: true,
+            albumRatings: filteredRatings.slice(0, numItems),
+            genreToRating,
+            artistToRating,
+            eraToRating,
+        });
+    } catch (err) {
+        console.error(err);
+        return res
+            .status(500)
+            .json({ message: "Get Top Rated Albums Failed!" });
+    }
+};
+
+/*
+3) Get top rated artists
+    * Filter by rate date
+    * Filter by genre
+    * Number of items: (5, 20)  
+    
+    - Display Options -
+    * All artists list
+    * Genre count
+    body: {
+            filters: {
+                rateDate: [Date, Date] -> Range
+                genres: [String],
+            }
+            numItems: Number 
+        }
+
+    returns: {
+        artistRatings: [{Artist, Rating}]
+        genreToRating : [{
+            genre: String,
+            numArtists: Number
+            avgRating: Number
+        }]
+    }
+*/
+module.exports.getTopRatedArtists = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get filters and numItems
+        const { filters, numItems } = req.body;
+
+        const userToRatings = UserToRatings.findOne({ username });
+        // Populate necessary fields
+        const populatedRatings = await userToRatings.populate(
+            "artistRatings.artist",
+            ["name", "genres", "popularity", "spotifyURL", "imageURL"]
+        );
+
+        // Filter artists
+        let filteredRatings = populatedRatings.artistRatings.filter(
+            (rating) => {
+                return filterRating(rating, {
+                    rateDate: filters.rateDate,
+                    artistGenres:
+                        filters.genres.length !== 0 ? filters.genres : null,
+                });
+            }
+        );
+
+        // Sort by rating
+        filteredRatings = filteredRatings.sort(compareRating);
+
+        // Calculate genre statistics
+        let genreToRating = {};
+
+        for (let rating of filteredRatings) {
+            // Calculate genreToRatings
+            let genres = rating.artist.genres;
+            for (let genre of genres) {
+                if (!genreToRating[genre]) {
+                    genreToRating[genre] = { numArtists: 0, ratingSum: 0 };
+                }
+                genreToRating[genre].numArtists += 1;
+                genreToRating[genre].ratingSum += rating.rating;
+            }
+        }
+
+        // Calculate genre average ratings
+        for (const [key, value] of Object.entries(genreToRating)) {
+            genreToRating[key].avgRating = (
+                value.ratingSum / value.numArtists
+            ).toFixed(2);
+            delete genreToRating[key].ratingSum;
+        }
+
+        return res.status(201).json({
+            message: "Returned top rated artists sucessfully",
+            success: true,
+            artistRatings: filteredRatings.slice(0, numItems),
+            genreToRating,
+        });
+    } catch (err) {
+        console.error(err);
+        return res
+            .status(500)
+            .json({ message: "Get Top Rated Artists Failed!" });
     }
 };
