@@ -1,6 +1,7 @@
 const FollowedUsers = require("../models/followedUsersModel");
 const User = require("../models/userModel");
 
+/* ----- INITIALIZER ----- */
 module.exports.createFollowedUsersForUser = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
@@ -33,6 +34,18 @@ module.exports.createFollowedUsersForUser = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+/* ----- INITIALIZER ----- */
+
+/* ----- GENERAL FOLLOWED USERS OPERATIONS ----- */
+
+// In order for a user to add new user to their followedUsersList
+// followedUsername is the username of the user that wanted to add in followedUsersList
+
+/*
+    body: {
+        followedUsername: String
+    }
+*/
 
 module.exports.addToUserFollowedUsers = async (req, res) => {
     try {
@@ -118,6 +131,14 @@ module.exports.addToUserFollowedUsers = async (req, res) => {
     }
 };
 
+// In order for a user to remove a user from their followedUsersList
+// followedUsername is the username of the user that wanted to remove from followedUsersList
+
+/*
+    body: {
+        followedUsername: String
+    }
+*/
 module.exports.removeFromUserFollowedUsers = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
@@ -173,6 +194,7 @@ module.exports.removeFromUserFollowedUsers = async (req, res) => {
     }
 };
 
+// In order for a user to get their followed users 
 module.exports.getAllFollowedUsersForUser = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
@@ -207,7 +229,11 @@ module.exports.getAllFollowedUsersForUser = async (req, res) => {
         });
     }
 };
+/* ----- GENERAL FOLLOWED USERS OPERATIONS ----- */
 
+/* -------- HELPER FUNCTIONS -------- */
+
+// Checks if the two users follow each other 
 module.exports.isFriend = async (user1, user2) => {
     const checkUsernameExists = async (usernameToCheck) => {
         try {
@@ -260,6 +286,18 @@ module.exports.isFriend = async (user1, user2) => {
         throw error;
     }
 };
+/* -------- HELPER FUNCTIONS -------- */
+
+/* ----- GENERAL BLOCK OPERATIONS ----- */
+
+// In order for a user to recommendationBlock a user
+// blockedUsername is the username of the user that wanted to block from getting recommendation
+
+/*
+    body: {
+        blockedUsername: String
+    }
+*/
 
 module.exports.recommendationBlockUser = async (req,res)=>{
   try{
@@ -267,6 +305,7 @@ module.exports.recommendationBlockUser = async (req,res)=>{
     const user = req.user;
     const { username } = user;
 
+    // Get blocked username from request body
     const {blockedUsername} = req.body;
 
     const existingUserBlockedUsers = await FollowedUsers.findOne({
@@ -344,6 +383,14 @@ module.exports.recommendationBlockUser = async (req,res)=>{
   }
 };
 
+// In order for a user to recommendationUnblock a user
+// blockedUsername is the username of the user that wanted to unblock from getting recommendation
+
+/*
+    body: {
+        blockedUsername: String
+    }
+*/
 module.exports.recommendationUnblockUser = async (req,res)=>{
     try {
         // Get user information from the information coming from verifyToken middleware
@@ -370,7 +417,7 @@ module.exports.recommendationUnblockUser = async (req,res)=>{
                 (existingBlockedUsername) =>
                     blockedUsername === String(existingBlockedUsername)
             );
-
+    
         if (!existingBlockedUsername) {
             return res.status(404).json({
                 message:
@@ -398,3 +445,4 @@ module.exports.recommendationUnblockUser = async (req,res)=>{
         });
     }
 };
+/* ----- GENERAL BLOCK OPERATIONS ----- */

@@ -1,9 +1,13 @@
 const LikedContent = require("../models/likedContentModel");
 const FollowedUsers = require("../models/followedUsersModel");
-const {
-  isFriend,
-} = require("../controllers/followedUsersController");
 
+// In order for a user to get recommendation from a followedUser
+// trackNum is the number of track recommendations
+/*
+    params: {
+        trackNum: integer
+    }
+*/
 
 module.exports.recommendTrackFromFollowedUser = async (req,res)=>{   
   try {
@@ -20,6 +24,7 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
       },
     }).lean();
 
+    // If user does not have a likedContent, throw error
     if (!likedContent || !likedContent.likedTracks || likedContent.likedTracks.length === 0) {
       return res.json({
         message: "No liked tracks found for the user or user doesn't exist.",
@@ -34,7 +39,7 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
       
       if (!artists || !Array.isArray(artists) || artists.length === 0) {
         console.log('No artists or empty artists array found:', song);
-        continue; // Skip this song if there are no artists or if artists is not an array
+        continue; // Skip this track if there are no artists or if artists is not an array
       }
 
       //Get genres from artists of tracks
@@ -47,6 +52,7 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
       }
     }
 
+    //If users likedTracks have no genre, throw error
     if (Object.keys(genreCount).length === 0) {
       return res.json({
         message: "No genres found in the liked songs.",
@@ -60,6 +66,7 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
 
     const currentUser = await FollowedUsers.findOne({ username });
 
+    //Create and edit a list of users that meets the requirements
     let randomFollowedUser;
     if (currentUser) {
       const duplicateFollowedUsersList = [...currentUser.followedUsersList];
@@ -88,7 +95,7 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
         }
       }
     
-
+      //Choose a user from created list
       if (duplicateFollowedUsersList.length > 0) {
           const randomIndex = Math.floor(Math.random() * duplicateFollowedUsersList.length);  
           randomFollowedUser = duplicateFollowedUsersList[randomIndex];
@@ -99,7 +106,7 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
         return { success: false, message: 'User not found.' };
       }
 
-      // Function to find tracks by genre from a user's liked songs
+    // Function to find tracks by genre from a user's liked songs
     async function findTracksByGenre(username,followedUsername, genre,trackNum) {
       try {
         // Find the followed user's liked songs list
@@ -114,12 +121,6 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
         
         const likedContent=await LikedContent.findOne({username});
         
-        // Return empty array if followed user does not exist or has no liked songs
-        if (!followedLikedContent) {
-          console.log('User not found or no liked songs.');
-          return [];
-        }
-
         // Filter tracks by the specified genre
         const tracksWithGenre = followedLikedContent.likedTracks.filter(trackList =>
           trackList.track.artists.some(artist => artist.genres.includes(genre))
@@ -141,6 +142,7 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
       }
     }
     
+    // Get trackNum 
     const { trackNum }= req.params;
     const recommendations= await findTracksByGenre(username, randomFollowedUser, mostCommonGenre,trackNum) ;
 
