@@ -24,7 +24,7 @@ struct Track: Codable{
   //  let _id: String
     let name: String
     let spotifyID: String
-   // let album: Album
+   let album: String
    // let artists: [Artist]
    /* let popularity: Int
     let durationMS: Int
@@ -45,19 +45,30 @@ struct Artist: Codable{
     let imageURL: String*/
 }
 
+struct Album: Codable {
+  let name : String
+  //let _id: String
+  let imageURL: String
+   // let spotifyURL: String
+}
+
+
 struct getTrackResponse: Codable {
     let message: String
     let success: Bool
-    let track: Tracks
+    let album: Album
 }
 
 
 struct ForYouView: View {
-    @State private var recommendedTracks: [Track] = []
+    @State var recommendedTracks: [Track] = []
       @State private var isLoading = false
       @State private var currentIdx: Int = 0
       @GestureState private var dragOffset: CGFloat = 0
 
+    @State private var albumDataForTracks: [String: Album] = [:]
+
+     
       var body: some View {
           NavigationStack {
               VStack {
@@ -67,8 +78,10 @@ struct ForYouView: View {
                       ZStack {
                           ForEach(recommendedTracks.indices, id: \.self) { index in
                               Group {
+                                  let track = recommendedTracks[index]
+                                let album = albumDataForTracks[track.spotifyID]
                                   if index == currentIdx {
-                                      TrackCardView(track: recommendedTracks[index])
+                                      TrackCardView(track: track, album: album)
                                           .offset(x: dragOffset)
                                           .transition(.slide)
                                           .animation(.easeInOut, value: dragOffset)
@@ -100,7 +113,8 @@ struct ForYouView: View {
        }
     
     func fetchRecommendations() {
-        let trackNum = 2
+   
+        let trackNum = 5
         let token = SessionManager.shared.token
            let url = URL(string: "http://localhost:4000/api/recommendation/recommendTrackFromFollowedUser/\(trackNum)")!
 
@@ -124,12 +138,16 @@ struct ForYouView: View {
                        self.recommendedTracks = response.recommendations.map { $0.track }
                        print(response.recommendations)
                        
-                       let spotifyIDs = response.recommendations.map { $0.track.spotifyID }
-                        print("Spotify IDs of Recommended Tracks: \(spotifyIDs)")
+                       let albumIDs = response.recommendations.map { $0.track.album }
+                        print("Album IDs of Recommended Tracks: \(albumIDs)")
                        
-                       for spotifyID in spotifyIDs {
-                           fetchSpotifyTrackInfo(spotifyID: spotifyID)
+                       for albumID in albumIDs {
+                           fetchSpotifyTrackInfo(albumID: albumID)
                        }
+                       
+                      /* for track in self.recommendedTracks {
+                           fetchSpotifyTrackInfo(albumID: track.album)
+                       }*/
                        
                    } catch {
                        print("Decoding Error: \(error.localizedDescription)")
@@ -138,9 +156,9 @@ struct ForYouView: View {
            }.resume()
        }
     
-    func fetchSpotifyTrackInfo(spotifyID: String) {
+    func fetchSpotifyTrackInfo(albumID: String) {
         let token = SessionManager.shared.token
-        let url = URL(string: "http://localhost:4000/api/content/getTrack/\(spotifyID)")!
+        let url = URL(string: "http://localhost:4000/api/content/getAlbum/\(albumID)")!
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -156,8 +174,10 @@ struct ForYouView: View {
                 
                 print(String(data: data, encoding: .utf8) ?? "No data")
                 do {
-                    let trackInfo = try JSONDecoder().decode(getTrackResponse.self, from: data)
-                    print(trackInfo)
+                    let response = try JSONDecoder().decode(getTrackResponse.self, from: data)
+                    self.albumDataForTracks[albumID] = response.album
+                    print(albumDataForTracks[albumID])
+                   // print(trackInfo)
                     // Process the received data as needed
                 } catch {
                     print("Decoding Error: \(error.localizedDescription)")
@@ -246,10 +266,11 @@ class Host: UIHostingController<ContentView> {
 
 struct TrackCardView: View {
     let track: Track
+    let album: Album
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-           /* if let imageUrl = track.image, let url = URL(string: imageUrl) {
+           /* if let albumImageURL = album?.imageURL, let url = URL(string: albumImageURL) {
                 AsyncImage(url: url) { image in
                     image.resizable()
                 } placeholder: {
@@ -258,9 +279,8 @@ struct TrackCardView: View {
                 .frame(width: 300, height: 200)
                 .cornerRadius(10)
             }*/
-            Image(systemName: "music.note")
-                .frame(width: 300, height: 200)
-                .cornerRadius(10)
+            AlbumView(albumInfo: album)
+            
 
             Text(track.name)
                 .font(.title)
@@ -279,6 +299,35 @@ struct TrackCardView: View {
     }
 }
 
+
+struct AlbumView: View {
+    @State var albumInfo: Album
+
+    var body: some View {
+        VStack {
+            if let url = URL(string: albumInfo.imageURL) {
+                AsyncImage(url: url) { image in
+                    image.resizable()
+                } placeholder: {
+                    Color.gray
+                }
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 300, height: 200)
+                .cornerRadius(10)
+            }
+            else {
+                Image(systemName: "photo")
+                    .frame(width: 200, height: 200)
+                    .cornerRadius(10)
+                    .foregroundColor(.gray)
+            }
+
+            Text(albumInfo.name)
+                .font(.title2)
+                .bold()
+        }
+    }
+}
 
 
 
