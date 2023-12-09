@@ -252,6 +252,151 @@ const filterContent = (content, filters) => {
     return true;
 };
 
+// Gets all available genres for a user
+/*
+    params: {
+        contentType: "TRACK", "ALBUM" or "ARTIST"
+        source: "RATINGS" or "LIKES"
+    }
+*/
+module.exports.getAllGenres = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        const { contentType, source } = req.params;
+        let genresSet = new Set();
+
+        if (contentType === "TRACK") {
+            let allTracks;
+            if (source === "RATINGS") {
+                allTracks = await UserToRatings.findOne({ username })
+                    .then((userToRatings) => {
+                        return userToRatings.populate(
+                            "trackRatings.track",
+                            "artists"
+                        );
+                    })
+                    .then((userToRatings) => {
+                        return userToRatings.populate(
+                            "trackRatings.track.artists",
+                            "genres"
+                        );
+                    })
+                    .then((userToRatings) => userToRatings.trackRatings);
+            } else if (source === "LIKES") {
+                allTracks = await LikedContent.findOne({ username })
+                    .then((likedContent) => {
+                        return likedContent.populate(
+                            "likedTracks.track",
+                            "artists"
+                        );
+                    })
+                    .then((likedContent) => {
+                        return likedContent.populate(
+                            "likedTracks.track.artists",
+                            "genres"
+                        );
+                    })
+                    .then((likedContent) => likedContent.likedTracks);
+            } else {
+                throw new Error("Invalid Source Type!");
+            }
+            for (let track of allTracks) {
+                let genres = track.track.artists[0].genres;
+                for (let genre of genres) {
+                    genresSet.add(genre);
+                }
+            }
+        } else if (contentType === "ALBUM") {
+            let allAlbums;
+            if (source === "RATINGS") {
+                allAlbums = await UserToRatings.findOne({ username })
+                    .then((userToRatings) => {
+                        return userToRatings.populate(
+                            "albumRatings.album",
+                            "artists"
+                        );
+                    })
+                    .then((userToRatings) => {
+                        return userToRatings.populate(
+                            "albumRatings.album.artists",
+                            "genres"
+                        );
+                    })
+                    .then((userToRatings) => userToRatings.albumRatings);
+            } else if (source === "LIKES") {
+                allAlbums = await LikedContent.findOne({ username })
+                    .then((likedContent) => {
+                        return likedContent.populate(
+                            "likedAlbums.album",
+                            "artists"
+                        );
+                    })
+                    .then((likedContent) => {
+                        return likedContent.populate(
+                            "likedAlbums.album.artists",
+                            "genres"
+                        );
+                    })
+                    .then((likedContent) => likedContent.likedAlbums);
+            } else {
+                throw new Error("Invalid Source Type!");
+            }
+            for (let album of allAlbums) {
+                let genres = album.album.artists[0].genres;
+                for (let genre of genres) {
+                    genresSet.add(genre);
+                }
+            }
+        } else if (contentType === "ARTIST") {
+            let allArtists;
+            if (source === "RATINGS") {
+                allArtists = await UserToRatings.findOne({ username })
+                    .then((userToRatings) => {
+                        return userToRatings.populate(
+                            "artistRatings.artist",
+                            "genres"
+                        );
+                    })
+                    .then((userToRatings) => userToRatings.artistRatings);
+            } else if (source === "LIKES") {
+                allArtists = await LikedContent.findOne({ username })
+                    .then((likedContent) => {
+                        return likedContent.populate(
+                            "likedArtists.artist",
+                            "genres"
+                        );
+                    })
+                    .then((likedContent) => likedContent.likedArtists);
+            } else {
+                throw new Error("Invalid Source Type!");
+            }
+            for (let artist of allArtists) {
+                let genres = artist.artist.genres;
+                for (let genre of genres) {
+                    genresSet.add(genre);
+                }
+            }
+        } else {
+            return res.status(500).json({
+                message: "Invalid Content Type",
+                success: false,
+            });
+        }
+
+        return res.status(201).json({
+            message: "Returned all genres successfully",
+            success: true,
+            genres: Array.from(genresSet),
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Get All Genres Failed!" });
+    }
+};
+
 /*
 Get top rated tracks
     * Filter by rate date
