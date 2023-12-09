@@ -12,7 +12,8 @@ struct LImage_RText: View {
 
   @EnvironmentObject var viewModel: LikedSongsViewModel
   @State private var showActionSheet = false
-  var songID: String
+  var contentID: String
+  var contentType: String
   var songName: String
   var artistNames: String
   var imageURL: String
@@ -21,7 +22,7 @@ struct LImage_RText: View {
 
     VStack {
       HStack {
-        NavigationLink(destination: SongDetailsView(songID: songID, songName: songName, artistNames: artistNames, imageURL: imageURL)) {
+        NavigationLink(destination: SongDetailsView(songID: contentID, songName: songName, artistNames: artistNames, imageURL: imageURL)) {
           ImageView(urlString: imageURL)
             .aspectRatio(contentMode: .fill)
             .frame(width:55, height:55)
@@ -69,12 +70,12 @@ struct LImage_RText: View {
                 // Implement share action
               },
               .destructive(Text("Delete")) {
-                viewModel.removeFromUserLikedSongs(songID: songID, userToken: SessionManager.shared.token) { result in
+                viewModel.removeFromUserLikedSongs(contentID: contentID, contentType: contentType, userToken: SessionManager.shared.token) { result in
                   switch result {
                   case .success(let response):
                     print("Success: \(response)")
                     DispatchQueue.main.async {
-                        viewModel.refreshLikedSongs()
+                        viewModel.refreshLibrary()
                     }
                   case .failure(let error):
                     print("Error: \(error.localizedDescription)")
@@ -90,6 +91,6 @@ struct LImage_RText: View {
 }
 
 #Preview {
-  LImage_RText(songID: "", songName: "track", artistNames: "artists", imageURL: "")
+  LImage_RText(contentID: "", contentType: "TRACK", songName: "track", artistNames: "artists", imageURL: "")
     .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
 }

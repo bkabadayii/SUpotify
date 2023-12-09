@@ -15,7 +15,7 @@ struct LikedArtistsView: View {
         //let artists = song.artists.map { $0.name }.joined(separator: ", ")
         let artistImageURL = artist.imageURL
         HStack{
-          LImage_RText(songID: artist._id, songName: artist.name, artistNames: "", imageURL: artistImageURL)
+          LImage_RText(contentID: artist._id, contentType: "ARTIST", songName: artist.name, artistNames: "", imageURL: artistImageURL)
           Spacer()
         }
       }

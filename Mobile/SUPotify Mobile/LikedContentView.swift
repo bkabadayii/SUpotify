@@ -197,7 +197,7 @@ class LikedSongsViewModel: ObservableObject {
   }
 
 
-  func removeFromUserLikedSongs(songID: String, userToken: String, completion: @escaping (Result<RemoveResponseStruct, Error>) -> Void) {
+  func removeFromUserLikedSongs(contentID: String, contentType: String, userToken: String, completion: @escaping (Result<RemoveResponseStruct, Error>) -> Void) {
     guard let url = URL(string: "http://localhost:4000/api/likedContent/removeFromLikedContent") else {
       completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
       return
@@ -208,7 +208,7 @@ class LikedSongsViewModel: ObservableObject {
     request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    let requestBody = ["contentID": songID, "contentType": "TRACK"]
+    let requestBody = ["contentID": contentID, "contentType": contentType]
     request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody)
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -232,9 +232,11 @@ class LikedSongsViewModel: ObservableObject {
     task.resume()
   }
 
-  func refreshLikedSongs() {
+  func refreshLibrary() {
     DispatchQueue.main.async {
       self.fetchLikedSongs()
+      self.fetchLikedAlbums()
+      self.fetchLikedArtists()
     }
   }
 }

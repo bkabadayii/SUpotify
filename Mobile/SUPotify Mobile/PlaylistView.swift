@@ -72,7 +72,7 @@ struct PlaylistView: View {
                     VStack {
                         ForEach(0..<30){ i in
                             HStack{
-                              LImage_RText(songID: "", songName: "track", artistNames: "artists", imageURL: "https://i.scdn.co/image/ab6761610000e5eb59ba2466b22929f5e7ca21e4")
+                              LImage_RText(contentID: "", contentType: "TRACK", songName: "track", artistNames: "artists", imageURL: "https://i.scdn.co/image/ab6761610000e5eb59ba2466b22929f5e7ca21e4")
                                 Spacer()
                             }
                         }
