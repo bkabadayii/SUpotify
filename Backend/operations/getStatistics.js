@@ -145,10 +145,10 @@ const filterContent = (content, filters) => {
         trackArtists,
         albumArtists,
     } = filters;
-    // If rateDate is specified, apply filter
+    // If likeDate is specified, apply filter
     if (likeDate) {
-        const startDate = new Date(rateDate[0]);
-        const endDate = new Date(rateDate[1]);
+        const startDate = new Date(likeDate[0]);
+        const endDate = new Date(likeDate[1]);
         if (content.likedAt > endDate || content.likedAt < startDate) {
             return false;
         }
