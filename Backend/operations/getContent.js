@@ -10,7 +10,7 @@ const Album = require("../models/albumModel");
 */
 module.exports.getTrack = async (req, res) => {
     try {
-        const { trackID } = req.params;
+        const { trackID } = req.params;x
 
         // Throw error if the track does not exist in database
         const existingTrack = await Track.findById(trackID);
