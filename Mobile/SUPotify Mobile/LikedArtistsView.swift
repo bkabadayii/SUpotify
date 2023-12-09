@@ -8,9 +8,17 @@
 import SwiftUI
 
 struct LikedArtistsView: View {
+  @EnvironmentObject var viewModel: LikedSongsViewModel
+
     var body: some View {
-      Spacer()
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+      ForEach(viewModel.likedArtists, id: \._id){ artist in
+        //let artists = song.artists.map { $0.name }.joined(separator: ", ")
+        let artistImageURL = artist.imageURL
+        HStack{
+          LImage_RText(songID: artist._id, songName: artist.name, artistNames: "", imageURL: artistImageURL)
+          Spacer()
+        }
+      }
     }
 }
 

@@ -14,27 +14,64 @@ struct TrackData: Codable {
   let name: String
   let popularity: Int
   let durationMS: Int
-  let album: AlbumData
-  let artists: [ArtistData]
+  let album: AlbumData_forTrack
+  let artists: [ArtistData_forTrack]
   let spotifyID: String
   let spotifyURL: String
-  let previewURL: String?
   let __v: Int
 }
 
-struct AlbumData: Codable {
+struct AlbumData_forTrack: Codable {
   let _id: String
   let name: String
   let imageURL: String
 }
 
-struct ArtistData: Codable {
+struct ArtistData_forTrack: Codable {
   let _id: String
   let name: String
 }
 
-struct LikedContent: Codable {
+struct AlbumData: Codable {
+  let _id: String
+  let name: String
+  let releaseDate: String
+  let totalTracks: Int
+  let genres: [String]
+  let artists: [ArtistData_forTrack]
+  let tracks: [String]
+  let spotifyID: String
+  let spotifyURL: String
+  let imageURL: String
+  let __v: Int
+}
+
+struct ArtistData: Codable {
+  let _id: String
+  let name: String
+  let genres: [String]
+  let popularity: Int
+  let albums: [String]
+  let spotifyID: String
+  let spotifyURL: String
+  let imageURL: String
+  let __v: Int
+}
+
+struct LikedContent_track: Codable {
   let track: TrackData
+  let likedAt: String
+  let _id: String
+}
+
+struct LikedContent_album: Codable {
+  let album: AlbumData
+  let likedAt: String
+  let _id: String
+}
+
+struct LikedContent_artist: Codable {
+  let artist: ArtistData
   let likedAt: String
   let _id: String
 }
@@ -42,7 +79,19 @@ struct LikedContent: Codable {
 struct LikedSongsResponse: Codable {
   let message: String
   let success: Bool
-  let likedContent: [LikedContent]
+  let likedContent: [LikedContent_track]
+}
+
+struct LikedAlbumsResponse: Codable {
+  let message: String
+  let success: Bool
+  let likedContent: [LikedContent_album]
+}
+
+struct LikedArtistsResponse: Codable {
+  let message: String
+  let success: Bool
+  let likedContent: [LikedContent_artist]
 }
 
 struct RemoveResponseStruct: Codable {
@@ -53,13 +102,20 @@ struct RemoveResponseStruct: Codable {
 class LikedSongsViewModel: ObservableObject {
   static let shared = LikedSongsViewModel()
   @Published var likedSongs = [TrackData]()
+  @Published var likedAlbums = [AlbumData]()
+  @Published var likedArtists = [ArtistData]()
   private var token: String
   private var cancellables = Set<AnyCancellable>()
   @Published var likedSongsCount: Int = 0
+  @Published var likedAlbumsCount: Int = 0
+  @Published var likedArtistsCount: Int = 0
+
 
   init() {
     self.token = SessionManager.shared.token
     fetchLikedSongs()
+    fetchLikedAlbums()
+    fetchLikedArtists()
   }
 
   func fetchLikedSongs() {
@@ -84,6 +140,58 @@ class LikedSongsViewModel: ObservableObject {
       }, receiveValue: { [weak self] response in
         self?.likedSongs = response.likedContent.map { $0.track }
         self?.likedSongsCount = response.likedContent.count
+      })
+      .store(in: &cancellables)
+  }
+
+  func fetchLikedAlbums() {
+    let contentType = "ALBUM"
+    guard let url = URL(string: "http://localhost:4000/api/likedContent/getLikedContent/\(contentType)") else { return }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+    URLSession.shared.dataTaskPublisher(for: request)
+      .tryMap { $0.data }
+      .decode(type: LikedAlbumsResponse.self, decoder: JSONDecoder())
+      .receive(on: DispatchQueue.main)
+      .sink(receiveCompletion: { completion in
+        switch completion {
+        case .finished:
+          print("Retrieved data successfully.")
+        case .failure(let error):
+          print("Error occurred: \(error)")
+        }
+      }, receiveValue: { [weak self] response in
+        self?.likedAlbums = response.likedContent.map { $0.album }
+        self?.likedAlbumsCount = response.likedContent.count
+      })
+      .store(in: &cancellables)
+  }
+
+  func fetchLikedArtists() {
+    let contentType = "ARTIST"
+    guard let url = URL(string: "http://localhost:4000/api/likedContent/getLikedContent/\(contentType)") else { return }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+    URLSession.shared.dataTaskPublisher(for: request)
+      .tryMap { $0.data }
+      .decode(type: LikedArtistsResponse.self, decoder: JSONDecoder())
+      .receive(on: DispatchQueue.main)
+      .sink(receiveCompletion: { completion in
+        switch completion {
+        case .finished:
+          print("Retrieved data successfully.")
+        case .failure(let error):
+          print("Error occurred: \(error)")
+        }
+      }, receiveValue: { [weak self] response in
+        self?.likedArtists = response.likedContent.map { $0.artist }
+        self?.likedArtistsCount = response.likedContent.count
       })
       .store(in: &cancellables)
   }
