@@ -5,6 +5,7 @@ TODO */
 
 const LikedContent = require("../models/likedContentModel");
 const UserToRatings = require("../models/userToRatings");
+const Artist = require("../models/artistModel");
 
 const compareRating = (a, b) => {
     if (a.rating > b.rating) {
@@ -397,6 +398,124 @@ module.exports.getAllGenres = async (req, res) => {
     }
 };
 
+// Gets all available artists for a user
+/*
+    params: {
+        contentType: "TRACK", "ALBUM" or "ARTIST"
+        source: "RATINGS" or "LIKES"
+    }
+*/
+module.exports.getAllArtists = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        const { contentType, source } = req.params;
+        let artistsSet = new Set();
+
+        if (contentType === "TRACK") {
+            let allTracks;
+            if (source === "RATINGS") {
+                allTracks = await UserToRatings.findOne({ username })
+                    .then((userToRatings) => {
+                        return userToRatings.populate(
+                            "trackRatings.track",
+                            "artists"
+                        );
+                    })
+                    .then((userToRatings) => userToRatings.trackRatings);
+            } else if (source === "LIKES") {
+                allTracks = await LikedContent.findOne({ username })
+                    .then((likedContent) => {
+                        return likedContent.populate(
+                            "likedTracks.track",
+                            "artists"
+                        );
+                    })
+                    .then((likedContent) => likedContent.likedTracks);
+            } else {
+                throw new Error("Invalid Source Type!");
+            }
+            for (let track of allTracks) {
+                let artists = track.track.artists;
+                for (let artist of artists) {
+                    artistsSet.add(artist.toString());
+                }
+            }
+        } else if (contentType === "ALBUM") {
+            let allAlbums;
+            if (source === "RATINGS") {
+                allAlbums = await UserToRatings.findOne({ username })
+                    .then((userToRatings) => {
+                        return userToRatings.populate(
+                            "albumRatings.album",
+                            "artists"
+                        );
+                    })
+                    .then((userToRatings) => userToRatings.albumRatings);
+            } else if (source === "LIKES") {
+                allAlbums = await LikedContent.findOne({ username })
+                    .then((likedContent) => {
+                        return likedContent.populate(
+                            "likedAlbums.album",
+                            "artists"
+                        );
+                    })
+                    .then((likedContent) => likedContent.likedAlbums);
+            } else {
+                throw new Error("Invalid Source Type!");
+            }
+            for (let album of allAlbums) {
+                let artists = album.album.artists;
+                for (let artist of artists) {
+                    artistsSet.add(artist.toString());
+                }
+            }
+        } else if (contentType === "ARTIST") {
+            let allArtists;
+            if (source === "RATINGS") {
+                allArtists = await UserToRatings.findOne({ username }).then(
+                    (userToRatings) => userToRatings.artistRatings
+                );
+            } else if (source === "LIKES") {
+                allArtists = await LikedContent.findOne({ username }).then(
+                    (likedContent) => likedContent.likedArtists
+                );
+            } else {
+                throw new Error("Invalid Source Type!");
+            }
+            for (let artist of allArtists) {
+                console.log(artist);
+                artistsSet.add(artist.artist.toString());
+            }
+        } else {
+            return res.status(500).json({
+                message: "Invalid Content Type",
+                success: false,
+            });
+        }
+        const artistsArray = Array.from(artistsSet);
+        const artists = await Promise.all(
+            artistsArray.map(async (artistID) => {
+                const foundArtist = await Artist.findById(artistID);
+                return {
+                    id: foundArtist._id,
+                    name: foundArtist.name,
+                    imageURL: foundArtist.imageURL,
+                };
+            })
+        );
+        return res.status(201).json({
+            message: "Returned all artists successfully",
+            success: true,
+            artists,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Get All Artist Failed!" });
+    }
+};
 /*
 Get top rated tracks
     * Filter by rate date
