@@ -7,9 +7,15 @@ struct SearchResult: Codable {
 }
 
 struct Data: Codable {
+<<<<<<< Updated upstream
   let Tracks: [Track]?
   let Albums: [Album]?
   let Artists: [Artist]?
+=======
+  let Tracks: [Tracks]?
+  let Albums: [Albums]?
+  let Artists: [Artists]?
+>>>>>>> Stashed changes
 }
 
 struct Track: Codable {
@@ -27,7 +33,7 @@ struct Artist: Codable {
   let image: String?
 }
 
-struct Album: Codable {
+struct Albums: Codable {
   let name : String
   let id: String
   let artists: [String]
@@ -347,9 +353,15 @@ struct SearchView: View {
 
     private var token : String
 
+<<<<<<< Updated upstream
     @Published var tracks: [Track] = []
     @Published var artists: [Artist] = []
     @Published var albums: [Album] = []
+=======
+    @Published var tracks: [Tracks] = []
+    @Published var artists: [Artists] = []
+    @Published var albums: [Albums] = []
+>>>>>>> Stashed changes
     @Published var isLoading = false
     @Published var favoritedTracks: Set<String> = []
     @Published var isNotFound: Bool = false
