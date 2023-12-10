@@ -9,12 +9,11 @@ import SwiftUI
 
 @main
 struct SUPotifyMobileApp: App {
-    @StateObject var likedSongsViewModel = LikedSongsViewModel.shared
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(.dark)
-                .environmentObject(likedSongsViewModel)
                 
         }
     }

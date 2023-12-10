@@ -1,10 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var likedSongsViewModel: LikedSongsViewModel
-
     var body: some View {
-       
         NavigationStack {
             ZStack {
                 BackgroundView()

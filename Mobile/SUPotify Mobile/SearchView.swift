@@ -36,7 +36,7 @@ struct Albums: Codable {
 
 struct SearchView: View {
     @ObservedObject var searchViewModel = SearchViewModel()
-  @EnvironmentObject var viewModel: LikedSongsViewModel
+  //@EnvironmentObject var viewModel: LikedSongsViewModel
     @State private var searchTerm = ""
     @State private var hasSearched = false
     
@@ -297,7 +297,6 @@ struct SearchView: View {
     struct SearchView_Previews: PreviewProvider {
         static var previews: some View {
             SearchView()
-                .environmentObject(LikedSongsViewModel.shared)
                 .preferredColorScheme(.dark)
             
         }
@@ -330,7 +329,7 @@ struct SearchView: View {
     
     class SearchViewModel: ObservableObject {
         static let shared = LikedSongsViewModel()
-      @EnvironmentObject var viewModel: LikedSongsViewModel
+      //@EnvironmentObject var viewModel: LikedSongsViewModel
         private var token : String
         @Published var tracks: [Tracks] = []
         @Published var artists: [Artists] = []
