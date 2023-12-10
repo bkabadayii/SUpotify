@@ -75,6 +75,15 @@ struct SearchView: View {
               )
               .padding(.horizontal, 10)
 
+            NavigationLink(destination: AddCustomSong()) {
+                Image(systemName: "plus.circle")
+                    .foregroundColor(.white)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 20)
+                    .background(Color.indigo.opacity(0.50))
+                    .cornerRadius(30)
+            }
+
             /*
              Button(action: {
              hasSearched = true
@@ -449,4 +458,9 @@ struct SearchView: View {
       }.resume()
     }
   }
+}
+
+
+#Preview {
+    SearchView()
 }
