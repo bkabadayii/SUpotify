@@ -36,7 +36,7 @@ struct Albums: Codable {
 
 struct SearchView: View {
     @ObservedObject var searchViewModel = SearchViewModel()
-  //@EnvironmentObject var viewModel: LikedSongsViewModel
+  @EnvironmentObject var viewModel: LikedSongsViewModel
     @State private var searchTerm = ""
     @State private var hasSearched = false
     
@@ -75,7 +75,15 @@ struct SearchView: View {
                                 }
                             )
                             .padding(.horizontal, 10)
-                        
+                      NavigationLink(destination: AddCustomSong().environmentObject(viewModel)){
+                        Image(systemName: "plus.circle")
+                          .foregroundColor(.white)
+                          .padding(.vertical, 10)
+                          .padding(.horizontal, 20)
+                          //.background(Color.indigo.opacity(0.5))
+                          //.cornerRadius(50)
+                      }
+
                     }
                     .padding(.horizontal, 10)
                     .onChange(of: searchTerm) { newValue in
@@ -293,7 +301,7 @@ struct SearchView: View {
         }
     }
     
-    
+    /*
     struct SearchView_Previews: PreviewProvider {
         static var previews: some View {
             SearchView()
@@ -301,7 +309,9 @@ struct SearchView: View {
             
         }
     }
-    
+  */
+
+
     struct ProgressView : View {
         @State var isRotated : Bool
         var body: some View {
@@ -329,7 +339,7 @@ struct SearchView: View {
     
     class SearchViewModel: ObservableObject {
         static let shared = LikedSongsViewModel()
-      //@EnvironmentObject var viewModel: LikedSongsViewModel
+      @EnvironmentObject var viewModel: LikedSongsViewModel
         private var token : String
         @Published var tracks: [Tracks] = []
         @Published var artists: [Artists] = []
@@ -613,4 +623,8 @@ struct SearchView: View {
             }.resume()
         }
     }
+}
+
+#Preview {
+  SearchView().preferredColorScheme(.dark)
 }

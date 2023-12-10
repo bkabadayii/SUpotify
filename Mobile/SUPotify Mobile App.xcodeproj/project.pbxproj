@@ -29,6 +29,7 @@
 		B85C1AAB2B212928006337B5 /* SongDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85C1AAA2B212928006337B5 /* SongDetailsView.swift */; };
 		B87033952B1F61EC00DFB1E8 /* PlaylistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87033942B1F61EC00DFB1E8 /* PlaylistView.swift */; };
 		B89AF7312B08EAC5001750E8 /* IconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89AF7302B08EAC5001750E8 /* IconView.swift */; };
+		B8C6F30F2B264F7700626C97 /* AddCustomSong.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C6F30E2B264F7700626C97 /* AddCustomSong.swift */; };
 		B8DBAD6C2B0693C200F2FBFD /* LImage_RText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DBAD6B2B0693C100F2FBFD /* LImage_RText.swift */; };
 		B8DBAD6E2B075F9C00F2FBFD /* LikedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DBAD6D2B075F9C00F2FBFD /* LikedContentView.swift */; };
 		B8E4C78F2B04DEEC0089C73E /* ExportOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E4C78E2B04DEEC0089C73E /* ExportOptionsView.swift */; };
@@ -83,6 +84,7 @@
 		B85C1AAA2B212928006337B5 /* SongDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongDetailsView.swift; sourceTree = "<group>"; };
 		B87033942B1F61EC00DFB1E8 /* PlaylistView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistView.swift; sourceTree = "<group>"; };
 		B89AF7302B08EAC5001750E8 /* IconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconView.swift; sourceTree = "<group>"; };
+		B8C6F30E2B264F7700626C97 /* AddCustomSong.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomSong.swift; sourceTree = "<group>"; };
 		B8DBAD6B2B0693C100F2FBFD /* LImage_RText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LImage_RText.swift; sourceTree = "<group>"; };
 		B8DBAD6D2B075F9C00F2FBFD /* LikedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedContentView.swift; sourceTree = "<group>"; };
 		B8E4C78E2B04DEEC0089C73E /* ExportOptionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportOptionsView.swift; sourceTree = "<group>"; };
@@ -141,14 +143,15 @@
 		A62625DE2AE148CA009F0080 /* SUPotify Mobile */ = {
 			isa = PBXGroup;
 			children = (
+				B8C6F30E2B264F7700626C97 /* AddCustomSong.swift */,
 				B8E8A9252B233CBC0082DC6E /* HomeView.swift */,
-				B8E8A9232B233CAB0082DC6E /* ImageLoader.swift */,
 				B87033942B1F61EC00DFB1E8 /* PlaylistView.swift */,
 				B8E4C78E2B04DEEC0089C73E /* ExportOptionsView.swift */,
 				A63BAF6F2B0553B7000076B3 /* SessionManager.swift */,
 				A661F14D2B1F4BB000E52D46 /* CreatePlaylistView.swift */,
-				A645256A2B02399A00B93D60 /* ForYouPage.swift */,
 				A6BFEE862B0B741400D75D9F /* SearchView.swift */,
+				A645256A2B02399A00B93D60 /* ForYouPage.swift */,
+				B8E8A9232B233CAB0082DC6E /* ImageLoader.swift */,
 				A62625DF2AE148CA009F0080 /* SUPotifyMobileApp.swift */,
 				A62625E12AE148CA009F0080 /* ContentView.swift */,
 				B82C84902AED6217000E31FA /* MainPage.swift */,
@@ -349,6 +352,7 @@
 				B85C1AAB2B212928006337B5 /* SongDetailsView.swift in Sources */,
 				B8E8A9262B233CBC0082DC6E /* HomeView.swift in Sources */,
 				B89AF7312B08EAC5001750E8 /* IconView.swift in Sources */,
+				B8C6F30F2B264F7700626C97 /* AddCustomSong.swift in Sources */,
 				A661F1502B1F4C0400E52D46 /* FriendsView.swift in Sources */,
 				A626260F2AEFD8C0009F0080 /* LoginView.swift in Sources */,
 				A661F14E2B1F4BB000E52D46 /* CreatePlaylistView.swift in Sources */,
