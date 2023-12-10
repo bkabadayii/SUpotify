@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import './SearchBar.css';
+import Navbar from './Navbar';
 
 const SearchBar = () => {
   const token = localStorage.getItem('token');
@@ -119,6 +120,8 @@ const SearchBar = () => {
   };
 
   return (
+    <div>
+      <Navbar/>
     <div className="search-bar-container">
       <div className="search-input-container">
         <input
@@ -169,6 +172,7 @@ const SearchBar = () => {
             </div>
           ))}
         </div>
+      </div>
       </div>
       </div>
   );

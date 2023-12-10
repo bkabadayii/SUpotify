@@ -5,6 +5,7 @@ import { postRating } from './postRating';
 import getRatingInfo from './getRatingInfo';
 import { useHistory } from 'react-router-dom';
 import './SongDetails.css'
+import Navbar from './Navbar';
 
 const SongDetails = () => {
   const [songDetails, setSongDetails] = useState(null);
@@ -89,6 +90,8 @@ const SongDetails = () => {
   }
 
   return (
+    <div>
+      <Navbar/>
     <div className="song-details">
       <h1>{songDetails.name}</h1>
       <div className="artists">
@@ -129,6 +132,7 @@ const SongDetails = () => {
         {songDetails.previewURL && <audio controls src={songDetails.previewURL}>Your browser does not support the audio element.</audio>}
       </div>
       {/* Include a back button or navigation as needed */}
+    </div>
     </div>
   );
 };

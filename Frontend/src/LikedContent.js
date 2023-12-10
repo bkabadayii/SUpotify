@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './LikedContent.css';
+import Navbar from './Navbar';
 import { FaTrashAlt } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 
@@ -208,6 +209,8 @@ const LikedContent = () => {
   };
 
   return (
+    <div>
+      <Navbar/>
     <div className="liked-content">
       <div className="tabs">
         <button onClick={() => setActiveTab('likedSongs')} className={activeTab === 'likedSongs' ? 'active' : ''}>Liked Songs</button>
@@ -338,6 +341,7 @@ const LikedContent = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };

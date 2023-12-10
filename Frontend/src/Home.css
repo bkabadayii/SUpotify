@@ -1,57 +1,58 @@
 .home-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid layout */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   justify-content: center;
-  gap: 20px; /* Reduced gap for a more compact layout */
+  gap: 20px;
   padding: 40px;
-  background-color: #111111; /* Dark background for contrast */
+  background-color: #000000;
   min-height: 100vh;
 }
 
-.card {
+.home-card {
   display: flex;
-  flex-direction: column; /* Stack content vertically */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   border-radius: 15px;
   cursor: pointer;
-  background-color: #292929; /* Subdued background for cards */
+  background-color: #3820a3;
   color: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   padding: 20px;
   text-align: center;
-  
 }
 
-.card:hover {
-  transform: scale(1.05); /* Slight scale up on hover */
+.home-card:hover {
+  transform: scale(1.05);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-.card-icon {
+.home-card-icon {
   font-size: 40px;
-  margin-bottom: 10px;
-  color: #BB86FC; /* Theme color for icons */
+  margin-bottom: 20px;
+  color: white;
+  background-color: #3820a3;
 }
 
-.card-title {
-  font-size: 22px;
+.home-card-title {
+  font-size: 32px;
   margin: 0;
+  background-color: #3820a3;
 }
 
 @media screen and (max-width: 768px) {
   .home-container {
-    grid-template-columns: 1fr; /* Single column layout on smaller screens */
+    grid-template-columns: 1fr;
     padding: 20px;
-    gap: 15px; /* Even smaller gap on smaller screens */
+    gap: 15px;
   }
 
-  .card-icon {
-    font-size: 35px; /* Adjust size for smaller screens */
+  .home-card-icon {
+    font-size: 35px;
   }
 
-  .card-title {
+  .home-card-title {
     font-size: 20px;
   }
 }

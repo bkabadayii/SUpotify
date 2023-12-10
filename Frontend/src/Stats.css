@@ -22,7 +22,7 @@
 }
 
 .main-tabs button.active {
-  background-color: #1DB954;
+  background-color: #3820a3;
 }
 
 .ratings-container {
@@ -110,7 +110,7 @@
   padding: 8px;
   margin-bottom: 10px;
   border-radius: 5px;
-  border: 1px solid #1DB954;
+  border: 1px solid #3820a3;
   background-color: #202020;
   color: white;
   margin-left: 10px;
@@ -121,7 +121,7 @@
   padding: 8px;
   margin-bottom: 10px;
   border-radius: 5px;
-  border: 1px solid #1DB954;
+  border: 1px solid #3820a3;
   background-color: #202020;
   color: white;
   margin-left: 10px;
@@ -132,7 +132,7 @@
   padding: 8px;
   margin-bottom: 10px;
   border-radius: 5px;
-  border: 1px solid #1DB954;
+  border: 1px solid #3820a3;
   background-color: #202020;
   color: white;
   margin-left: 10px;
@@ -140,7 +140,7 @@
 
 .filter-form button {
   padding: 10px 20px;
-  background-color: #1DB954;
+  background-color: #3820a3;
   color: white;
   border: none;
   border-radius: 5px;
@@ -149,12 +149,12 @@
 }
 
 .filter-form button:hover {
-  background-color: #17a74b;
+  background-color: #3820a3;
 }
 
 .liked-filter-form button {
   padding: 10px 20px;
-  background-color: #1DB954;
+  background-color: #3820a3;
   color: white;
   border: none;
   border-radius: 5px;
@@ -163,7 +163,7 @@
 }
 
 .liked-filter-form button:hover {
-  background-color: #17a74b;
+  background-color: #3820a3;
 }
 
 .ratings-flex-container {

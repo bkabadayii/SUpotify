@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { getTrackInfo } from './getTrackInfo';
 import './Recommendation.css';
+import Navbar from './Navbar';
 
 const Recommendation = () => {
     const [showInputCard, setShowInputCard] = useState(false);
@@ -50,6 +51,8 @@ const Recommendation = () => {
     };
 
     return (
+        <div>
+        <Navbar/>
         <div className="recommendation-container">
             <h2 className="recommendation-header">Ready to expand your taste, {username}?</h2>
             <button className="get-recommendation-button" onClick={toggleInputCard}>Get Recommendation</button>
@@ -77,6 +80,7 @@ const Recommendation = () => {
                     </div>
                 ))}
             </div>
+        </div>
         </div>
     );
 };

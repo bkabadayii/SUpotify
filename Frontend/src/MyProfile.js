@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import './MyProfile.css'; // Ensure this CSS file is created and linked
+import Navbar from './Navbar';
 
 const MyProfile = () => {
   const [myPlaylists, setMyPlaylists] = useState([]);
@@ -152,6 +153,8 @@ const MyProfile = () => {
   };
 
   return (
+      <div>
+        <Navbar/>
       <div className="main-container">
       <div className="profile-container">
         <div className="profile-photo">
@@ -211,6 +214,7 @@ const MyProfile = () => {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

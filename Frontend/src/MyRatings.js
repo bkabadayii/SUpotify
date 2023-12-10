@@ -5,6 +5,7 @@ import { getTrackInfo } from './getTrackInfo';
 import { getAlbumInfo } from './getAlbumInfo';
 import { getArtistInfo } from './getArtistInfo';
 import './MyRatings.css'; // Make sure to create and style this CSS file
+import Navbar from './Navbar';
 
 const MyRatings = () => {
   const [ratings, setRatings] = useState({
@@ -79,10 +80,14 @@ const MyRatings = () => {
   }, [token]);
 
   if (isLoading) {
-    return <div className="my-ratings">Loading Ratings...</div>;
+    return <div className="my-ratings">
+      <h2>Preparing your ratings...</h2>
+    </div>;
   }
 
   return (
+    <div>
+      <Navbar/>
     <div className="my-ratings">
       <h2>My Track Ratings</h2>
       <div className="ratings-list">
@@ -127,6 +132,7 @@ const MyRatings = () => {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 };

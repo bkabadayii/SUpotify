@@ -1,5 +1,101 @@
-@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@200;300;400;500;600&display=swap');
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  background-color: #000000;
+}
 
 .login-container {
-  background-color: rgb(37, 27, 106);
+  background: #333333;
+  padding: 40px 60px;
+  border-radius: 12px;
+  box-shadow: 0px 8px 36px rgba(0, 0, 0, 0.75);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-title {
+  color: #FFFFFF;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 40px;
+  background-color: #333333;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #333333;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.text-input {
+  background: #333333;
+  border: 2px solid #5E5E5E;
+  border-radius: 6px;
+  padding: 15px 20px;
+  color: #FFFFFF;
+  font-size: 1rem;
+  outline: none;
+}
+
+.text-input::placeholder {
+  color: #BDBDBD;
+}
+
+.submit-button {
+  background:#4732a5;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 15px 20px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.submit-button:hover {
+  background: #3d1391;
+}
+
+.alternative-action {
+  text-align: center;
+  margin-top: 20px;
+  background-color: #333333;
+}
+
+.alternative-text {
+  color: #BDBDBD;
+  font-size: 0.9rem;
+  background-color: #333333;
+}
+
+.alternative-link {
+  color: #7C4DFF;
+  margin-left: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  background-color:#333333;
+}
+
+.alternative-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    padding: 30px 40px;
+  }
+
+  .login-title {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
 }

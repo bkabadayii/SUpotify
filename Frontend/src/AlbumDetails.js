@@ -5,6 +5,7 @@ import { postRating } from './postRating';
 import getRatingInfo from './getRatingInfo';
 import { useHistory } from 'react-router-dom';
 import './AlbumDetails.css';
+import Navbar from './Navbar';
 
 const AlbumDetails = () => {
   const [albumDetails, setAlbumDetails] = useState(null);
@@ -86,6 +87,8 @@ const AlbumDetails = () => {
   }
 
   return (
+    <div>
+      <Navbar/>
     <div className="album-details">
       <div className="album-header">
         <img src={albumDetails.imageURL} alt={albumDetails.name} className="album-art-large" />
@@ -136,6 +139,7 @@ const AlbumDetails = () => {
           ))}
         </ul>
       </div>
+    </div>
     </div>
   );
 };

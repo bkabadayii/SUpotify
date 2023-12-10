@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import axios from 'axios';
+import { Link, useHistory } from 'react-router-dom';
 import './Signup.css';
 
 const Signup = () => {
@@ -32,33 +33,45 @@ const Signup = () => {
   }
 
   return (
-    <div className="justify-content-center align-items-center vh-100">
-      <div className="p-5 rounded w-15">
-        <h2>Sign Up</h2>
-        <p></p>
-        <form>
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail2" className="form-label">Email address</label>
-            <input type="email" className="form-control" id="exampleInputEmail2" aria-describedby="emailHelp" onChange= {(e) => {
-            e.preventDefault()
-            setEmail(e.target.value)
-          }} required/>
+    <div className="signup-background">
+      <div className="signup-container">
+        <h1 className="signup-header">Sign Up to SUpotify</h1>
+        <form onSubmit={handleSignup} className="signup-form">
+          <div className="signup-input-container">
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="signup-text-input"
+            />
           </div>
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail2" className="form-label">Username</label>
-            <input type="username" className="form-control" id="exampleInputUsername" aria-describedby="emailHelp" onChange= {(e) => {
-            e.preventDefault()
-            setUsername(e.target.value)
-          }} required/>
+          <div className="signup-input-container">
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="signup-text-input"
+            />
           </div>
-          <div className="mb-3">
-            <label htmlFor="exampleInputPassword2" className="form-label">Password</label>
-            <input type="password" className="form-control" id="exampleInputPassword2" onChange={ (e) => {
-            e.preventDefault()
-            setPassword(e.target.value)
-          }} required />
+          <div className="signup-input-container">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="signup-text-input"
+            />
           </div>
-          <button className='btn btn-default border w-100 bg-light' onClick={handleSignup}>Create Account</button>
+          <button type="submit" className="signup-submit-btn">Sign Up</button>
+          <div className="alternative-action">
+            <span className="alternative-text">Already have an account?</span>
+            <Link to="/login" className="alternative-link">Log In</Link>
+          </div>
         </form>
       </div>
     </div>

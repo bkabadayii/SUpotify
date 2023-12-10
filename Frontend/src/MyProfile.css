@@ -118,6 +118,7 @@ input[type="text"] {
   background-color: black; /* Black background for remove button */
   color: white; /* White text for visibility */
   border: 2px solid #3820a3; /* Purple border */
+  border-radius: 5px;
   padding: 5px 10px; /* Smaller padding for a smaller button */
   margin-left: 10px;
   font-size: 0.9em; /* Slightly smaller font size */

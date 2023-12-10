@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'chart.js/auto';
 import './Stats.css';
+import Navbar from './Navbar';
 
 const Stats = () => {
   const [activeTab, setActiveTab] = useState('ratings');
@@ -199,6 +200,8 @@ const Stats = () => {
   };
 
   return (
+    <div>
+      <Navbar/>
     <div className="stats-container">
       <div className="main-tabs">
         <button
@@ -653,6 +656,7 @@ const Stats = () => {
         </div>
       </div>
       )}
+    </div>
     </div>
   );
 };
