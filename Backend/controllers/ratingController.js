@@ -2,7 +2,7 @@ const Track = require("../models/trackModel");
 const Album = require("../models/albumModel");
 const Artist = require("../models/artistModel");
 const Rating = require("../models/ratingModel");
-const UserToRatings = require("../models/userToRatings");
+const UserToRatings = require("../models/userToRatingsModel");
 const { isFriend } = require("./followedUsersController");
 
 module.exports.createUserToRatings = async (req, res) => {

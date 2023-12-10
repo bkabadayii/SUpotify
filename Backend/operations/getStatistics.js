@@ -4,7 +4,7 @@
 TODO */
 
 const LikedContent = require("../models/likedContentModel");
-const UserToRatings = require("../models/userToRatings");
+const UserToRatings = require("../models/userToRatingsModel");
 const Artist = require("../models/artistModel");
 
 const compareRating = (a, b) => {
