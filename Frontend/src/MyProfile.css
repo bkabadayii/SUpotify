@@ -29,7 +29,7 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  border: 3px solid #673AB7;
+  border: 3px solid #3820a3;
   display: block;
   margin: 0 auto;
 }
@@ -55,7 +55,7 @@
 button {
   background-color: black; /* Black button background */
   color: white;
-  border: 2px solid #673AB7; /* Purple border */
+  border: 2px solid #3820a3; /* Purple border */
   padding: 10px 15px;
   margin: 5px;
   border-radius: 5px;
@@ -117,7 +117,7 @@ input[type="text"] {
 .remove-button {
   background-color: black; /* Black background for remove button */
   color: white; /* White text for visibility */
-  border: 2px solid #673AB7; /* Purple border */
+  border: 2px solid #3820a3; /* Purple border */
   padding: 5px 10px; /* Smaller padding for a smaller button */
   margin-left: 10px;
   font-size: 0.9em; /* Slightly smaller font size */

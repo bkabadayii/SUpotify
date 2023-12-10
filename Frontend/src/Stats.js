@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Chart } from 'react-google-charts';
-import { generateBarChart } from './ChartGenerator';
 import 'chart.js/auto';
 import './Stats.css';
 
@@ -56,19 +54,6 @@ const Stats = () => {
     setSelectedArtists(value);
   };
 
-  const getChartData = () => {
-    const data = [
-        ['Genre', 'Number of Tracks', 'Average Rating']
-    ];
-
-    if (topRatedGenres) {
-        Object.entries(topRatedGenres).forEach(([genre, { numTracks, avgRating }]) => {
-            data.push([genre, numTracks, parseFloat(avgRating)]);
-        });
-    }
-
-    return data;
-  };
 
   const handleLikedContentSubmit = async (e, contentType) => {
     e.preventDefault();
@@ -327,7 +312,6 @@ const Stats = () => {
 
                 <button type="submit">Apply Filters</button>
               </form>
-              {topRatedGenres && generateBarChart(topRatedGenres)}
             </div>
             )}
 

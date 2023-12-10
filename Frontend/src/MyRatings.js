@@ -106,7 +106,7 @@ const MyRatings = () => {
           <div key={rating._id} className="rating-item" onClick={() => goToAlbumDetails(rating.album)}>
             <img src={rating.albumDetails?.imageURL} alt={rating.albumDetails?.name} />
             <div>
-              <p>Album: {rating.albumDetails?.name}</p>
+              <p>{rating.albumDetails?.name}</p>
               <p>Rating: {rating.rating}/10</p>
               <p>Rated on: {new Date(rating.ratedAt).toLocaleDateString()}</p>
             </div>
@@ -120,7 +120,7 @@ const MyRatings = () => {
           <div key={rating._id} className="rating-item" onClick={() => goToArtistDetails(rating.artist)}>
             <img src={rating.artistDetails?.imageURL} alt={rating.artistDetails?.name} />
             <div>
-              <p>Artist: {rating.artistDetails?.name}</p>
+              <p>{rating.artistDetails?.name}</p>
               <p>Rating: {rating.rating}/10</p>
               <p>Rated on: {new Date(rating.ratedAt).toLocaleDateString()}</p>
             </div>
