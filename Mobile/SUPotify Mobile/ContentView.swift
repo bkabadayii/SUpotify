@@ -1,7 +1,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var likedSongsViewModel: LikedSongsViewModel
+
     var body: some View {
+       
         NavigationStack {
             ZStack {
                 BackgroundView()
@@ -79,5 +82,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .preferredColorScheme(.dark)
+            .environmentObject(LikedSongsViewModel.shared)
     }
 }
