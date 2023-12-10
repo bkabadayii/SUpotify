@@ -22,7 +22,7 @@ struct LImage_RText: View {
 
     VStack {
       HStack {
-        NavigationLink(destination: SongDetailsView(songID: contentID, songName: songName, artistNames: artistNames, imageURL: imageURL)) {
+        NavigationLink(destination: SongDetailsView(songID: contentID, songName: songName, artistNames: artistNames, imageURL: imageURL, ratingType: contentType)) {
           ImageView(urlString: imageURL)
             .aspectRatio(contentMode: .fill)
             .frame(width:55, height:55)
