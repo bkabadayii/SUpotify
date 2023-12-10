@@ -35,8 +35,8 @@ struct Albums: Codable {
 }
 
 struct SearchView: View {
-    @ObservedObject var viewModel = SearchViewModel()
-    @EnvironmentObject var likedSongsViewModel: LikedSongsViewModel
+    @ObservedObject var searchViewModel = SearchViewModel()
+  @EnvironmentObject var viewModel: LikedSongsViewModel
     @State private var searchTerm = ""
     @State private var hasSearched = false
     
@@ -80,11 +80,11 @@ struct SearchView: View {
                     .padding(.horizontal, 10)
                     .onChange(of: searchTerm) { newValue in
                         hasSearched = true
-                        viewModel.performSearch(with: newValue)
+                        searchViewModel.performSearch(with: newValue)
                     }
                     
                     
-                    if viewModel.isLoading {
+                    if searchViewModel.isLoading {
                         ProgressView(isRotated: true)
                     }
                     
@@ -94,11 +94,11 @@ struct SearchView: View {
                         } else if !hasSearched {
                             EmptyStateView()
                             
-                        } else if viewModel.isNotFound {
+                        } else if searchViewModel.isNotFound {
                             NoResultsView()
                         }
                         else {
-                            ResultsListView(viewModel: viewModel)
+                            ResultsListView(searchViewModel: searchViewModel)
                         }
                     }
                 }
@@ -148,13 +148,15 @@ struct SearchView: View {
     
     
     struct ResultsListView: View {
-        @ObservedObject var viewModel: SearchViewModel
-    
+        @ObservedObject var searchViewModel: SearchViewModel
+
+      @EnvironmentObject var viewModel: LikedSongsViewModel
+
         var body: some View {
             List {
-                if !viewModel.tracks.isEmpty {
+                if !searchViewModel.tracks.isEmpty {
                     Section(header: Text("Tracks").foregroundStyle(.indigo).font(.largeTitle)) {
-                        ForEach(viewModel.tracks, id: \.id) { track in
+                        ForEach(searchViewModel.tracks, id: \.id) { track in
                             HStack{
                                 if(track.image == nil){
                                     Image(systemName: "music.note")
@@ -190,10 +192,11 @@ struct SearchView: View {
                                         //Handle add to playlist
                                     }
                                 
-                                Image(systemName: viewModel.favoritedTracks.contains(track.id) ? "heart.fill" : "heart")
+                                Image(systemName: searchViewModel.favoritedTracks.contains(track.id) ? "heart.fill" : "heart")
                                     .foregroundColor(.pink)
                                     .onTapGesture {
-                                        viewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
+                                      searchViewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
+                                      viewModel.refreshLibrary()
                                     }
                                 
                             }
@@ -202,10 +205,10 @@ struct SearchView: View {
                     
                 }
                 
-                if !viewModel.artists.isEmpty {
+                if !searchViewModel.artists.isEmpty {
                     Section(header: Text("Artists").font(.largeTitle).foregroundStyle(.indigo)) {
-                        ForEach(viewModel.artists, id: \.id) { artists in
-                            
+                        ForEach(searchViewModel.artists, id: \.id) { artists in
+
                             HStack{
                                 if(artists.image == nil){
                                     Image(systemName: "music.mic")
@@ -228,10 +231,11 @@ struct SearchView: View {
                                     .font(.subheadline)
                                 Spacer()
                                 
-                                Image(systemName: viewModel.favoritedArtists.contains(artists.id) ? "heart.fill" : "heart")
+                                Image(systemName: searchViewModel.favoritedArtists.contains(artists.id) ? "heart.fill" : "heart")
                                     .foregroundColor(.pink)
                                     .onTapGesture {
-                                        viewModel.addArtistToLikedArtists(artistID: artists.id)
+                                      searchViewModel.addArtistToLikedArtists(artistID: artists.id)
+                                      viewModel.refreshLibrary()
                                     }
                             }
                             
@@ -239,9 +243,9 @@ struct SearchView: View {
                     }
                 }
                 
-                if !viewModel.albums.isEmpty {
+                if !searchViewModel.albums.isEmpty {
                     Section(header: Text("Albums").font(.largeTitle).foregroundStyle(.indigo)) {
-                        ForEach(viewModel.albums, id: \.id) { album in
+                        ForEach(searchViewModel.albums, id: \.id) { album in
                             HStack{
                                 if(album.image == nil){
                                     Image(systemName: "music.quarternote.3")
@@ -274,10 +278,11 @@ struct SearchView: View {
                                         //Handle add to playlist
                                     }
                                 
-                                Image(systemName: viewModel.favoritedAlbums.contains(album.id) ? "heart.fill" : "heart")
+                                Image(systemName: searchViewModel.favoritedAlbums.contains(album.id) ? "heart.fill" : "heart")
                                     .foregroundColor(.pink)
                                     .onTapGesture {
-                                        viewModel.addAlbumToLikedAlbums(albumID: album.id)
+                                      searchViewModel.addAlbumToLikedAlbums(albumID: album.id)
+                                      viewModel.refreshLibrary()
                                     }
                             }
                             
@@ -325,7 +330,7 @@ struct SearchView: View {
     
     class SearchViewModel: ObservableObject {
         static let shared = LikedSongsViewModel()
-        @EnvironmentObject var likedSongsViewModel: LikedSongsViewModel
+      @EnvironmentObject var viewModel: LikedSongsViewModel
         private var token : String
         @Published var tracks: [Tracks] = []
         @Published var artists: [Artists] = []

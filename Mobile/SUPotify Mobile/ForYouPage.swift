@@ -1,5 +1,3 @@
-
-
 //  ForYouPage.swift
 //  SUPotify Mobile App
 //
@@ -99,29 +97,29 @@ struct ForYouView: View {
                   }
               }}
        }
-    
+
     func fetchRecommendations() {
         let trackNum = 10
         let token = SessionManager.shared.token
         let url = URL(string: "http://localhost:4000/api/recommendation/recommendTrackFromFollowedUser/\(trackNum)")!
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
+
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
                     print("Error: \(error.localizedDescription)")
                     return
                 }
-                
+
                 guard let data = data else {
                     print("No data received")
                     return
                 }
-                
+
                 do {
                     let response = try JSONDecoder().decode(Response.self, from: data)
                     print(response)
@@ -129,8 +127,8 @@ struct ForYouView: View {
                     print(response.recommendations)
                     //let spotifyID = response.recommendations.map { $0.track.spotifyID }
                     //print(spotifyID)
-                    
-                   
+
+
                 } catch {
                     print("Decoding Error: \(error.localizedDescription)")
                 }
@@ -147,9 +145,9 @@ struct ForYouView: View {
 }
 
 struct ButtonsView: View {
-    
+
     var body: some View {
-        
+
         HStack (spacing: 12){
             Button(action: {
                 ShowSongInfo()
@@ -158,11 +156,11 @@ struct ButtonsView: View {
                     Image(systemName: "music.note.list")
                         .font(.title)
                         .foregroundColor(.indigo)
-                    
+
                 }
             })
-            
-            
+
+
             Button(action: {
                 AddToLikedSongs()
             }, label: {
@@ -170,11 +168,11 @@ struct ButtonsView: View {
                     Image(systemName: "heart.fill")
                         .font(.title)
                         .foregroundColor(.indigo)
-                    
-                    
+
+
                 }
             })
-            
+
             Button(action: {
                 AddToPlaylist()
             }, label: {
@@ -182,11 +180,11 @@ struct ButtonsView: View {
                     Image(systemName: "plus.circle.fill")
                         .font(.title)
                         .foregroundColor(.indigo)
-                    
-                    
+
+
                 }
             })
-            
+
             Button(action: {
                 Share()
             }, label: {
@@ -194,8 +192,8 @@ struct ButtonsView: View {
                     Image(systemName: "square.and.arrow.up.fill")
                         .font(.title)
                         .foregroundColor(.indigo)
-                    
-                    
+
+
                 }
             })
         }
@@ -216,7 +214,7 @@ struct TrackCardView: View {
     let track: Track
 
     var body: some View {
-       
+
             VStack(alignment: .center, spacing: 10) {
                 if let url = URL(string: track.album.imageURL) {
                     AsyncImage(url: url) { phase in
@@ -237,43 +235,42 @@ struct TrackCardView: View {
                         }
                     }
                 }
-                
+
                 Text(track.name)
                     .font(.headline)
                     .bold()
-                
+
                 ForEach(track.artists, id: \.name) { artist in
                     Text(artist.name)
                         .font(.subheadline)
                 }
-                
+
                 Text(track.album.name)
                     .font(.caption)
-                
+
             }
             .frame(width: 350, height: 550)
             .padding()
             .cornerRadius(20)
         }
-        
+
 }
 
 
 
 
 func ShowSongInfo(){
-    
+
 }
 
 func AddToLikedSongs(){
-    
+
 }
 
 func AddToPlaylist(){
-    
+
 }
 
 func Share(){
-    
-}
 
+}
