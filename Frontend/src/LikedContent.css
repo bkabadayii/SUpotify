@@ -1,0 +1,307 @@
+/* Overall page styling */
+.liked-content {
+  color: white;
+  background-color: black; /* Dark background */
+  padding: 20px;
+  width: 100%;
+}
+
+/* Tab styling */
+.tabs {
+  display: flex;
+  justify-content: center; /* Center tabs horizontally */
+  margin-bottom: 20px;
+}
+
+/* Tab styling */
+.tabs button {
+  background-color: transparent;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  font-size: 16px;
+}
+
+.tabs button:hover {
+  background-color: #282828; /* Darker on hover */
+  color: rgb(101, 86, 197); /* Spotify green for accent */
+}
+
+.tabs .active {
+  border-bottom: 2px solid rgb(37, 27, 106); /* Active tab underline */
+}
+
+/* Content List Styling */
+.tab-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color:#282828;
+}
+
+.tab-content li {
+  display: flex;
+  align-items: center;
+  background-color: #282828; /* Slightly lighter than background for contrast */
+  padding: 10px;
+  border-radius: 10px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  
+}
+.tab-content li div{
+  background-color: #282828; /* Slightly lighter than background for contrast */
+}
+
+
+.tab-content li:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Image styling */
+.tab-content img {
+  width: 60px; /* Adjust size as needed */
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+/* Text content styling */
+.tab-content div {
+  flex-grow: 1;
+  color: white;
+}
+
+.tab-content p {
+  margin: 5px 0;
+  color: white;
+  background-color: #282828;
+}
+
+.tab-content a {
+  color: #1DB954; /* Spotify green */
+  text-decoration: none;
+  background-color: #282828;
+}
+
+.tab-content a:hover {
+  text-decoration: underline;
+}
+
+/* Remove button styling */
+.remove-content-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #FF1744; /* Red color for delete action */
+  margin-left: auto; /* Pushes the button to the right */
+  font-size: 1.2rem;
+}
+
+.remove-content-button:hover {
+  color: #D50000; /* Darker shade of red on hover */
+}
+
+/* Icon styling */
+.remove-content-button .icon {
+  font-size: 1.3rem; /* Larger icon size */
+}
+
+/* Overall Container */
+.add-custom-song {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+/* Main Button */
+.add-custom-song button {
+  background-color: #282828;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-custom-song button:hover {
+  background-color: #3820a3; /* Spotify green for accent */
+}
+
+/* Custom Song Input Card */
+.custom-song-card {
+  background-color: #121212;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  margin-top: 10px;
+}
+
+/* Input fields */
+.custom-song-card input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #282828;
+  background-color: #282828;
+  color: white;
+}
+
+.custom-song-card input:focus {
+  outline: none;
+  border-color: #3820a3; /* Accent color */
+}
+
+/* Submit Button */
+.custom-song-card button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #3820a3; /* Spotify green */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-song-card button:hover {
+  background-color: #1f115d; /* Darker green on hover */
+}
+
+.add-tracks-by-file {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.add-tracks-by-file button {
+  background-color: #282828;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-tracks-by-file button:hover {
+  background-color: #3820a3; /* Spotify green for accent */
+}
+
+.upload-card {
+  background-color: #121212;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  margin-top: 10px;
+}
+
+.upload-card input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #282828;
+  background-color: #282828;
+  color: white;
+}
+
+.upload-card button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #3820a3; /* Spotify green */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.upload-card button:hover {
+  background-color: #1f115d; /* Darker green on hover */
+}
+
+/* Filter Card Styling */
+.filter-card {
+  background-color: #282828; /* Dark background for the card */
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.filter-card input {
+  padding: 8px 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+}
+
+.filter-card button {
+  padding: 8px 15px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #3820a3; /* Spotify green */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.filter-card button:hover {
+  background-color: #1f115d; /* Darker green on hover */
+}
+
+/* Add some space between the filter card and the list */
+.liked-content ul {
+  margin-top: 20px;
+}
+
+/* Filter Songs Button Styling */
+.filter-songs-button {
+  padding: 10px 15px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  background-color: #282828; /* Spotify green */
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.filter-songs-button:hover {
+  background-color: #3820a3; /* Slightly darker green */
+  transform: scale(1.05);
+}
+
+/* Export Songs Button Styling */
+.export-songs-button {
+  padding: 10px 15px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  background-color: #282828; /* Green color */
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.export-songs-button:hover {
+  background-color: #3820a3; /* Darker green */
+  transform: scale(1.05);
+}
+
+/* Button Styling */
+.export-songs-button, .filter-songs-button {
+  margin-right: 10px; /* Adjust the margin as needed */
+}

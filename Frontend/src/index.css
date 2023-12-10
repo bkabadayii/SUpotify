@@ -4,19 +4,20 @@
 * {
   margin: 0;
   font-family: "Mulish";
-  color: #333;
+  color: rgb(255, 255, 255);
+  background-color: black;
 }
 
 .navbar {
   padding: 20px;
   display: flex;
   align-items: center;
-  max-width: 600px;
+  max-width: 900px;
   margin: 0 auto;
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid #3820a3;
 }
 .navbar h1 {
-  color: #3820a3;
+  color: #ffffff;
 }
 .navbar .links {
   margin-left: auto;
@@ -30,22 +31,7 @@
   color: #3820a3;
 }
 .content {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-}
-
-/* song previews / list */
-.song-preview {
-  padding: 10px 16px;
-  margin: 20px 0;
-  border-bottom: 1px solid #fafafa;
-}
-.song-preview:hover {
-  box-shadow: 1px 3px 5px rgba(0,0,0,0.1);
-}
-.song-preview h2 {
-  font-size: 20px;
-  color: #3820a3;
-  margin-bottom: 8px;
+  max-width: 70%;
+  margin: 0 auto;
+  padding: 0 20px;
 }

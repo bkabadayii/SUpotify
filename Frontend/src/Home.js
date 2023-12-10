@@ -10,12 +10,24 @@ const Home = () => {
     history.push('/search');
   };
 
-  const goToLikedSongs = () => {
-    history.push('/likedsongs');
+  const goToLikedContent = () => {
+    history.push('/likedcontent');
   };
 
   const goToMyProfile = () => {
     history.push('/myprofile');
+  };
+
+  const goToMyRatings = () => {
+    history.push('/myratings');
+  };
+
+  const goToRecommendations = () => {
+    history.push('/recommendation');
+  };
+
+  const goToStats = () => {
+    history.push('/stats');
   };
 
   // Inline styles
@@ -48,9 +60,9 @@ const Home = () => {
         </div>
       </div>
   
-      <div className="card" style={cardStyle} onClick={goToLikedSongs}>
+      <div className="card" style={cardStyle} onClick={goToLikedContent}>
         <div style={cardContentStyle}>
-          <h2>Liked Songs</h2>
+          <h2>Liked Content</h2>
         </div>
       </div>
 
@@ -59,6 +71,25 @@ const Home = () => {
           <h2>My Profile</h2>
         </div>
       </div>
+
+      <div className="card" style={cardStyle} onClick={goToMyRatings}>
+        <div style={cardContentStyle}>
+          <h2>My Ratings</h2>
+        </div>
+      </div>
+
+      <div className="card" style={cardStyle} onClick={goToRecommendations}>
+        <div style={cardContentStyle}>
+          <h2>Recommendation</h2>
+        </div>
+      </div>
+
+      <div className="card" style={cardStyle} onClick={goToStats}>
+        <div style={cardContentStyle}>
+          <h2>SUpotify Stats</h2>
+        </div>
+      </div>
+
     </div>
   );
 };

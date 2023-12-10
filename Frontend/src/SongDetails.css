@@ -1,0 +1,137 @@
+.song-details {
+  color: #fff; /* White text for readability on dark backgrounds */
+  background-color: #000000; /* Dark background for the theme */
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.song-details h1 {
+  font-size: 3rem; /* Larger font size for the song title */
+  margin-bottom: 1rem;
+}
+
+.artists, .album-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.artists a, .album-info a {
+  color: #6d57cf; /* Spotify green for links */
+  text-decoration: none;
+}
+
+.artists a:hover, .album-info a:hover {
+  text-decoration: underline;
+}
+
+.artists img {
+  width: 150px; /* Larger size for artist and album images */
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover; /* Ensures the image covers the area */
+  margin-right: 2rem;
+}
+
+.album-info {
+  width: 100%;
+  background-color: #000000; /* Slightly different background for contrast */
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.album-info div {
+  margin-left: 2rem;
+}
+
+.song-preview {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.song-preview audio {
+  width: 100%; /* Full width */
+  border-radius: 8px;
+  outline: none; /* Remove default focus outline */
+}
+
+/* Additional media queries for responsiveness */
+@media (max-width: 768px) {
+  .artists img, .album-info img {
+    width: 100px; /* Smaller size for artist and album images on mobile */
+    height: 100px;
+  }
+
+  .song-details h1 {
+    font-size: 2rem; /* Smaller font size for the song title on mobile */
+  }
+}
+
+/* Add any additional styles for buttons or other interactive elements */
+ .album-info img {
+  width: 150px; /* Set a fixed width */
+  height: 150px; /* Set height equal to the width for a square */
+  object-fit: cover; /* Ensure the image covers the area without distortion */
+  margin-right: 1rem; /* Right margin for spacing between images */
+}
+
+.artists {
+  gap: 1rem; /* Use gap property to add space between artist items */
+  flex-wrap: wrap; /* Allow artist items to wrap on smaller screens */
+}
+
+.rating-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.rating-container button {
+  background-color: #3820a3;
+  color: white;
+  border: none;
+  margin: 0 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.rating-container button:hover {
+  background-color: #261572;
+}
+
+.songdetail-like-button {
+  background-color: #3820a3; /* Spotify Green */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-top: 10px;
+}
+
+.songdetail-like-button:hover {
+  background-color: #261572; /* Lighter green on hover */
+  transform: scale(1.05);
+}
+
+.songdetail-like-button:focus {
+  outline: none;
+}
+
+.album-link {
+  cursor: pointer;
+  color: #563ebe;
+  text-decoration: none;
+}
+
+.album-link:hover {
+  text-decoration: underline;
+}
