@@ -8,6 +8,7 @@ const {
 } = require("../operations/addContent");
 const { addCustomTrack } = require("./tracksController");
 const { exactSearchFromSpotify } = require("./spotifyApiController");
+const mongoose = require("mongoose");
 
 /* ----- INITIALIZER ----- */
 module.exports.createLikedContent = async (req, res) => {
@@ -519,12 +520,143 @@ module.exports.addManyToLikedTracks = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        return res
-            .status(500)
-            .json({ message: "Internal Server Error", success: false });
+        return res.status(500).json({
+            message: "Add Many to Liked Tracks Failed!",
+            success: false,
+        });
     }
 };
 
+module.exports.addTracksByMongoURL = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        // Get Mongo URL from request body
+        const { mongoURL } = req.body;
+        let existingLikedContent = await LikedContent.findOne({ username });
+
+        // If liked songs list is not initialized for user, throw error
+        if (!existingLikedContent) {
+            return res.json({
+                message: "Liked content for this user does not exist!",
+                success: false,
+            });
+        }
+
+        // Create conneciton to user's database
+        const connection = mongoose.createConnection(mongoURL);
+        // Access the "tracks" collection of the user
+        const UserTrack = connection.model(
+            "Track",
+            new mongoose.Schema({
+                trackName: String,
+                albumName: String,
+                artistName: String,
+            })
+        );
+        const userTracks = await UserTrack.find();
+        await connection.close();
+
+        // Add tracks that can be added
+        var existingTracks = [];
+        var addedTracks = [];
+        for (const track of userTracks) {
+            const { trackName, albumName, artistName } = track;
+            const spotifyResult = await exactSearchFromSpotify(
+                trackName,
+                albumName,
+                artistName
+            );
+
+            // If track is found in spotify, use that data
+            if (spotifyResult.Tracks[0]) {
+                const newTrack = spotifyResult.Tracks[0];
+                const newTrackSpotifyID = newTrack.id;
+                const newAlbumSpotifyID = newTrack.albumID;
+
+                const duplicate = (
+                    await existingLikedContent.populate("likedTracks.track")
+                ).likedTracks.find(
+                    (existingTrack) =>
+                        existingTrack.track.spotifyID === newTrackSpotifyID
+                );
+
+                if (duplicate) {
+                    existingTracks.push({ trackName, albumName, artistName });
+                } else {
+                    // Check if the song is in database
+                    let existingTrack = await Track.findOne({
+                        spotifyID: newTrackSpotifyID,
+                    });
+                    // If not, add its album to the database
+                    if (!existingTrack) {
+                        const albumID = await getAlbumWithSpotifyID(
+                            newAlbumSpotifyID,
+                            false
+                        );
+                        if (!albumID) {
+                            throw new Error("Error in spotify request!!");
+                        }
+                        // Set track ID again after it is added.
+                        existingTrack = await Track.findOne({
+                            spotifyID: newTrackSpotifyID,
+                        });
+                    }
+
+                    existingLikedContent.likedTracks.push({
+                        track: existingTrack._id,
+                        likedAt: new Date(),
+                    });
+                    addedTracks.push({ trackName, albumName, artistName });
+                }
+            }
+
+            // Else add track to database as a custom song
+            else {
+                const duplicate = (
+                    await (
+                        await existingLikedContent.populate("likedTracks.track")
+                    ).populate("likedTracks.track.album")
+                ).likedTracks.find((existingTrack) => {
+                    return (
+                        existingTrack.track.name === trackName &&
+                        existingTrack.track.album.name === albumName
+                    );
+                });
+                if (duplicate) {
+                    existingTracks.push({ trackName, albumName, artistName });
+                } else {
+                    const newTrack = await addCustomTrack(
+                        trackName,
+                        albumName,
+                        [artistName]
+                    );
+                    addedTracks.push({ trackName, albumName, artistName });
+                    existingLikedContent.likedTracks.push({
+                        track: newTrack._id,
+                        likedAt: new Date(),
+                    });
+                }
+            }
+            // Save database
+            await existingLikedContent.save();
+        }
+        return res.status(201).json({
+            message: "Added tracks by mongo URL successfully",
+            success: true,
+            existingTracks,
+            addedTracks,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Add Tracks by Mongo URL failed!",
+            success: false,
+        });
+    }
+};
 /* ----- TRACK SPECIALIZED OPERATIONS ----- */
 
 /* ----- ALBUM SPECIALIZED OPERATIONS ----- */

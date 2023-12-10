@@ -25,13 +25,7 @@ const Navbar = () => {
     <nav className="navbar">
       <h1>SUpotify</h1>
       <div className="links">
-        <Link to="/">Home</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/signup" style={{
-          color: "white",
-          backgroundColor: "#2b197a",
-          borderRadius: "8px"
-        }}>Sign Up</Link>
+        <Link to="/" style={{color: "white"}}>Home</Link>
                 
         <a href="/login" onClick = {handleLogout} style={{
           color: "white",

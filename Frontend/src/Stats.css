@@ -1,0 +1,196 @@
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-tabs {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.main-tabs button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: #282828;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.main-tabs button.active {
+  background-color: #3820a3;
+}
+
+.ratings-container {
+  width: 100%;
+}
+
+.content-type-selector {
+  margin-bottom: 20px;
+}
+
+.content-type-selector label {
+  margin-right: 10px;
+  color: white;
+}
+
+.content-type-selector select {
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.ratings-content h2 {
+  background-color: #383838;
+}
+
+/* Styles for Stats by Liked Content */
+.liked-container {
+  width: 100%;
+}
+
+.liked-content-type-selector {
+  /* Similar styles as content-type-selector but with different class name */
+  margin-bottom: 20px;
+}
+
+.liked-content-type-selector label {
+  margin-right: 10px;
+  color: white;
+}
+
+.liked-content-type-selector select {
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filter-form {
+  background-color: #383838;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 400px;
+}
+
+.filter-form label {
+  color: white;
+  margin-bottom: 5px;
+  background-color: #383838;
+}
+
+.liked-filter-form {
+  background-color: #383838;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 400px;
+}
+
+.liked-filter-form label {
+  color: white;
+  margin-bottom: 5px;
+  background-color: #383838;
+}
+
+.liked-filter-form h2 {
+  background-color: #383838;
+}
+
+.filter-form input[type="month"],
+.filter-form select {
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #3820a3;
+  background-color: #202020;
+  color: white;
+  margin-left: 10px;
+}
+
+.liked-filter-form input[type="month"],
+.liked-filter-form select {
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #3820a3;
+  background-color: #202020;
+  color: white;
+  margin-left: 10px;
+}
+
+/* Styles for the artist input box */
+.filter-form input[type="text"] {
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #3820a3;
+  background-color: #202020;
+  color: white;
+  margin-left: 10px;
+}
+
+.filter-form button {
+  padding: 10px 20px;
+  background-color: #3820a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.filter-form button:hover {
+  background-color: #3820a3;
+}
+
+.liked-filter-form button {
+  padding: 10px 20px;
+  background-color: #3820a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.liked-filter-form button:hover {
+  background-color: #3820a3;
+}
+
+.ratings-flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px; /* Adjust the gap between form and results */
+}
+
+.liked-ratings-flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px; /* Adjust the gap between form and results */
+}
+
+.top-rated-artists {
+  flex: 1; /* Adjust results size */
+  /* ... existing styles ... */
+}
+
+.top-rated-albums {
+  flex: 1; /* Adjust results size */
+  /* ... existing styles ... */
+}
+
+.top-rated-tracks {
+  flex: 1; /* Adjust results size */
+  /* ... existing styles ... */
+}

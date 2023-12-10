@@ -5,9 +5,16 @@ import Home from './Home';
 import Signup from './Signup';
 import ProtectedRoute from './ProtectedRoute';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import LikedSongs from './LikedSongs';
+import LikedContent from './LikedContent';
 import MyProfile from './MyProfile';
 import SearchBar from './SearchBar';
+import SongDetails from './SongDetails';
+import PlaylistPage from './PlaylistPage';
+import AlbumDetails from './AlbumDetails';
+import ArtistDetails from './ArtistDetails';
+import MyRatings from './MyRatings';
+import Recommendation from './Recommendation';
+import Stats from './Stats';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -21,7 +28,7 @@ const App = () => {
   return (
     <Router>
       <div className='App'>
-        <Navbar />
+        
         <div className='content'>
           <Switch>
             <ProtectedRoute
@@ -36,14 +43,35 @@ const App = () => {
             <Route path='/login'>
               <Login setIsAuthenticated={setIsAuthenticated} />
             </Route>
-            <Route path='/likedsongs'>
-              <LikedSongs />
+            <Route path='/likedcontent'>
+              <LikedContent />
             </Route>
             <Route path='/myprofile'>
               <MyProfile />
             </Route>
             <Route exact path='/search'>
               <SearchBar />
+            </Route>
+            <Route path='/album/:albumID'>
+              <AlbumDetails />
+            </Route>
+            <Route path='/song/:trackID'>
+              <SongDetails />
+            </Route>
+            <Route path='/artist/:artistID'>
+              <ArtistDetails />
+            </Route>
+            <Route path='/playlist/:playlistId'>
+            <PlaylistPage/>
+            </Route>
+            <Route exact path = '/myratings'>
+            <MyRatings/>
+            </Route>
+            <Route path = '/recommendation'>
+            <Recommendation/>
+            </Route>
+            <Route path = '/stats'>
+            <Stats/>
             </Route>
           </Switch>
         </div>

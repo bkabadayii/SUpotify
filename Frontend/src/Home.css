@@ -1,51 +1,58 @@
 .home-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  justify-content: center;
+  gap: 20px;
+  padding: 40px;
+  background-color: #000000;
+  min-height: 100vh;
+}
+
+.home-card {
   display: flex;
-  flex-direction: column; /* Stack children vertically */
-  justify-content: flex-start; /* Align children to the start of the main axis */
-  align-items: center; /* Center children along the cross axis */
-  height: 100vh;
-  padding: 20px;
-  gap: 30px; /* Adds space between flex items */
-}
-
-.card {
-  width: 300px; /* Adjust width as needed */
-  border-radius: 8px;
-  overflow: hidden;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
   cursor: pointer;
-  background-color: rgb(37, 27, 106); /* Purple background */
-  color: white; /* Set text color to white */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transition effects */
-  display: flex; /* Add flex display to center content */
-  align-items: center; /* Center content vertically */
-  justify-content: center; /* Center content horizontally */
-  height: 100px; /* Set a fixed height for the cards */
-  margin-bottom: 20px; /* Space between cards */
-}
-
-.card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* More pronounced shadow on hover */
-  background-color: rgb(66, 57, 124); /* A lighter purple for hover */
-  transform: translateY(-5px); /* Slight lift effect */
-}
-
-.card-content {
-  text-align: center;
-  width: 100%; /* Ensure the content takes up the full width of the card */
+  background-color: #3820a3;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   padding: 20px;
+  text-align: center;
 }
 
-.card-content h2,
-.card-content p {
-  margin: 0; /* Reset margins for headings and paragraphs */
-  color: white; /* Ensure text is white */
+.home-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-.card-content h2 {
-  font-size: 24px;
+.home-card-icon {
+  font-size: 40px;
+  margin-bottom: 20px;
+  color: white;
+  background-color: #3820a3;
 }
 
-.card-content p {
-  font-size: 16px;
+.home-card-title {
+  font-size: 32px;
+  margin: 0;
+  background-color: #3820a3;
+}
+
+@media screen and (max-width: 768px) {
+  .home-container {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .home-card-icon {
+    font-size: 35px;
+  }
+
+  .home-card-title {
+    font-size: 20px;
+  }
 }

@@ -1,0 +1,107 @@
+.recommendation-container {
+  padding: 20px;
+  color: white;
+  background-color: #000000;
+  text-align: center; /* Center content */
+}
+
+.get-recommendation-button {
+  padding: 10px 20px;
+  background-color: transparent;
+  color: white;
+  border: 2px solid #3820a3; /* Spotify green border */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  margin-right: 15px;
+}
+
+.get-recommendation-button:hover {
+  background-color: #3820a3;
+  color: white;
+}
+
+.input-card {
+  background-color: #282828;
+  padding: 15px;
+  margin: 20px auto; /* Center the card */
+  border-radius: 10px;
+  display: inline-block; /* Make the card inline for centering */
+}
+
+.input-card input {
+  margin-right: 10px;
+  padding: 5px;
+}
+
+.input-card button {
+  padding: 5px 10px;
+  background-color: #3820a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.input-card button:hover {
+  background-color: #1f115d;
+}
+
+.recommendation-results {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 20px;
+  margin-bottom: 20px;
+}
+
+.track-card {
+  background-color: #282828;
+  border-radius: 10px;
+  padding: 15px;
+  width: 250px; /* Increased width */
+  height: auto;
+  transition: transform 0.3s, background-color 0.3s;
+  cursor: pointer;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.track-card div{
+  background-color:#282828;
+  border-radius: 10px;
+}
+
+.track-card:hover {
+  transform: scale(1.05);
+}
+
+.track-card img {
+  width: 100%; /* Adjust as necessary */
+  height: auto;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.track-card p {
+  color: white;
+  margin: 5px 0;
+  background-color:#282828;
+}
+
+.track-card a {
+  color: #1DB954;
+  text-decoration: none;
+  background-color:#282828;
+}
+
+.track-card a:hover {
+  text-decoration: underline;
+}
+
+.recommendation-header {
+  color: #fff; /* Adjust color as needed */
+  margin-bottom: 40px; /* Spacing below the header */
+  font-size: 45px; /* Adjust font size as needed */
+}

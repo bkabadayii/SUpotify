@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useHistory } from 'react-router-dom';
+import './Login.css';
+import Navbar from './Navbar';
 
 const Login = ({ setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -35,32 +37,36 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div className="justify-content-center align-items-center vh-100">
-      <div className='p-5 rounded w-10'>
-      <h2>Login</h2>
-      <p> </p>
-      <form>
-        <div className="mb-3">
-          <label htmlFor="exampleInputEmail2" className="form-label">Email address</label>
-          <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" onChange= {(e) => {
-            e.preventDefault()
-            setEmail(e.target.value)
-          }} required />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="exampleInputPassword2" className="form-label">Password</label>
-          <input type="password" className="form-control" id="exampleInputPassword1" onChange={ (e) => {
-            e.preventDefault()
-            setPassword(e.target.value)
-          }} required />
-        </div>
-        <button className='btn btn-default border w-50 bg-light' onClick={handleLogin}> Log in</button>
-        <p></p>
-        <p>Don't have an account?</p>
-        <Link to="/signup">
-          <button className='btn btn-default border w-50 bg-light'>Create Account</button>
-        </Link>
-      </form>
+    <div className="login-wrapper">
+      <div className="login-container">
+        <h1 className="login-title">Welcome to SUpotify</h1>
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="input-container">
+            <input 
+              type="email" 
+              placeholder="Email Address" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+              className="text-input" 
+            />
+          </div>
+          <div className="input-container">
+            <input 
+              type="password" 
+              placeholder="Password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+              className="text-input" 
+            />
+          </div>
+          <button type="submit" className="submit-button">Log In</button>
+          <div className="alternative-action">
+            <span className="alternative-text">Don't have an account?</span>
+            <Link to="/signup" className="alternative-link">Sign Up</Link>
+          </div>
+        </form>
       </div>
     </div>
   );

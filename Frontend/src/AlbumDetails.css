@@ -1,0 +1,123 @@
+.album-details {
+  background-color: #000000;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.album-header {
+  display: flex;
+  align-items: center;
+}
+
+.album-art-large {
+  max-width: 200px;
+  margin-right: 20px;
+}
+
+.album-info h1 {
+  margin: 0;
+  font-size: 50px;
+  margin-bottom: 20px; /* Add some space below the h1 element */
+}
+
+.album-info-date {
+  margin: 10px 0; /* Increased margin for spacing between paragraphs */
+}
+
+.spotify-link {
+  color: #1DB954;
+  text-decoration: none;
+}
+
+.spotify-link:hover {
+  text-decoration: underline;
+}
+
+.album-artists {
+  display: flex;
+  margin-top: 20px;
+}
+
+.artist-link {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  text-decoration: none;
+  color: #6d57cf;
+}
+
+.artist-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.artist-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.track-list h2 {
+  margin-top: 30px;
+}
+
+.track-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.track-item {
+  display: flex;
+  align-items: center;
+  background-color: #121212;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  transition: transform 0.3s;
+}
+
+.track-item:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.album-art-small {
+  width: 40px; /* Adjust size as needed */
+  height: 40px;
+  margin-right: 10px;
+}
+
+.track-name {
+  font-weight: bold;
+  flex-grow: 1; /* Allow the track name to take up available space */
+  background-color:#121212;
+}
+
+.track-duration {
+  margin-left: 10px;
+  background-color: #121212;
+}
+
+.albumdetail-like-button {
+  background-color: #3820a3; /* Spotify Green */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-top: 10px;
+}
+
+.albumdetail-like-button:hover {
+  background-color: #261572; /* Lighter green on hover */
+  transform: scale(1.05);
+}
+
+.albumdetail-like-button:focus {
+  outline: none;
+}

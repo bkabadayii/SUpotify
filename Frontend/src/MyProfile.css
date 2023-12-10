@@ -1,38 +1,148 @@
+/* General Styles */
 .main-container {
-  display: flex;
-  justify-content: space-around;
+  color: white;
+  background-color: #000000;
   padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-.profile-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 20px;
+.profile-container, .playlists-container {
+  margin: 20px auto;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #000000;
+  max-width: 800px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
+.follow-user-container {
+  margin: 20px auto;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #000000;
+  max-width: 800px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Profile Section */
 .profile-photo img {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid rgb(37, 27, 106);
+  border: 3px solid #3820a3;
+  display: block;
+  margin: 0 auto;
 }
 
-.profile-info {
+.profile-container {
   text-align: center;
 }
 
-.playlists-container {
-  flex: 1;
-  padding: 20px;
+.profile-info h2 {
+  margin-top: 0;
+  color: white;
 }
 
-.playlist-item {
-  background-color: #f4f4f4;
-  border-radius: 10px;
+.followed-users-card {
+  background-color: rgb(0, 0, 0);
   padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  transition: all 0.3s ease-in-out; /* Smoother transition */
+}
+
+/* Buttons and Inputs */
+button {
+  background-color: black; /* Black button background */
+  color: white;
+  border: 2px solid #3820a3; /* Purple border */
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s, border-color 0.3s;
+}
+
+button:hover {
+  background-color: grey; /* Grey color on hover */
+  border-color: #BB86FC; /* Lighter purple border on hover */
+}
+
+input[type="text"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #222;
+  color: white;
+  width: calc(100% - 22px);
+}
+
+/* Playlist Section */
+.playlist-item {
+  background-color: #333;
   margin: 10px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px; /* Increased padding for larger size */
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1em; /* Larger font size */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for background and transform */
+  cursor: pointer;
+}
+
+.playlist-item:hover { 
+  transform: translateY(-3px); /* Slightly raise the item on hover for a "lifting" effect */
+}
+
+.playlist-name {
+  cursor: pointer;
+  color: #ffffff;
+  flex-grow: 1;
+  background-color:#333;
+}
+
+.delete-button {
+  margin-left: 10px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 600px) {
+  .profile-container, .playlists-container, .follow-user-container {
+    margin: 20px 10px;
+  }
+}
+
+/* Additional Styling for Remove Buttons */
+.remove-button {
+  background-color: black; /* Black background for remove button */
+  color: white; /* White text for visibility */
+  border: 2px solid #3820a3; /* Purple border */
+  border-radius: 5px;
+  padding: 5px 10px; /* Smaller padding for a smaller button */
+  margin-left: 10px;
+  font-size: 0.9em; /* Slightly smaller font size */
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.remove-button:hover {
+  background-color: grey; /* Grey color on hover */
+  border-color: #BB86FC; /* Lighter purple border on hover */
+}
+
+/* Aligning the Follow User Section */
+.follow-user-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.follow-user-container input[type="text"] {
+  flex: 1 1 200px;
+  margin: 5px;
+}
+
+.follow-user-container button {
+  flex: 0 1 auto;
 }

@@ -1,93 +1,128 @@
-/* Search Bar Container */
 .search-bar-container {
+  width: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
-  background-color: #2D2D2D; /* Dark background */
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 60%;
-  margin: 20px auto; /* Center the search bar */
+  background-color: black; /* Dark background for the search bar */
+  padding: 20px 0;
 }
 
-/* Input Field */
-.search-bar-container input[type="text"] {
-  padding: 10px 15px;
-  margin-right: 10px;
-  border: none;
-  border-radius: 10px;
-  width: 70%; /* Adjust width as needed */
-  font-size: 16px;
-  box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.search-bar-container input[type="text"]:focus {
-  outline: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Search Button */
+.search-bar-container input,
 .search-bar-container button {
-  padding: 10px 20px;
-  background-color: #007bff; /* Bright blue */
+  margin: 0 5px; /* Adds space between the input and the button */
+}
+
+.search-input-container {
+  width: 650%; /* Adjust width as needed */
+  position: relative;
+}
+
+.search-input {
+  align-items: center;
+  width: 60%;
+  padding: 12px 20px;
+  border-radius: 30px;
+  border: 1px solid #333;
+  background-color: #282828;
+  color: white;
+  font-size: 16px;
+}
+
+.search-button {
+  position: absolute;
+  right: -60px; /* Adjust as needed */
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #1DB954; /* Spotify green */
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 30px;
+  padding: 12px 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  font-size: 16px;
+  transition: background-color 0.3s;
 }
 
-.search-bar-container button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
+.search-button:hover {
+  background-color: #673ab7; /* Purple when hovered */
 }
 
-/* Search Results Section */
 .search-results {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  margin-top: 20px;
+  background-color: black; /* Dark background for results */
+  padding: 20px;
+  color: white;
 }
 
 .search-result-item {
-  margin: 10px;
+  width: 100%; /* Or a specific larger width */
+  background-color: #282828; /* Slightly lighter than background for contrast */
   border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  transition: transform 0.2s ease;
+  padding: 10px;
+  margin: 10px 0;
+  transition: background-color 0.3s, transform 0.3s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .search-result-item:hover {
-  transform: translateY(-5px);
+  background-color: #333;
+  transform: translateY(-2px);
 }
 
 .search-result-image {
-  width: 100px;
-  height: auto;
-  border-radius: 10px 0 0 10px;
+  width: 60px; /* Adjust size as needed */
+  height: 60px;
+  border-radius: 30px; /* Circular images */
+  margin-right: 20px;
 }
 
 .search-result-info {
-  padding: 10px;
   flex-grow: 1;
+  background-color:#282828;
+}
+
+.search-result-info p {
+  margin: 5px 0;
+  margin-left: 10px;
+  color: white; /* For readability */
+  background-color: #282828;
+}
+
+.search-result-info a {
+  color: #1DB954; /* Spotify green */
+  text-decoration: none;
+}
+
+.search-result-info a:hover {
+  text-decoration: underline;
 }
 
 .like-button {
-  background-color: rgb(37, 27, 106);
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px; /* Adjust as needed */
-  transition: background-color 0.3s ease;
+  background-color: #3820a3; /* Spotify green */
   color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
 }
 
 .like-button:hover {
-  background-color: rgb(84, 76, 146);
+  background-color: #1f115d; /* Slightly lighter green on hover */
+  transform: scale(1.05);
+}
+
+.like-button:active {
+  transform: scale(0.95);
+}
+
+.like-button:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
