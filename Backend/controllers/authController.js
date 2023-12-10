@@ -1,4 +1,8 @@
 const User = require("../models/userModel");
+const LikedContent = require("../models/likedContentModel");
+const UserToPlaylists = require("../models/userToPlaylistsModel");
+const UserToRatings = require("../models/userToRatingsModel");
+const FollowedUsers = require("../models/followedUsersModel");
 const { createSecretToken } = require("../util/SecretToken");
 const bcrypt = require("bcryptjs");
 
@@ -29,6 +33,31 @@ module.exports.Signup = async (req, res, next) => {
             username,
             createdAt,
         });
+
+        const likedContent = await LikedContent.create({
+            username: username,
+            likedTracks: [],
+            likedAlbums: [],
+            likedArtists: [],
+        });
+
+        const userToPlaylists = await UserToPlaylists.create({
+            username: username,
+            playlists: [],
+        });
+
+        const userToRatings = await UserToRatings.create({
+            username,
+            trackRatings: [],
+            albumRatings: [],
+            artistRatings: [],
+        });
+
+        const userFollowedUsers = await FollowedUsers.create({
+            username: username,
+            followedUsersList: [],
+        });
+
         const token = createSecretToken(user._id);
         res.cookie("token", token, {
             path: "/",
@@ -46,7 +75,7 @@ module.exports.Signup = async (req, res, next) => {
         console.error(error);
         return res
             .status(500)
-            .json({ message: "Internal Server Error", success: false });
+            .json({ message: "Signup Failed!", success: false });
     }
 };
 
