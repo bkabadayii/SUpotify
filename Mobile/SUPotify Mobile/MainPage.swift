@@ -13,16 +13,17 @@ struct MainMenu: View {
     var body: some View {
         TabView {
             // Tab 1
-            Text("Home page")
+            HomeView()
             .tabItem {
                 Image(systemName: "house.fill")
                 Text("Home")
             }
 
             SearchView()
+            .environmentObject(likedSongsViewModel)
             .tabItem {
                 Image(systemName: "magnifyingglass")
-                Text("Tab 2")
+                Text("Search")
             }
 
             ForYouView()
@@ -35,7 +36,7 @@ struct MainMenu: View {
             .environmentObject(likedSongsViewModel)
             .tabItem {
                 Image(systemName: "hand.thumbsup.fill")
-                Text("Liked Songs")
+                Text("Library")
             }
             
             Profile()
