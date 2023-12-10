@@ -32,11 +32,8 @@ struct UpdateRatingRequest: Codable {
 class RatingService {
   static let shared = RatingService()
   private let baseUrl = "http://localhost:4000/api/ratings"
-  private var userToken: String {
-    // Retrieve the user token from your session manager or similar
-    return SessionManager.shared.token
-  }
-  
+  private var userToken = SessionManager.shared.token
+
   func getRatingInfo(ratingType: String, relatedID: String, completion: @escaping (RatingInfoResponse?) -> Void) {
     let url = URL(string: "\(baseUrl)/getRatingInfo/\(ratingType)/\(relatedID)")!
     var request = URLRequest(url: url)
@@ -44,7 +41,7 @@ class RatingService {
     request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
     
     URLSession.shared.dataTask(with: request) { data, response, error in
-      DispatchQueue.main.async { // Ensure we're on the main thread
+      DispatchQueue.main.async {
         guard let data = data, error == nil else {
           completion(nil)
           return
@@ -102,7 +99,8 @@ struct SongDetailsView: View {
   var songName: String
   var artistNames: String
   var imageURL: String
-  
+  var ratingType: String
+
   @State private var songRating: Double = 0
   @State private var initialRating: Double?
   @State private var hasRating: Bool = false
@@ -163,7 +161,6 @@ struct SongDetailsView: View {
       .padding()
     }
     .onAppear {
-      // Fetch initial rating info only if it hasn't been fetched yet
       if initialRating == nil {
         getInitialRatingInfo()
       }
@@ -171,7 +168,7 @@ struct SongDetailsView: View {
   }
   
   private func getInitialRatingInfo() {
-    RatingService.shared.getRatingInfo(ratingType: "TRACK", relatedID: songID) { response in
+    RatingService.shared.getRatingInfo(ratingType: ratingType, relatedID: songID) { response in
       if let response = response {
         if response.success {
           DispatchQueue.main.async {
@@ -198,11 +195,11 @@ struct SongDetailsView: View {
       if songRating != initialRating {
         if hasRating {
           // Since update rating is not working now, we use rateContent for the example
-          RatingService.shared.rateContent(ratingType: "TRACK", relatedID: songID, rating: Int(roundedRating))
+          RatingService.shared.rateContent(ratingType: ratingType, relatedID: songID, rating: Int(roundedRating))
         } else {
           RatingService.shared.createUserToRatings {
             // If the rating did not exist before, we need to create it first
-            RatingService.shared.rateContent(ratingType: "TRACK", relatedID: songID, rating: Int(roundedRating))
+            RatingService.shared.rateContent(ratingType: ratingType, relatedID: songID, rating: Int(roundedRating))
           }
         }
         initialRating = roundedRating // Update the initial rating after sending it
@@ -211,7 +208,7 @@ struct SongDetailsView: View {
     }
   }
   
-  private func updateRatingIfNeeded() {
+  private func updateRatingIfNeeded(ratingType: String) {
     let roundedRating = Double(round(100 * songRating) / 100) // Limiting to two decimals
     if !isSliderInUse && songRating != initialRating {
       print("Final rating to send: \(roundedRating)")
@@ -223,7 +220,7 @@ struct SongDetailsView: View {
        }
        */
       
-      RatingService.shared.rateContent(ratingType: "TRACK", relatedID: songID, rating: Int(roundedRating)) // Since update rating is not working now
+      RatingService.shared.rateContent(ratingType: ratingType, relatedID: songID, rating: Int(roundedRating))
       initialRating = roundedRating // Update the initial rating after sending it
     }
   }
@@ -231,5 +228,5 @@ struct SongDetailsView: View {
 
 
 #Preview {
-  SongDetailsView(songID: "", songName: "DAMLA", artistNames: "Motive", imageURL: "https://i.scdn.co/image/ab6761610000e5eb59ba2466b22929f5e7ca21e4").preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+  SongDetailsView(songID: "", songName: "DAMLA", artistNames: "Motive", imageURL: "https://i.scdn.co/image/ab6761610000e5eb59ba2466b22929f5e7ca21e4", ratingType: "TRACK").preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
 }
