@@ -13,7 +13,7 @@ struct MainMenu: View {
     var body: some View {
         TabView {
             // Tab 1
-            Text("Home page")
+            HomeView()
             .tabItem {
                 Image(systemName: "house.fill")
                 Text("Home")
@@ -22,7 +22,7 @@ struct MainMenu: View {
             SearchView()
             .tabItem {
                 Image(systemName: "magnifyingglass")
-                Text("Tab 2")
+                Text("Search")
             }
 
             ForYouView()

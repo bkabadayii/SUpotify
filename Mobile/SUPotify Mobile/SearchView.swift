@@ -102,6 +102,60 @@ struct SearchView: View {
                         }
                     }
                 }
+
+              )
+              .padding(.horizontal, 10)
+
+            NavigationLink(destination: AddCustomSong()) {
+                Image(systemName: "plus.circle")
+                    .foregroundColor(.white)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 20)
+                    .background(Color.indigo.opacity(0.50))
+                    .cornerRadius(30)
+            }
+
+            /*
+             Button(action: {
+             hasSearched = true
+             viewModel.performSearch(with: searchTerm)
+
+             })
+             {
+             Text("Search")
+             .fontWeight(.regular)
+             .font(.subheadline)
+             .foregroundColor(.white)
+             .padding(.vertical, 10)
+             .padding(.horizontal, 20)
+             .background(Color.indigo.opacity(0.50))
+             .frame(width: 120, height: 60)
+             .cornerRadius(30)
+             }
+             */
+          }
+          .padding(.horizontal, 10)
+          .onChange(of: searchTerm) { newValue in
+            hasSearched = true
+            viewModel.performSearch(with: newValue)
+          }
+
+
+          if viewModel.isLoading {
+            ProgressView(isRotated: true)
+          }
+
+          else {
+            if searchTerm.isEmpty {
+              EmptyStateView()
+            } else if !hasSearched {
+              EmptyStateView()
+
+            } else if viewModel.isNotFound {
+              NoResultsView()
+            }
+            else {
+              ResultsListView(viewModel: viewModel)
                 
             }
             .navigationBarTitle("Music Search")
@@ -609,4 +663,9 @@ struct SearchView: View {
             }.resume()
         }
     }
+}
+
+
+#Preview {
+    SearchView()
 }
