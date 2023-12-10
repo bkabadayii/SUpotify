@@ -7,12 +7,12 @@ struct SearchResult: Codable {
 }
 
 struct Data: Codable {
-  let Tracks: [Track]?
-  let Albums: [Album]?
-  let Artists: [Artist]?
+  let Tracks: [Tracks]?
+  let Albums: [Albums]?
+  let Artists: [Artists]?
 }
 
-struct Track: Codable {
+struct Tracks: Codable {
   let name: String
   let id: String
   let artists: [String]
@@ -21,13 +21,13 @@ struct Track: Codable {
   let image: String?
 }
 
-struct Artist: Codable {
+struct Artists: Codable {
   let name : String
   let id: String
   let image: String?
 }
 
-struct Album: Codable {
+struct Albums: Codable {
   let name : String
   let id: String
   let artists: [String]
@@ -327,9 +327,9 @@ struct SearchView: View {
         static let shared = LikedSongsViewModel()
         @EnvironmentObject var likedSongsViewModel: LikedSongsViewModel
         private var token : String
-        @Published var tracks: [Track] = []
-        @Published var artists: [Artist] = []
-        @Published var albums: [Album] = []
+        @Published var tracks: [Tracks] = []
+        @Published var artists: [Artists] = []
+        @Published var albums: [Albums] = []
         @Published var isLoading = false
         @Published var favoritedTracks: Set<String> = []
         @Published var favoritedArtists: Set<String> = []
