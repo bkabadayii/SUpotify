@@ -194,3 +194,51 @@
   flex: 1; /* Adjust results size */
   /* ... existing styles ... */
 }
+
+.top-rated-list {
+  list-style: none;
+  padding: 0;
+}
+
+.top-rated-list li {
+  background-color:#282828;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column; /* Make content vertical */
+  align-items: left;
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.top-rated-list img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+  margin-bottom: 10px;
+}
+
+.top-rated-list p {
+  margin: 0;
+  padding: 0;
+  background-color: #282828;
+}
+.custom-select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #222;
+  color: white;
+}
+
+.custom-select option {
+  padding: 5px;
+  background-color: #333;
+  color: white;
+}
+
+/* Add any other styles that you used for the genre dropdown */

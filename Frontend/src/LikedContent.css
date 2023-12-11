@@ -305,3 +305,41 @@
 .export-songs-button, .filter-songs-button {
   margin-right: 10px; /* Adjust the margin as needed */
 }
+
+.mongo-card {
+  background-color: #121212;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  margin-top: 10px;
+}
+
+.mongo-card input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #282828;
+  background-color: #282828;
+  color: white;
+}
+
+.add-by-mongo {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.add-by-mongo button {
+  background-color: #282828;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-by-mongo button:hover {
+  background-color: #3820a3; /* Spotify green for accent */
+}
+

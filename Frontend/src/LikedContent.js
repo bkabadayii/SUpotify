@@ -24,7 +24,30 @@ const LikedContent = () => {
   const [filteredSongs, setFilteredSongs] = useState([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
+  const [isMongoCardVisible, setIsMongoCardVisible] = useState(false);
+  const [mongoURL, setMongoURL] = useState('');
+  
   const token = localStorage.getItem('token');
+
+  // Event handler for MongoDB URL input change
+  const handleMongoURLChange = (e) => {
+    setMongoURL(e.target.value);
+  };
+
+  // Event handler for MongoDB Connect button
+  const handleMongoConnect = async () => {
+    try {
+      const response = await axios.post(
+        'http://localhost:4000/api/likedContent/addTracksByMongoURL',
+        { mongoURL },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert(response.data.message);
+    } catch (error) {
+      console.error('Error adding tracks by MongoDB URL:', error);
+      alert('Failed to add tracks by MongoDB URL!');
+    }
+  };
 
   const exportToCSV = () => {
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -252,6 +275,30 @@ const LikedContent = () => {
                 <div className="upload-card">
                   <input type="file" onChange={handleFileChange} accept=".csv" />
                   <button onClick={handleSubmit}>Submit</button>
+                </div>
+              )}
+            </div>
+            <div className="add-by-mongo">
+              <button 
+                onClick={() => setIsMongoCardVisible(!isMongoCardVisible)}
+                className="file-upload-button" // Assuming you have a CSS class for styling
+              >
+                Add by MongoDB
+              </button>
+              {isMongoCardVisible && (
+                <div className="upload-card"> {/* Reuse the card styles */}
+                  <input
+                    type="text"
+                    value={mongoURL}
+                    onChange={handleMongoURLChange}
+                    placeholder="MongoDB URL"
+                  />
+                  <button 
+                    onClick={handleMongoConnect}
+                    className="submit-button" // Assuming you have a CSS class for styling
+                  >
+                    Connect
+                  </button>
                 </div>
               )}
             </div>

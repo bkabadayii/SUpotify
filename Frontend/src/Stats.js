@@ -1,8 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import 'chart.js/auto';
 import './Stats.css';
 import Navbar from './Navbar';
+import { Bar } from 'react-chartjs-2';
+
+const genreChartOptions = {
+  scales: {
+      'y-axis-numAlbums': {
+          position: 'left',
+          ticks: {
+              beginAtZero: true
+          }
+      },
+      'y-axis-avgRating': {
+          position: 'right',
+          grid: {
+              drawOnChartArea: false, // only want the grid lines for one axis to show up
+          },
+      },
+  }
+};
+
+const genreLikeChartOptions = {
+  scales: {
+    yAxes: [{
+        ticks: {
+            beginAtZero: true
+        }
+    }]
+}
+};
+
+const eraChartOptions = {
+  scales: {
+      'y-axis-numAlbums': {
+          position: 'left',
+          ticks: {
+              beginAtZero: true
+          }
+      },
+      'y-axis-avgRating': {
+          position: 'right',
+          grid: {
+              drawOnChartArea: false,
+          },
+          ticks: {
+              beginAtZero: true
+          }
+      },
+  }
+};
+
+const eraLikeChartOptions = {
+  scales: {
+      yAxes: [{
+          ticks: {
+              beginAtZero: true
+          }
+      }]
+  }
+};
 
 const Stats = () => {
   const [activeTab, setActiveTab] = useState('ratings');
@@ -16,12 +74,11 @@ const Stats = () => {
   const [releaseStartDate, setReleaseStartDate] = useState('');
   const [releaseEndDate, setReleaseEndDate] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
-  const [selectedArtists, setSelectedArtists] = useState([]);
   const [artistsInput, setArtistsInput] = useState('');
   const [numItems, setNumItems] = useState();
   
   const [topRatedAlbums, setTopRatedAlbums] = useState(null);
-  const [topRatedTracks, setTopRatedTracks] = useState(null);
+  const [topRatedTracks, setTopRatedTracks] = useState({ trackRatings: [] });
   const [topRatedArtists, setTopRatedArtists] = useState(null);
   const [topRatedGenres, setTopRatedGenres] = useState(null);
   const [topRatedEras, setTopRatedEras] = useState(null);
@@ -32,18 +89,97 @@ const Stats = () => {
   const [topLikedGenres, setTopLikedGenres] = useState(null);
   const [topLikedEras, setTopLikedEras] = useState(null);
 
+  // Get All Genres:
+  const [genres, setGenres] = useState([]);
+  const [artists, setArtists] = useState([]);
+  const [selectedArtist, setSelectedArtist] = useState('');
 
-  // Static arrays for genres and artists
-  const genres = ['hip hop', 'rap', 'pop', 'dance pop', 'uk pop'];
-
+  // Chart data
+  const [genreChartData, setGenreChartData] = useState({});
+  const [eraChartData, setEraChartData] = useState({});
+  
   const token = localStorage.getItem('token');
 
+  const fetchGenres = async (contentType, source) => {
+    console.log(`Fetching genres for contentType: ${contentType}, source: ${source}`);
+    try {
+      const response = await axios.get(`http://localhost:4000/api/statistics/getAllGenres/${contentType}/${source}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setGenres(response.data.genres); // Update your state with the fetched genres
+      }
+    } catch (error) {
+      console.error('Error fetching genres:', error);
+    }
+  };
+
+  const fetchArtists = async (contentType, source) => {
+    console.log(`Fetching artists for contentType: ${contentType}, source: ${source}`);
+    try {
+      const response = await axios.get(`http://localhost:4000/api/statistics/getAllArtists/${contentType}/${source}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setArtists(response.data.artists); // Update your state with the fetched artists
+      }
+    } catch (error) {
+      console.error('Error fetching artists:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch genres for the default content type (tracks) when the component mounts
+    fetchGenres('TRACK', 'RATINGS');
+    fetchArtists('TRACK', 'RATINGS');
+  }, []);
+
   const handleContentTypeChange = (e) => {
-    setSelectedContentType(e.target.value);
+    const selectedType = e.target.value;
+    setSelectedContentType(selectedType);
+
+    let apiContentType;
+    switch (selectedType) {
+      case 'tracks':
+        apiContentType = 'TRACK';
+        break;
+      case 'albums':
+        apiContentType = 'ALBUM';
+        break;
+      case 'artists':
+        apiContentType = 'ARTIST';
+        break;
+      default:
+        console.error('Unknown content type:', selectedType);
+        return;
+    }
+
+    fetchGenres(apiContentType, 'RATINGS');
+    fetchArtists(apiContentType, 'RATINGS');
   };
 
   const handleLikedContentTypeChange = (e) => {
-    setSelectedLikedContentType(e.target.value);
+    const selectedType = e.target.value;
+    setSelectedLikedContentType(selectedType);
+
+    let apiContentType;
+    switch (selectedType) {
+      case 'tracks':
+        apiContentType = 'TRACK';
+        break;
+      case 'albums':
+        apiContentType = 'ALBUM';
+        break;
+      case 'artists':
+        apiContentType = 'ARTIST';
+        break;
+      default:
+        console.error('Unknown content type:', selectedType);
+        return;
+    }
+
+    fetchGenres(apiContentType, 'LIKES');
+    fetchArtists(apiContentType, 'LIKES');
   };
 
   const handleArtistsInputChange = (e) => {
@@ -51,8 +187,7 @@ const Stats = () => {
   };
 
   const handleArtistChange = (e) => {
-    const value = Array.from(e.target.selectedOptions, option => option.value);
-    setSelectedArtists(value);
+    setSelectedArtist(e.target.value);
   };
 
 
@@ -78,19 +213,96 @@ const Stats = () => {
             // This is an example, adjust based on your application's structure
             switch (contentType) {
                 case 'TRACK':
+                    console.log(response);
                     setTopLikedTracks(response.data.likedContentList);
                     setTopLikedEras(response.data.eraToStatistics);
                     setTopLikedGenres(response.data.genreToStatistics);
+
+                    setGenreChartData({
+                      labels: Object.keys(response.data.genreToStatistics),
+                      datasets: [{
+                          label: 'Number of Items',
+                          data: Object.values(response.data.genreToStatistics).map(data => data.numItems),
+                          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                          borderColor: 'rgba(54, 162, 235, 1)',
+                          borderWidth: 1,
+                          yAxisID: 'y-axis-numAlbums',
+                     }]
+                    })
+
+                    setEraChartData({
+                      labels: Object.keys(response.data.eraToStatistics),
+                      datasets: [{
+                          label: 'Number of Items',
+                          data: Object.values(response.data.eraToStatistics).map(data => data.numItems),
+                          backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                          borderColor: 'rgba(153, 102, 255, 1)',
+                          borderWidth: 1
+                      }]
+                    })
+
+
+              
                     break;
                 case 'ALBUM':
+                    console.log(response);
                     setTopLikedAlbums(response.data.likedContentList);
                     setTopLikedEras(response.data.eraToStatistics);
                     setTopLikedGenres(response.data.genreToStatistics);
+
+                    setGenreChartData({
+                      labels: Object.keys(response.data.genreToStatistics),
+                      datasets: [{
+                          label: 'Number of Items',
+                          data: Object.values(response.data.genreToStatistics).map(data => data.numItems),
+                          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                          borderColor: 'rgba(54, 162, 235, 1)',
+                          borderWidth: 1,
+                          yAxisID: 'y-axis-numAlbums',
+                     }]
+                  })
+
+                  setEraChartData({
+                    labels: Object.keys(response.data.eraToStatistics),
+                    datasets: [{
+                        label: 'Number of Items',
+                        data: Object.values(response.data.eraToStatistics).map(data => data.numItems),
+                        backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }]
+                  })
+
                     break;
                 case 'ARTIST':
+                    console.log(response);
                     setTopLikedArtists(response.data.likedContentList);
                     setTopLikedEras(response.data.eraToStatistics);
                     setTopLikedGenres(response.data.genreToStatistics);
+
+                    setGenreChartData({
+                      labels: Object.keys(response.data.genreToStatistics),
+                      datasets: [{
+                          label: 'Number of Items',
+                          data: Object.values(response.data.genreToStatistics).map(data => data.numItems),
+                          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                          borderColor: 'rgba(54, 162, 235, 1)',
+                          borderWidth: 1,
+                          yAxisID: 'y-axis-numAlbums',
+                     }]
+                    })
+
+                    setEraChartData({
+                      labels: Object.keys(response.data.eraToStatistics),
+                      datasets: [{
+                          label: 'Number of Items',
+                          data: Object.values(response.data.eraToStatistics).map(data => data.numItems),
+                          backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                          borderColor: 'rgba(153, 102, 255, 1)',
+                          borderWidth: 1
+                      }]
+                    })
+
                     break;
                 default:
                     break;
@@ -112,7 +324,7 @@ const Stats = () => {
           rateDate: [startDate, endDate],
           releaseDate: [releaseStartDate, releaseEndDate],
           genres: selectedGenre ? [selectedGenre] : [],
-          artists: []
+          artists: [],
         },
         numItems: numItems
       }, {
@@ -125,6 +337,53 @@ const Stats = () => {
         setTopRatedAlbums(response.data);
         setTopRatedEras(response.data.eraToRating);
         setTopRatedGenres(response.data.genreToRating);
+        
+        setGenreChartData({
+          labels: Object.keys(response.data.genreToRating),
+          datasets: [{
+              label: 'Number of Albums',
+              data: Object.values(response.data.genreToRating).map(data => data.numAlbums),
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+              yAxisID: 'y-axis-numAlbums',
+         },
+         {
+          label: 'Average Rating',
+          data: Object.values(response.data.genreToRating).map(data => data.avgRating),
+          backgroundColor: 'rgba(255, 206, 86, 0.5)',
+          borderColor: 'rgba(255, 206, 86, 1)',
+          borderWidth: 1,
+          yAxisID: 'y-axis-avgRating',
+      }
+        ]
+      })
+
+
+        setEraChartData({
+          labels: Object.keys(response.data.eraToRating),
+          datasets: [
+              {
+                  label: 'Number of Albums',
+                  data: Object.values(response.data.eraToRating).map(data => data.numAlbums),
+                  backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                  borderColor: 'rgba(54, 162, 235, 1)',
+                  borderWidth: 1,
+                  yAxisID: 'y-axis-numAlbums',
+              },
+              {
+                  label: 'Average Rating',
+                  data: Object.values(response.data.eraToRating).map(data => data.avgRating),
+                  backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  borderWidth: 1,
+                  yAxisID: 'y-axis-avgRating',
+              }
+          ]
+      })
+
+
+
       } else {
         alert('Failed to fetch top rated albums.');
       }
@@ -146,23 +405,61 @@ const Stats = () => {
           rateDate: [startDate, endDate],
           releaseDate: [releaseStartDate, releaseEndDate],
           genres: selectedGenre ? [selectedGenre] : [],
-          artists: processedArtists
+          artists: [],
         },
         numItems: numItems // Or another number as per requirement
       }, {
         headers: { Authorization: `Bearer ${token}` } // Ensure token is fetched correctly
       });
 
-      console.log(response);
-
       if (response.data.success) {
         setTopRatedTracks(response.data);
         setTopRatedGenres(response.data.genreToRating);
         setTopRatedEras(response.data.eraToRating);
+        
+        setGenreChartData({
+          labels: Object.keys(response.data.genreToRating),
+          datasets: [{
+              label: 'Number of Tracks',
+              data: Object.values(response.data.genreToRating).map(data => data.numTracks),
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+              yAxisID: 'y-axis-numAlbums',
+         },
+         {
+          label: 'Average Rating',
+          data: Object.values(response.data.genreToRating).map(data => data.avgRating),
+          backgroundColor: 'rgba(255, 206, 86, 0.5)',
+          borderColor: 'rgba(255, 206, 86, 1)',
+          borderWidth: 1,
+          yAxisID: 'y-axis-avgRating',
+      }
+        ]
+      })
+        
+      setEraChartData({
+        labels: Object.keys(response.data.eraToRating),
+        datasets: [
+            {
+                label: 'Number of Tracks',
+                data: Object.values(response.data.eraToRating).map(data => data.numTracks),
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                yAxisID: 'y-axis-numAlbums',
+            },
+            {
+                label: 'Average Rating',
+                data: Object.values(response.data.eraToRating).map(data => data.avgRating),
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+                yAxisID: 'y-axis-avgRating',
+            }
+        ]
+    })
 
-        console.log(topRatedTracks);
-        console.log(topRatedGenres);
-        console.log(topRatedEras);
       } else {
         alert('Failed to fetch top rated tracks.');
       }
@@ -190,6 +487,31 @@ const Stats = () => {
       if (response.data.success) {
         setTopRatedArtists(response.data);
         setTopRatedGenres(response.data.genreToRating);
+        
+        console.log(response);
+        setGenreChartData({
+          labels: Object.keys(response.data.genreToRating),
+          datasets: [{
+              label: 'Number of Artists',
+              data: Object.values(response.data.genreToRating).map(data => data.numArtists),
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+              yAxisID: 'y-axis-numArtists',
+         },
+         {
+          label: 'Average Rating',
+          data: Object.values(response.data.genreToRating).map(data => data.avgRating),
+          backgroundColor: 'rgba(255, 206, 86, 0.5)',
+          borderColor: 'rgba(255, 206, 86, 1)',
+          borderWidth: 1,
+          yAxisID: 'y-axis-avgRating',
+      }
+        ]
+      })
+
+
+
       } else {
         alert('Failed to fetch top rated artists.');
       }
@@ -198,6 +520,12 @@ const Stats = () => {
       alert('An error occurred while fetching top rated artists.');
     }
   };
+
+
+
+
+
+
 
   return (
     <div>
@@ -239,7 +567,7 @@ const Stats = () => {
               <form onSubmit={handleRateTrackSubmit} className="filter-form">
                  <h2>Track Statistics</h2>
                  <label>
-                  Start Date:
+                  From:
                   <input
                     type="month"
                     value={startDate}
@@ -248,7 +576,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  End Date:
+                  To:
                   <input
                     type="month"
                     value={endDate}
@@ -257,7 +585,7 @@ const Stats = () => {
                 </label>
                 
                 <label>
-                  Release Start Date:
+                  Release Date (from):
                   <input
                     type="month"
                     value={releaseStartDate}
@@ -266,7 +594,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  Release End Date:
+                  Release Date (to):
                   <input
                     type="month"
                     value={releaseEndDate}
@@ -282,25 +610,6 @@ const Stats = () => {
                       <option key={genre} value={genre}>{genre}</option>
                     ))}
                   </select>
-                </label>
-
-                {/* <label>
-                  Artists:
-                  <select multiple value={selectedArtists} onChange={handleArtistChange}>
-                    {artists.map(artist => (
-                      <option key={artist} value={artist}>{artist}</option>
-                    ))}
-                  </select>
-                </label>*/}
-
-                <label>
-                  Artists:
-                  <input
-                    type="text"
-                    value={artistsInput}
-                    onChange={handleArtistsInputChange}
-                    placeholder="Enter artists separated by commas"
-                  />
                 </label>
 
                 <label>
@@ -315,6 +624,36 @@ const Stats = () => {
 
                 <button type="submit">Apply Filters</button>
               </form>
+              {topRatedAlbums && (
+                <div className="top-rated-tracks">
+
+                  {genreChartData && (
+                  <div>
+                    <h3>Genre Statistics of Tracks</h3>
+                    <Bar data={genreChartData} options={genreChartOptions} />
+                  </div>
+                  )}
+
+                  {eraChartData && (
+                  <div>
+                    <h3>Era Statistics of Tracks</h3>
+                    <Bar data={eraChartData} options={eraChartOptions} />
+                  </div>
+                  )}
+
+                  <h3>Top Rated Tracks</h3>
+                  <ul className="top-rated-list">
+                    {topRatedTracks.trackRatings.map(trackRating => (
+                      <li key={trackRating.track._id}>
+                        <img src={trackRating.track.album.imageURL} alt={trackRating.track.name} />
+                        <p>Name: {trackRating.track.name}</p>
+                        <p>Artist: {trackRating.track.artists.map(artist => artist.name).join(', ')}</p>
+                        <p>Rating: {trackRating.rating}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             )}
 
@@ -323,7 +662,7 @@ const Stats = () => {
               <form onSubmit={handleRateAlbumSubmit} className="filter-form">
                  <h2>Album Statistics</h2>
                  <label>
-                  Start Date:
+                  From:
                   <input
                     type="month"
                     value={startDate}
@@ -332,7 +671,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  End Date:
+                  To:
                   <input
                     type="month"
                     value={endDate}
@@ -341,7 +680,7 @@ const Stats = () => {
                 </label>
                 
                 <label>
-                  Release Start Date:
+                  Release Date (from):
                   <input
                     type="month"
                     value={releaseStartDate}
@@ -350,7 +689,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  Release End Date:
+                  Release Date (to):
                   <input
                     type="month"
                     value={releaseEndDate}
@@ -366,25 +705,6 @@ const Stats = () => {
                       <option key={genre} value={genre}>{genre}</option>
                     ))}
                   </select>
-                </label>
-
-                {/* <label>
-                  Artists:
-                  <select multiple value={selectedArtists} onChange={handleArtistChange}>
-                    {artists.map(artist => (
-                      <option key={artist} value={artist}>{artist}</option>
-                    ))}
-                  </select>
-                </label>*/}
-
-                <label>
-                  Artists:
-                  <input
-                    type="text"
-                    value={artistsInput}
-                    onChange={handleArtistsInputChange}
-                    placeholder="Enter artists separated by commas"
-                  />
                 </label>
 
                 <label>
@@ -401,18 +721,33 @@ const Stats = () => {
               </form>
               {topRatedAlbums && (
                 <div className="top-rated-albums">
+                  
+                  {genreChartData && (
+                  <div>
+                    <h3>Genre Statistics of Albums</h3>
+                    <Bar data={genreChartData} options={genreChartOptions} />
+                  </div>
+                  )}
+
+                  {eraChartData && (
+                  <div>
+                    <h3>Era Statistics of Albums</h3>
+                    <Bar data={eraChartData} options={eraChartOptions} />
+                  </div>
+                  )}
+
                   <h3>Top Rated Albums</h3>
-                  <ul>
+                  <ul className="top-rated-list">
                     {topRatedAlbums.albumRatings.map(albumRating => (
                       <li key={albumRating.album._id}>
                         <img src={albumRating.album.imageURL} alt={albumRating.album.name} />
                         <p>Name: {albumRating.album.name}</p>
                         <p>Artist: {albumRating.album.artists.map(artist => artist.name).join(', ')}</p>
                         <p>Rating: {albumRating.rating}</p>
-                        <a href={albumRating.album.spotifyURL} target="_blank" rel="noopener noreferrer">Listen on Spotify</a>
                       </li>
                     ))}
                   </ul>
+
                 </div>
               )}  
             </div>
@@ -423,7 +758,7 @@ const Stats = () => {
               <form onSubmit={handleRateArtistSubmit} className="filter-form">
                  <h2>Artist Statistics</h2>
                  <label>
-                  Start Date:
+                  From:
                   <input
                     type="month"
                     value={startDate}
@@ -432,7 +767,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  End Date:
+                  To:
                   <input
                     type="month"
                     value={endDate}
@@ -450,15 +785,6 @@ const Stats = () => {
                   </select>
                 </label>
 
-                {/* <label>
-                  Artists:
-                  <select multiple value={selectedArtists} onChange={handleArtistChange}>
-                    {artists.map(artist => (
-                      <option key={artist} value={artist}>{artist}</option>
-                    ))}
-                  </select>
-                </label>*/}
-
                 <label>
                   Number of Artists:
                   <input
@@ -473,15 +799,20 @@ const Stats = () => {
               </form>
               {topRatedArtists && (
                 <div className="top-rated-artists">
+                  {genreChartData && (
+                  <div>
+                    <h3>Genre Statistics of Albums</h3>
+                    <Bar data={genreChartData} options={genreChartOptions} />
+                  </div>
+                  )}
                   <h3>Top Rated Artists</h3>
-                  <ul>
+                  <ul className="top-rated-list">
                     {topRatedArtists.artistRatings.map(artistRating => (
                       <li key={artistRating.artist._id}>
                         <img src={artistRating.artist.imageURL} alt={artistRating.artist.name} />
                         <p>Name: {artistRating.artist.name}</p>
                         <p>Genres: {artistRating.artist.genres.join(', ')}</p>
                         <p>Rating: {artistRating.rating}</p>
-                        <a href={artistRating.artist.spotifyURL} target="_blank" rel="noopener noreferrer">Listen on Spotify</a>
                       </li>
                     ))}
                   </ul>
@@ -512,9 +843,10 @@ const Stats = () => {
           {selectedLikedContentType === 'tracks' && (
             <div className='liked-ratings-flex-container'>
             <form onSubmit={(e) => handleLikedContentSubmit(e, 'TRACK')} className="liked-filter-form">
+
             <h2>Track Statistics</h2>
                  <label>
-                  Start Date:
+                  From:
                   <input
                     type="month"
                     value={likedStartDate}
@@ -523,7 +855,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  End Date:
+                  To:
                   <input
                     type="month"
                     value={likedEndDate}
@@ -553,7 +885,24 @@ const Stats = () => {
 
                 <button type="submit">Apply Filters</button>
             </form>
-            {/* ... other content for liked tracks ... */}
+            <div className="top-rated-tracks">
+            {genreChartData && (
+                  <div>
+                    <h3>Genre Statistics of Tracks</h3>
+                    <div style={{ width: '800px', height: '500px' }}>
+                      <Bar data={genreChartData} options={genreLikeChartOptions} />
+                  </div>
+                  </div>
+                  )}
+            {eraChartData && (
+                  <div>
+                    <h3>Era Statistics of Tracks</h3>
+                    <div style={{ width: '800px', height: '500px' }}>
+                      <Bar data={eraChartData} options={eraLikeChartOptions} />
+                  </div>
+                  </div>
+                  )}
+            </div>
             </div>
           )}
 
@@ -562,7 +911,7 @@ const Stats = () => {
             <form onSubmit={(e) => handleLikedContentSubmit(e, 'ALBUM')} className="liked-filter-form">
             <h2>Album Statistics</h2>
                  <label>
-                  Start Date:
+                  From:
                   <input
                     type="month"
                     value={likedStartDate}
@@ -571,7 +920,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  End Date:
+                  To:
                   <input
                     type="month"
                     value={likedEndDate}
@@ -601,7 +950,24 @@ const Stats = () => {
 
                 <button type="submit">Apply Filters</button>
             </form>
-            {/* ... other content for liked tracks ... */}
+            <div className="top-rated-albums">
+            {genreChartData && (
+                  <div>
+                    <h3>Genre Statistics of Albums</h3>
+                    <div style={{ width: '800px', height: '500px' }}>
+                      <Bar data={genreChartData} options={genreLikeChartOptions} />
+                  </div>
+                  </div>
+                  )}
+            {eraChartData && (
+                  <div>
+                    <h3>Era Statistics of Albums</h3>
+                    <div style={{ width: '800px', height: '500px' }}>
+                      <Bar data={eraChartData} options={eraLikeChartOptions} />
+                  </div>
+                  </div>
+                  )}
+            </div>
             </div>
           )}
 
@@ -610,7 +976,7 @@ const Stats = () => {
             <form onSubmit={(e) => handleLikedContentSubmit(e, 'ARTIST')} className="liked-filter-form">
             <h2>Artist Statistics</h2>
                  <label>
-                  Start Date:
+                  From:
                   <input
                     type="month"
                     value={likedStartDate}
@@ -619,7 +985,7 @@ const Stats = () => {
                 </label>
 
                 <label>
-                  End Date:
+                  To:
                   <input
                     type="month"
                     value={likedEndDate}
@@ -649,7 +1015,16 @@ const Stats = () => {
 
                 <button type="submit">Apply Filters</button>
             </form>
-            {/* ... other content for liked tracks ... */}
+            <div className="top-rated-artists">
+            {genreChartData && (
+                  <div>
+                    <h3>Genre Statistics of Artists</h3>
+                    <div style={{ width: '800px', height: '500px' }}>
+                      <Bar data={genreChartData} options={genreLikeChartOptions} />
+                  </div>
+                  </div>
+                  )}
+            </div>
             </div>
           )}
 
