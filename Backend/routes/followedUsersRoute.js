@@ -5,11 +5,13 @@ const {
     getAllFollowedUsersForUser,
     recommendationBlockUser,
     recommendationUnblockUser,
+    getBlockedUsers,
 } = require("../controllers/followedUsersController");
 
 const router = require("express").Router();
 
-router.get("/getAllFollowedUsersForUser",getAllFollowedUsersForUser);
+router.get("/getAllFollowedUsersForUser", getAllFollowedUsersForUser);
+router.get("/getBlockedUsers", getBlockedUsers);
 
 router.post("/createFollowedUsersForUser", createFollowedUsersForUser);
 router.post("/addToUserFollowedUsers", addToUserFollowedUsers);

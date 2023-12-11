@@ -99,6 +99,7 @@ module.exports.Login = async (req, res, next) => {
         if (!auth) {
             return res.json({
                 message: "Incorrect password or email",
+                token: null,
                 success: false,
             });
         }
@@ -120,7 +121,11 @@ module.exports.Login = async (req, res, next) => {
         console.error(error);
         return res
             .status(500)
-            .json({ message: "Internal Server Error", success: false });
+            .json({
+                message: "Internal Server Error",
+                success: false,
+                token: null,
+            });
     }
 };
 

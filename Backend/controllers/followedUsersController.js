@@ -194,7 +194,7 @@ module.exports.removeFromUserFollowedUsers = async (req, res) => {
     }
 };
 
-// In order for a user to get their followed users 
+// In order for a user to get their followed users
 module.exports.getAllFollowedUsersForUser = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
@@ -233,7 +233,7 @@ module.exports.getAllFollowedUsersForUser = async (req, res) => {
 
 /* -------- HELPER FUNCTIONS -------- */
 
-// Checks if the two users follow each other 
+// Checks if the two users follow each other
 module.exports.isFriend = async (user1, user2) => {
     const checkUsernameExists = async (usernameToCheck) => {
         try {
@@ -299,88 +299,90 @@ module.exports.isFriend = async (user1, user2) => {
     }
 */
 
-module.exports.recommendationBlockUser = async (req,res)=>{
-  try{
-    // Get user information from the information coming from verifyToken middleware
-    const user = req.user;
-    const { username } = user;
+module.exports.recommendationBlockUser = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
 
-    // Get blocked username from request body
-    const {blockedUsername} = req.body;
+        // Get blocked username from request body
+        const { blockedUsername } = req.body;
 
-    const existingUserBlockedUsers = await FollowedUsers.findOne({
-        username,
-    });
+        const existingUserBlockedUsers = await FollowedUsers.findOne({
+            username,
+        });
 
-    const checkUsernameExists = async (usernameToCheck) => {
-        try {
-            const existingUser = await User.findOne({
-                username: usernameToCheck,
-            });
+        const checkUsernameExists = async (usernameToCheck) => {
+            try {
+                const existingUser = await User.findOne({
+                    username: usernameToCheck,
+                });
 
-            if (existingUser) {
-                return true; //User exists in database
-            } else {
-                return false; //User does not exists in database
+                if (existingUser) {
+                    return true; //User exists in database
+                } else {
+                    return false; //User does not exists in database
+                }
+            } catch (error) {
+                console.error("Error occurred while checking username:", error);
+                return false;
             }
-        } catch (error) {
-            console.error("Error occurred while checking username:", error);
-            return false;
+        };
+        const exists = await checkUsernameExists(blockedUsername);
+
+        // If given username does not exist in database, throw error
+        if (!exists) {
+            return res.json({
+                message: "This user does not exist!",
+                success: false,
+            });
         }
-    };
-    const exists = await checkUsernameExists(blockedUsername);
 
-    // If given username does not exist in database, throw error
-    if (!exists) {
-        return res.json({
-            message: "This user does not exist!",
-            success: false,
+        // If given username is same with the users name, throw error
+        if (blockedUsername == username) {
+            return res.json({
+                message: "Username cannot be the users username!",
+                success: false,
+            });
+        }
+
+        // Check if the Blocked Users List is initialized or not
+        if (!existingUserBlockedUsers) {
+            return res.json({
+                message: "User blocked users list does not exist!",
+                success: false,
+            });
+        }
+
+        // If user already blocked the other user, throw error
+        const duplicate =
+            existingUserBlockedUsers.recommendationBlockedUsersList.find(
+                (existingBlockedUsername) =>
+                    blockedUsername === existingBlockedUsername
+            );
+
+        if (duplicate) {
+            return res.json({
+                message:
+                    "Blocked username already exists in user blocked users list!",
+                success: false,
+            });
+        }
+
+        // If there are no errors, add username of blockedUser to user's recommendationBlocked users list
+        existingUserBlockedUsers.recommendationBlockedUsersList.push(
+            blockedUsername
+        );
+        await existingUserBlockedUsers.save();
+
+        res.status(201).json({
+            message: `This username: ${blockedUsername}, will not get any recommendations from user: ${username}`,
+            success: true,
         });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-
-    // If given username is same with the users name, throw error
-    if (blockedUsername == username) {
-        return res.json({
-            message: "Username cannot be the users username!",
-            success: false,
-        });
-    }
-
-    // Check if the Blocked Users List is initialized or not
-    if (!existingUserBlockedUsers) {
-        return res.json({
-            message: "User blocked users list does not exist!",
-            success: false,
-        });
-    }
-
-    // If user already blocked the other user, throw error
-    const duplicate = existingUserBlockedUsers.recommendationBlockedUsersList.find(
-        (existingBlockedUsername) =>
-            blockedUsername === existingBlockedUsername
-    );
-
-    if (duplicate) {
-        return res.json({
-            message:
-                "Blocked username already exists in user blocked users list!",
-            success: false,
-        });
-    }
-
-    // If there are no errors, add username of blockedUser to user's recommendationBlocked users list
-    existingUserBlockedUsers.recommendationBlockedUsersList.push(blockedUsername);
-    await existingUserBlockedUsers.save();
-
-    res.status(201).json({
-        message: `This username: ${blockedUsername}, will not get any recommendations from user: ${username}`,
-        success: true,
-    });
-
-  }  catch(err){
-    console.error(err);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
 };
 
 // In order for a user to recommendationUnblock a user
@@ -391,7 +393,7 @@ module.exports.recommendationBlockUser = async (req,res)=>{
         blockedUsername: String
     }
 */
-module.exports.recommendationUnblockUser = async (req,res)=>{
+module.exports.recommendationUnblockUser = async (req, res) => {
     try {
         // Get user information from the information coming from verifyToken middleware
         const user = req.user;
@@ -417,7 +419,7 @@ module.exports.recommendationUnblockUser = async (req,res)=>{
                 (existingBlockedUsername) =>
                     blockedUsername === String(existingBlockedUsername)
             );
-    
+
         if (!existingBlockedUsername) {
             return res.status(404).json({
                 message:
@@ -441,6 +443,43 @@ module.exports.recommendationUnblockUser = async (req,res)=>{
         console.error(err);
         res.status(500).json({
             message: "Internal Server Error",
+            success: false,
+        });
+    }
+};
+
+module.exports.getBlockedUsers = async (req, res) => {
+    try {
+        // Get user information from the information coming from verifyToken middleware
+        const user = req.user;
+        const { username } = user;
+
+        let existingUserBlockedUsers = await FollowedUsers.findOne({
+            username,
+        });
+
+        // If blocked users list is not initialized for user, throw error
+        if (!existingUserBlockedUsers) {
+            return res.json({
+                message: "User blocked users list does not exist!",
+                success: false,
+            });
+        }
+
+        let blockedUsers =
+            existingUserBlockedUsers.recommendationBlockedUsersList;
+        console.log(blockedUsers);
+
+        let allUsers = existingUserBlockedUsers.followedUsersList;
+        res.status(201).json({
+            message: "Returned blocked users successfully",
+            blockedUsers,
+            allUsers,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Get Blocked Users Failed!",
             success: false,
         });
     }
