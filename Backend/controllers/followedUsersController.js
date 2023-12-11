@@ -471,6 +471,7 @@ module.exports.getBlockedUsers = async (req, res) => {
 
         let allUsers = await User.find();
         let unblockedUsers = [];
+        let allFollowers = [];
         for (const user of allUsers) {
             let userFollowings = await FollowedUsers.findOne({
                 username: user.username,
@@ -478,16 +479,19 @@ module.exports.getBlockedUsers = async (req, res) => {
             userFollowings = userFollowings.followedUsersList;
             if (
                 username !== user.username &&
-                userFollowings.includes(username) &&
-                !blockedUsers.includes(user.username)
+                userFollowings.includes(username)
             ) {
-                unblockedUsers.push(user.username);
+                if (!blockedUsers.includes(user.username)) {
+                    unblockedUsers.push(user.username);
+                }
+                allFollowers.push(user.username);
             }
         }
         res.status(201).json({
             message: "Returned blocked users successfully",
             blockedUsers,
             unblockedUsers,
+            allFollowers,
         });
     } catch (err) {
         console.error(err);
