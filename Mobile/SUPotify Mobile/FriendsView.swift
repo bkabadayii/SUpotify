@@ -14,6 +14,14 @@ struct FriendsView: View {
     @State var isBlocked: Bool = true
     @State private var friendsToggleStates = [String: Bool]()
     @State private var friendsBlockedStatus = [String: Bool]()
+    @State private var showAlert = false
+    @State private var alertMessage: String = ""
+    
+    init() {
+        self.username = SessionManager.shared.username
+        fetchBlockedUsers()
+        fetchFollowedUsers()
+    }
 
 
     var body: some View {
@@ -80,51 +88,37 @@ struct FriendsView: View {
                                             .foregroundColor(.white.opacity(0.50))
                                     }
                                      
-                                    
-                                    
-                                    Toggle("", isOn: Binding(
-                                        get: {
-                                            if let isBlocked = self.friendsBlockedStatus[friend], isBlocked {
-                                                // Friend is blocked, return false to turn off the Toggle
-                                                return false
-                                            } else {
-                                                // Use the Toggle state from friendsToggleStates
-                                                return self.friendsToggleStates[friend] ?? true
-                                            }
-                                        },
-                                        set: { newValue in
-                                            self.friendsToggleStates[friend] = newValue
-                                            if !newValue {
-                                                self.blockRecommendationForUser(friendUsername: friend)
-                                            } else {
-                                                self.unblock(friendUsername: friend)
-                                            }
-                                        }
-                                    ))
-                                    .toggleStyle(SwitchToggleStyle(tint: .red))
-                                    .alert(isPresented: Binding(
-                                        get: { self.friendsBlockedStatus[friend] ?? false },
-                                        set: { _ in }
-                                    )) {
-                                        Alert(
-                                            title: Text("Success"),
-                                            message: Text("\(friend) is blocked and will not receive any recommendations from your songs"),
-                                            dismissButton: .default(Text("OK"))
-                                        )
-                                    }
-                                    .onAppear {
-                                        if self.friendsBlockedStatus[friend] == true {
-                                                    self.friendsToggleStates[friend] = false
-                                                }
-                                            }
-                                    .disabled(friendsBlockedStatus[friend] == true)
-                                    .opacity(friendsBlockedStatus[friend] == true ? 0.5 : 1.0)
-                                      
+
+                                           Button(friendsBlockedStatus[friend] == true ? "Unblock" : "Block") {
+                                               if friendsBlockedStatus[friend] == true {
+                                                   unblock(friendUsername: friend)
+                                               } else {
+                                                   blockRecommendationForUser(friendUsername: friend)
+                                               }
+                                           }
+                                           .padding()
+                                           .background(Color.red)
+                                           .foregroundColor(.white)
+                                           .font(.caption2)
+                                           .cornerRadius(8)
+                                           .alert(isPresented: $showAlert) {
+                                                       Alert(
+                                                           title: Text("Success"),
+                                                           message: Text(alertMessage),
+                                                           dismissButton: .default(Text("OK"))
+                                                       )
+                                                   }
                                 }
+                                
+                        
                             }
         }
+       
         .id(refreshID)
-        .onAppear(perform: fetchFollowedUsers)
+        .onAppear(perform: {
+            fetchFollowedUsers()
+            fetchBlockedUsers()
+        })
     }
     
     
@@ -251,6 +245,40 @@ struct FriendsView: View {
         
 }
     
+    func fetchBlockedUsers() {
+        let token = SessionManager.shared.token
+        let url = URL(string: "http://localhost:4000/api/followedUsers/getBlockedUsers")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Fetch blocked users error: \(error.localizedDescription)")
+                    return
+                }
+                guard let data = data else {
+                    print("No data received")
+                    return
+                }
+                do {
+                    let response = try JSONDecoder().decode(BlockedUsersResponse.self, from: data)
+                    if (response.message == "Returned blocked users successfully") {
+                        // Update the friendsBlockedStatus based on response
+                        for friend in friends {
+                            friendsBlockedStatus[friend] = response.blockedUsers.contains(friend)
+                        }
+                    } else {
+                        print("Fetch failed: \(response.message)")
+                    }
+                } catch {
+                    print("Decoding error: \(error)")
+                }
+            }
+        }.resume()
+    }
+    
     func blockRecommendationForUser(friendUsername: String) {
           let token = SessionManager.shared.token
           let url = URL(string: "http://localhost:4000/api/followedUsers/recommendationBlockUser")!
@@ -276,13 +304,14 @@ struct FriendsView: View {
                       let response = try JSONDecoder().decode(BlockRecommendationResponse.self, from: data)
                       if response.success {
                           self.friendsBlockedStatus[friendUsername] = true
+                          self.alertMessage = "\(friendUsername) successfully blocked. \(friendUsername) will not get any recommendations from you."
+                          self.showAlert = true
                           print("Recommendations blocked for user: \(friendUsername)")
                           isBlocked = true
                       } else {
                           print(response)
                           self.friendsBlockedStatus[friendUsername] = false
                           print("Failed to block recommendations for user: \(friendUsername)")
-                          
                       }
                   } catch {
                       print("Decoding error: \(error)")
@@ -295,7 +324,7 @@ struct FriendsView: View {
           let token = SessionManager.shared.token
           let url = URL(string: "http://localhost:4000/api/followedUsers/recommendationUnblockUser")!
           var request = URLRequest(url: url)
-          request.httpMethod = "POST"
+          request.httpMethod = "DELETE"
           request.setValue("application/json", forHTTPHeaderField: "Content-Type")
           request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
           
@@ -316,12 +345,15 @@ struct FriendsView: View {
                       let response = try JSONDecoder().decode(UnblockUserResponse.self, from: data)
                       if response.message == "User unblocked successfully" {
                           self.friendsBlockedStatus[friendUsername] = false
-                          print("Recommendations blocked for user: \(friendUsername)")
+                          self.alertMessage = "\(friendUsername) successfully unblocked. \(friendUsername) now can get recommendations from you."
+                          self.showAlert = true
+                          print("Recommendations unblocked for user: \(friendUsername)")
                           isBlocked = false
+                          
                       } else {
                           print(response)
                           self.friendsBlockedStatus[friendUsername] = true
-                          print("Failed to block recommendations for user: \(friendUsername)")
+                          print("Failed to unblock recommendations for user: \(friendUsername)")
                       }
                   } catch {
                       print("Decoding error: \(error)")
@@ -334,12 +366,12 @@ struct FriendsView: View {
         let message: String
         let updatedBlockedUsers: UpdatedBlockedUsers
     }
-
+    
     struct UpdatedBlockedUsers: Codable {
         let _id: String
         let username: String
         let followedUsersList: [String]
-        let __v: Int
+       // let __v: Int
         let recommendationBlockedUsersList: [String]
     }
 
@@ -373,11 +405,18 @@ struct FriendsView: View {
         let success: Bool
     }
     
+    struct BlockedUsersResponse: Codable {
+        let message: String
+        let blockedUsers: [String]
+        let unblockedUsers:[String]
+        let allFollowers: [String]
+    }
+    
 }
 
 struct FriendsView_Previews: PreviewProvider {
     static var previews: some View {
-        FriendsView(username: "testUser")
+        FriendsView()
             .preferredColorScheme(.dark)
     }
 }

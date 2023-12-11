@@ -5,6 +5,9 @@ struct Profile: View {
     @State private var showingAlert = false
     @State private var isLogoutSuccessful = false
     @State private var errorMessage: String?
+    @State private var numberOfPlaylists = 0
+    @State private var numberOfFriends = 0
+
     var username = SessionManager.shared.username
     
     func logout() {
@@ -46,6 +49,7 @@ struct Profile: View {
     }
     
     @State private var selectedTab = 0
+    @State private var mycolor = ""
 
     
     var body: some View {
@@ -58,7 +62,7 @@ struct Profile: View {
                             Button("Logout") {
                                 logout()
                             }
-                            .font(.system(size: 12, weight:.medium))
+                            .font(.system(size: 14, weight:.medium))
                             .foregroundColor(.red)
                             .padding(.trailing, 30)
                             .alert(isPresented: $showingAlert) {
@@ -72,20 +76,30 @@ struct Profile: View {
                             VStack(alignment: .leading, spacing: 9) {
                                 Text("\(username)")
                                     .font(.title)
+                                    .foregroundColor(.white)
+                                    .fontWeight(.bold)
+                                /*HStack(spacing: 10) {
+                                        //Text("\(playlists.count) Playlists")
+                                        //Text("\(friends.count) Friends")
+                                    
+                                    }
+                                    .font(.subheadline)*/
                             }
-                            .padding(.horizontal, 16)
+                                .padding(.horizontal, 16)
                             
                             Spacer()
                             
                             Image(systemName: "person.circle.fill")
                                 .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 100, height: 100)
+                                .scaledToFit()
+                                .frame(width: 80, height: 80)
                                 .foregroundColor(.indigo)
                                 .padding()
                         }
                         .padding(.top, 16)
                         .padding(.horizontal, 16)
+                        
+                       
                         
                         Picker("Options", selection: $selectedTab) {
                                                Text("Playlists").tag(0)
@@ -99,17 +113,17 @@ struct Profile: View {
                                PlaylistGrid()
                                 
                             } else {
-                                FriendsView(username: "SampleUser")
+                                FriendsView()
                             }
                     }
                 }
                     
             }
+            .navigationBarTitle("Profile")
             //.navigationTitle("Profile")
             //.navigationBarHidden(isLogoutSuccessful)
             .background(NavigationLink("", destination: ContentView(), isActive: $isLogoutSuccessful))
         }
-            .navigationBarTitle("Profile", displayMode: .inline)
     }
 }
 
