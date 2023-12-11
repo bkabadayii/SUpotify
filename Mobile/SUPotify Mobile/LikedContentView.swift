@@ -359,6 +359,13 @@ struct LikedContentView: View {
               .font(.system(size: 24, weight:.bold))
             Spacer()
             Button(action: {
+              viewModel.refreshLibrary()
+            }){
+              Image(systemName: "arrow.clockwise")
+                  .foregroundColor(.white)
+                  .padding()
+          }
+            Button(action: {
               self.showExportOptions = true
             }) {
               Image(systemName: "square.and.arrow.up")

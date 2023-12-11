@@ -90,8 +90,8 @@ struct SearchView: View {
                         hasSearched = true
                         searchViewModel.performSearch(with: newValue)
                     }
-                    
-                    
+
+
                     if searchViewModel.isLoading {
                         ProgressView(isRotated: true)
                     }
@@ -107,6 +107,7 @@ struct SearchView: View {
                         }
                         else {
                             ResultsListView(searchViewModel: searchViewModel)
+                            .environmentObject(viewModel)
                         }
                     }
                 }
@@ -204,7 +205,6 @@ struct SearchView: View {
                                     .foregroundColor(.pink)
                                     .onTapGesture {
                                       searchViewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
-                                      viewModel.refreshLibrary()
                                     }
                                 
                             }
@@ -243,7 +243,6 @@ struct SearchView: View {
                                     .foregroundColor(.pink)
                                     .onTapGesture {
                                       searchViewModel.addArtistToLikedArtists(artistID: artists.id)
-                                      viewModel.refreshLibrary()
                                     }
                             }
                             
@@ -290,7 +289,6 @@ struct SearchView: View {
                                     .foregroundColor(.pink)
                                     .onTapGesture {
                                       searchViewModel.addAlbumToLikedAlbums(albumID: album.id)
-                                      viewModel.refreshLibrary()
                                     }
                             }
                             
@@ -338,8 +336,8 @@ struct SearchView: View {
     }
     
     class SearchViewModel: ObservableObject {
-        static let shared = LikedSongsViewModel()
-      @EnvironmentObject var viewModel: LikedSongsViewModel
+        //static let shared = LikedSongsViewModel()
+        //private var likedSongsViewModel: LikedSongsViewModel
         private var token : String
         @Published var tracks: [Tracks] = []
         @Published var artists: [Artists] = []
@@ -351,8 +349,9 @@ struct SearchView: View {
         @Published var isNotFound: Bool = false
         
         
-        init() {
+      init() {
             self.token = SessionManager.shared.token
+          //self.likedSongsViewModel = likedSongsViewModel
         }
         
         
@@ -481,6 +480,7 @@ struct SearchView: View {
                                 DispatchQueue.main.async {
                                     self?.toggleFavorite(for: trackId)
                                 }
+                              //LikedSongsViewModel.refreshLibrary()
                             } else {
                                 // Handle the case where the server reports an error
                                 print("Error adding track to liked songs: \(responseData)")

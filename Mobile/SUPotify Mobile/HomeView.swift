@@ -8,13 +8,106 @@
 import SwiftUI
 import Charts
 
+struct TopRatedTracksRequest: Codable {
+    struct Filters: Codable {
+        var rateDate: [String]
+        var releaseDate: [String]
+        var genres: [String]
+        var artists: [String]
+    }
+    var filters: Filters
+    //var numItems: Int
+}
+
+
+struct TopRatedTracksResponse: Codable {
+    struct TrackRating: Codable {
+        struct Track: Codable {
+            struct Album: Codable {
+                var _id: String
+                var name: String
+                var releaseDate: String
+                var imageURL: String
+            }
+            struct Artist: Codable {
+                var _id: String
+                var name: String
+                var genres: [String]
+                var popularity: Int
+                var spotifyURL: String
+                var imageURL: String
+            }
+            var _id: String
+            var name: String
+            var popularity: Int
+            var durationMS: Int
+            var album: Album
+            var artists: [Artist]
+            var spotifyID: String
+            var spotifyURL: String
+            var previewURL: String
+        }
+        var track: Track
+        var rating: Int
+        var ratedAt: String
+        var _id: String
+    }
+    var message: String
+    var success: Bool
+    var trackRatings: [TrackRating]
+    // Additional fields for genre and artist ratings can be added here if needed.
+}
+
+
+class HomeViewModel: ObservableObject {
+    @Published var topRatedTracksResponse: TopRatedTracksResponse?
+
+    func fetchTopRatedTracks(userToken: String, requestBody: TopRatedTracksRequest) {
+        guard let url = URL(string: "http://localhost:4000/api/statistics/getTopRatedTracks") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        do {
+            request.httpBody = try JSONEncoder().encode(requestBody)
+        } catch {
+            print("Error encoding request body: \(error)")
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error: \(error)")
+                    return
+                }
+                guard let data = data else {
+                    print("No data received")
+                    return
+                }
+                do {
+                    let decodedResponse = try JSONDecoder().decode(TopRatedTracksResponse.self, from: data)
+                    self?.topRatedTracksResponse = decodedResponse
+                } catch {
+                    print("Error decoding response: \(error)")
+                }
+            }
+        }.resume()
+    }
+}
+
+
 struct HomeView: View {
+  @StateObject var viewModel = HomeViewModel() // ViewModel instance
     @State private var selectedTab: StatisticCategory = .albums
     @State private var startDate: Date = Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? Date()
     @State private var endDate: Date = Date()
     @State private var genre: String = "" // Provide a default value
     @State private var selectedOption: String = "Ranking based"
     let username = SessionManager.shared.username
+  let userToken = SessionManager.shared.token
     let options = ["Ranking based", "Liked Songs based"]
 
     var body: some View {
@@ -56,7 +149,7 @@ struct HomeView: View {
                     case .albums:
                         AlbumsStatisticsView(startDate: startDate, endDate: endDate)
                     case .tracks:
-                        TracksStatisticsView(startDate: startDate, endDate: endDate)
+                        TracksStatisticsView(startDate: startDate, endDate: endDate, viewModel: viewModel)
                     case .artists:
                         ArtistsStatisticsView(startDate: startDate, endDate: endDate)
                     }
@@ -126,14 +219,35 @@ struct AlbumsStatisticsView: View {
 struct TracksStatisticsView: View {
     var startDate: Date
     var endDate: Date
+  //@Binding var numItems: Int
+      @ObservedObject var viewModel: HomeViewModel
+  let userToken = SessionManager.shared.token
 
-    var body: some View {
-        
-        Text("Songs statistics view")
-            .font(.subheadline)
-        // Replace with your actual UI components for displaying songs statistics
-    }
-}
+  var body: some View {
+          VStack {
+              Text("Songs statistics view")
+                  .font(.subheadline)
+
+              // Add UI components to input `numItems`, `startDate`, `endDate`, etc.
+              // ...
+
+              Button("Fetch Top Rated Tracks") {
+                  let request = TopRatedTracksRequest(
+                      filters: TopRatedTracksRequest.Filters(
+                          rateDate: [dateFormatter.string(from: startDate), dateFormatter.string(from: endDate)],
+                          releaseDate: [], // Adjust as needed
+                          genres: [],      // Adjust as needed
+                          artists: []      // Adjust as needed
+                      )
+                      //numItems: numItems
+                  )
+                  viewModel.fetchTopRatedTracks(userToken: userToken, requestBody: request)
+              }
+          }
+
+          // Use viewModel.topRatedTracksResponse to display the fetched data
+      }
+  }
 
 struct ArtistsStatisticsView: View {
     var startDate: Date
@@ -146,6 +260,11 @@ struct ArtistsStatisticsView: View {
     }
 }
 
+var dateFormatter: DateFormatter {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM" // Adjust format as needed
+    return formatter
+}
 
 #Preview {
     HomeView()
