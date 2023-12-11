@@ -50,6 +50,7 @@ struct AddCustomSong: View {
           }
         }
         .background(.opacity(1))
+
         NavigationLink(destination: LikedContentView().environmentObject(LikedSongsViewModel.shared
                                                                         ), isActive: $navigateToLikedContent) {
               EmptyView()

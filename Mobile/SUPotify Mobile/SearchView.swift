@@ -91,11 +91,16 @@ struct SearchView: View {
                         hasSearched = true
                         searchViewModel.performSearch(with: newValue)
                     }
+
+
+
+
                     .alert(isPresented: $searchViewModel.showAlert) {
                                 Alert(title: Text("Error Adding Song"), message: Text(searchViewModel.alertMessage), dismissButton: .default(Text("OK")))
                             }
                     
                     
+
                     if searchViewModel.isLoading {
                         ProgressView(isRotated: true)
                     }
@@ -111,6 +116,7 @@ struct SearchView: View {
                         }
                         else {
                             ResultsListView(searchViewModel: searchViewModel)
+                            .environmentObject(viewModel)
                         }
                     }
                 }
@@ -207,7 +213,10 @@ struct SearchView: View {
                                     .foregroundColor(.pink)
                                     .onTapGesture {
                                       searchViewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
+
+
                                       //viewModel.refreshLibrary()
+
                                     }
                                 
                             }
@@ -246,7 +255,10 @@ struct SearchView: View {
                                     .foregroundColor(.pink)
                                     .onTapGesture {
                                       searchViewModel.addArtistToLikedArtists(artistID: artists.id)
+
+
                                       //viewModel.refreshLibrary()
+
                                     }
                             }
                             
@@ -293,7 +305,10 @@ struct SearchView: View {
                                     .foregroundColor(.pink)
                                     .onTapGesture {
                                       searchViewModel.addAlbumToLikedAlbums(albumID: album.id)
+
+
                                       //viewModel.refreshLibrary()
+
                                     }
                             }
                             
@@ -341,8 +356,8 @@ struct SearchView: View {
     }
     
     class SearchViewModel: ObservableObject {
-        static let shared = LikedSongsViewModel()
-      @EnvironmentObject var viewModel: LikedSongsViewModel
+        //static let shared = LikedSongsViewModel()
+        //private var likedSongsViewModel: LikedSongsViewModel
         private var token : String
         @Published var tracks: [Tracks] = []
         @Published var artists: [Artists] = []
@@ -357,8 +372,9 @@ struct SearchView: View {
 
         
         
-        init() {
+      init() {
             self.token = SessionManager.shared.token
+          //self.likedSongsViewModel = likedSongsViewModel
         }
         
         
@@ -491,8 +507,15 @@ struct SearchView: View {
                                 } else {
                                     print("Unexpected response format or data")
                                 }
+
+                            
+                            } else {
+                                // Handle the case where the server reports an error
+                                print("Error adding track to liked songs: \(responseData)")
+
                             } catch {
                                 print("Error decoding response data: \(error)")
+
                             }
             }.resume()
         }
