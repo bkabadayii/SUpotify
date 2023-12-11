@@ -119,7 +119,6 @@ struct Profile: View {
                 }
                     
             }
-            .navigationBarTitle("Profile")
             //.navigationTitle("Profile")
             //.navigationBarHidden(isLogoutSuccessful)
             .background(NavigationLink("", destination: ContentView(), isActive: $isLogoutSuccessful))

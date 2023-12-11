@@ -12,7 +12,7 @@ struct MainMenu: View {
     
     var body: some View {
         TabView {
-            // Tab 1
+            
             HomeView()
             .tabItem {
                 Image(systemName: "house.fill")
