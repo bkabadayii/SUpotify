@@ -177,6 +177,8 @@ class Host: UIHostingController<ContentView> {
 struct TrackCardView: View {
     let track: Track
     @State var isAdded: Bool = false
+    @State var showErrorAlert: Bool = false
+       @State var errorMessage: String = ""
     
     var body: some View {
         VStack{
@@ -260,6 +262,9 @@ struct TrackCardView: View {
                             .foregroundColor(.indigo)
                     }
                 })
+                .alert(isPresented: $showErrorAlert) {
+                        Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+                    }
                 Button(action: {
                     Share()
                 }, label: {
@@ -319,28 +324,27 @@ struct TrackCardView: View {
             }
             
             do {
-                if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    if let success = responseData["success"] as? Bool {
-                        if success {
-                            // Track was successfully added to liked songs
-                            DispatchQueue.main.async {
-                                print("Recommended song added to liked songs successfully")
-                                isAdded = true
-                            }
-                        } else {
-                            // Handle the case where the server reports an error
-                            print("Error adding track to liked songs: \(responseData)")
-                        }
-                    } else {
-                        print("Unexpected response format")
-                    }
-                } else {
-                    print("Response data is not a dictionary")
-                }
-            } catch {
-                print("Error decoding response data: \(error)")
-            }
-        }.resume()
+                           if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                               DispatchQueue.main.async {
+                                   if let success = responseData["success"] as? Bool {
+                                       if success {
+                                           self.isAdded = true
+                                       } else if let message = responseData["message"] as? String {
+                                           // If the song already exists in liked songs
+                                           self.errorMessage = message
+                                           self.showErrorAlert = true
+                                       }
+                                   } else {
+                                       print("Unexpected response format")
+                                   }
+                               }
+                           } else {
+                               print("Response data is not a dictionary")
+                           }
+                       } catch {
+                           print("Error decoding response data: \(error)")
+                       }
+                   }.resume()
     }
         
 }

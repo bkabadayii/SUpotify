@@ -114,17 +114,23 @@ struct LoginView: View {
                             URLSession.shared.dataTask(with: request) { data, response, error in
                                 if let data = data {
                                     do {
-                                        // print("Response JSON: \(String(data: data, encoding: .utf8) ?? "No data")") for debug purposes
-                                        
+                                       
                                         let result = try JSONDecoder().decode(LoginResponse.self, from: data)
                                         SessionManager.shared.loginResponse = result
-                                        SessionManager.shared.token = result.token
                                         
+                                       
+                                        if(result.token == ""){
+                                            showingAlert = true
+                                        }
+                                        
+                                        else{
+                                            SessionManager.shared.token = result.token
+                                        }
                                         
                                         if let success = result.success, success{
                                             if let userDetails = result.userDetails {
                                                 
-                                                if(!result.token.isEmpty) {
+                                                if(result.token != "") {
 
                                                     self.isLoggedin = true
                                                     print("Login successful")
