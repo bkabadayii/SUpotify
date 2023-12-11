@@ -389,7 +389,7 @@ struct LikedContentView: View {
           //navigationViewKey = UUID()
           showImportView = false
         }) {
-          ImportView()
+            ImportView(mongoUrl: "")
         }
 
       }

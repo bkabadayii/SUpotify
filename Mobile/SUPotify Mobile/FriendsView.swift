@@ -81,7 +81,6 @@ struct FriendsView: View {
                                     }
                                      
                                     
-                                    
                                     Toggle("", isOn: Binding(
                                         get: {
                                             if let isBlocked = self.friendsBlockedStatus[friend], isBlocked {
@@ -117,9 +116,6 @@ struct FriendsView: View {
                                                     self.friendsToggleStates[friend] = false
                                                 }
                                             }
-                                    .disabled(friendsBlockedStatus[friend] == true)
-                                    .opacity(friendsBlockedStatus[friend] == true ? 0.5 : 1.0)
-                                      
                                 }
                             }
         }

@@ -114,17 +114,15 @@ struct LoginView: View {
                             URLSession.shared.dataTask(with: request) { data, response, error in
                                 if let data = data {
                                     do {
-                                        // print("Response JSON: \(String(data: data, encoding: .utf8) ?? "No data")") for debug purposes
-                                        
+                                       
                                         let result = try JSONDecoder().decode(LoginResponse.self, from: data)
-                                        SessionManager.shared.loginResponse = result
-                                        SessionManager.shared.token = result.token
-                                        
-                                        
+                                       
                                         if let success = result.success, success{
                                             if let userDetails = result.userDetails {
+                                                SessionManager.shared.loginResponse = result
+                                                SessionManager.shared.token = result.token
                                                 
-                                                if(!result.token.isEmpty) {
+                                                if(!result.token.isEmpty && result.token != "null") {
 
                                                     self.isLoggedin = true
                                                     print("Login successful")
@@ -133,6 +131,9 @@ struct LoginView: View {
                                                     print("Token: \(result.token)")
                                                     
                                                     SessionManager.shared.username = userDetails.username
+                                                }
+                                                else if (result.token == "nil") {
+                                                    showingAlert = true
                                                 }
                                             }
                                             else {
