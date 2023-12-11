@@ -90,6 +90,9 @@ struct SearchView: View {
                         hasSearched = true
                         searchViewModel.performSearch(with: newValue)
                     }
+                    .alert(isPresented: $searchViewModel.showAlert) {
+                                Alert(title: Text("Error Adding Song"), message: Text(searchViewModel.alertMessage), dismissButton: .default(Text("OK")))
+                    }
 
 
                     if searchViewModel.isLoading {
@@ -347,6 +350,9 @@ struct SearchView: View {
         @Published var favoritedArtists: Set<String> = []
         @Published var favoritedAlbums: Set<String> = []
         @Published var isNotFound: Bool = false
+        @Published var showAlert = false
+        @Published var alertMessage = ""
+
 
 
       init() {
@@ -473,29 +479,25 @@ struct SearchView: View {
                 }
 
                 do {
-                    if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                        if let success = responseData["success"] as? Bool {
-                            if success {
-                                // Track was successfully added to liked songs
-                                DispatchQueue.main.async {
-                                    self?.toggleFavorite(for: trackId)
-                                }
-                              //LikedSongsViewModel.refreshLibrary()
-                            } else {
-                                // Handle the case where the server reports an error
-                                print("Error adding track to liked songs: \(responseData)")
-                            }
-                        } else {
-                            print("Unexpected response format")
+                                                if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                                                   let message = responseData["message"] as? String {
+                                                    DispatchQueue.main.async {
+                                                        if let success = responseData["success"] as? Bool, !success {
+                                                            // If the song already exists in liked songs
+                                                            self?.alertMessage = message
+                                                            self?.showAlert = true
+                                                        } else {
+                                                            self?.toggleFavorite(for: trackId)
+                                                        }
+                                                    }
+                                                } else {
+                                                    print("Unexpected response format or data")
+                                                }
+                                            } catch {
+                                                print("Error decoding response data: \(error)")
+                                            }
+                            }.resume()
                         }
-                    } else {
-                        print("Response data is not a dictionary")
-                    }
-                } catch {
-                    print("Error decoding response data: \(error)")
-                }
-            }.resume()
-        }
 
 
         func addArtistToLikedArtists(artistID: String) {
@@ -538,28 +540,26 @@ struct SearchView: View {
                 }
 
                 do {
-                    if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                        if let success = responseData["success"] as? Bool {
-                            if success {
-                                // Track was successfully added to liked songs
-                                DispatchQueue.main.async {
-                                    self?.toggleFavoriteArtist(for: artistID)
-                                }
-                            } else {
-                                // Handle the case where the server reports an error
-                                print("Error adding track to liked songs: \(responseData)")
-                            }
-                        } else {
-                            print("Unexpected response format")
+                                                if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                                                   let message = responseData["message"] as? String {
+                                                    DispatchQueue.main.async {
+                                                        if let success = responseData["success"] as? Bool, !success {
+                                                            // If the song already exists in liked songs
+                                                            self?.alertMessage = message
+                                                            self?.showAlert = true
+                                                        } else {
+                                                            self?.toggleFavoriteArtist(for: artistID)
+                                                        }
+                                                    }
+                                                } else {
+                                                    print("Unexpected response format or data")
+                                                }
+                                            } catch {
+                                                print("Error decoding response data: \(error)")
+                                            }
+                            }.resume()
                         }
-                    } else {
-                        print("Response data is not a dictionary")
-                    }
-                } catch {
-                    print("Error decoding response data: \(error)")
-                }
-            }.resume()
-        }
+
         func addAlbumToLikedAlbums(albumID: String) {
             let urlString = "http://localhost:4000/api/likedContent/likeAlbumBySpotifyID"
             guard let url = URL(string: urlString) else { return }
@@ -600,31 +600,30 @@ struct SearchView: View {
                 }
 
                 do {
-                    if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                        if let success = responseData["success"] as? Bool {
-                            if success {
-                                // Track was successfully added to liked songs
-                                DispatchQueue.main.async {
-                                    self?.toggleFavoriteAlbum(for: albumID)
-                                }
-                            } else {
-                                // Handle the case where the server reports an error
-                                print("Error adding track to liked songs: \(responseData)")
-                            }
-                        } else {
-                            print("Unexpected response format")
+                                                if let responseData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                                                   let message = responseData["message"] as? String {
+                                                    DispatchQueue.main.async {
+                                                        if let success = responseData["success"] as? Bool, !success {
+                                                            // If the song already exists in liked songs
+                                                            self?.alertMessage = message
+                                                            self?.showAlert = true
+                                                        } else {
+                                                            self?.toggleFavoriteAlbum(for: albumID)
+                                                        }
+                                                    }
+                                                } else {
+                                                    print("Unexpected response format or data")
+                                                }
+                                            } catch {
+                                                print("Error decoding response data: \(error)")
+                                            }
+                            }.resume()
                         }
-                    } else {
-                        print("Response data is not a dictionary")
-                    }
-                } catch {
-                    print("Error decoding response data: \(error)")
-                }
-            }.resume()
-        }
+
     }
 }
 
-#Preview {
+/*#Preview {
   SearchView().preferredColorScheme(.dark)
 }
+*/
