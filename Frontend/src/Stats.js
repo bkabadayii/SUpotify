@@ -98,7 +98,31 @@ const Stats = () => {
   const [genreChartData, setGenreChartData] = useState({});
   const [eraChartData, setEraChartData] = useState({});
   
+  const genreChartRef = useRef(null);
+  const eraChartRef = useRef(null);
+
   const token = localStorage.getItem('token');
+
+  const exportCharts = () => {
+    // Export the genre chart
+    if (genreChartRef.current) {
+      const genreChartUrl = genreChartRef.current.toBase64Image();
+      const genreLink = document.createElement('a');
+      genreLink.href = genreChartUrl;
+      genreLink.download = 'genre-chart.png';
+      genreLink.click();
+    }
+  
+    // Export the era chart
+    if (eraChartRef.current) {
+      const eraChartUrl = eraChartRef.current.toBase64Image();
+      const eraLink = document.createElement('a');
+      eraLink.href = eraChartUrl;
+      eraLink.download = 'era-chart.png';
+      eraLink.click();
+    }
+  };
+
 
   const fetchGenres = async (contentType, source) => {
     console.log(`Fetching genres for contentType: ${contentType}, source: ${source}`);
@@ -626,18 +650,19 @@ const Stats = () => {
               </form>
               {topRatedAlbums && (
                 <div className="top-rated-tracks">
-
+                  <button onClick={exportCharts}>Export Charts</button>
+                  <p></p>
                   {genreChartData && (
                   <div>
                     <h3>Genre Statistics of Tracks</h3>
-                    <Bar data={genreChartData} options={genreChartOptions} />
+                    <Bar ref={genreChartRef} data={genreChartData} options={genreChartOptions} />
                   </div>
                   )}
 
                   {eraChartData && (
                   <div>
                     <h3>Era Statistics of Tracks</h3>
-                    <Bar data={eraChartData} options={eraChartOptions} />
+                    <Bar ref={eraChartRef} data={eraChartData} options={eraChartOptions} />
                   </div>
                   )}
 
@@ -721,18 +746,19 @@ const Stats = () => {
               </form>
               {topRatedAlbums && (
                 <div className="top-rated-albums">
-                  
+                  <button onClick={exportCharts}>Export Charts</button>
+                  <p></p>
                   {genreChartData && (
                   <div>
                     <h3>Genre Statistics of Albums</h3>
-                    <Bar data={genreChartData} options={genreChartOptions} />
+                    <Bar ref={genreChartRef} data={genreChartData} options={genreChartOptions} />
                   </div>
                   )}
 
                   {eraChartData && (
                   <div>
                     <h3>Era Statistics of Albums</h3>
-                    <Bar data={eraChartData} options={eraChartOptions} />
+                    <Bar ref={eraChartRef} data={eraChartData} options={eraChartOptions} />
                   </div>
                   )}
 
@@ -799,10 +825,12 @@ const Stats = () => {
               </form>
               {topRatedArtists && (
                 <div className="top-rated-artists">
+                  <button onClick={exportCharts}>Export Charts</button>
+                  <p></p>
                   {genreChartData && (
                   <div>
                     <h3>Genre Statistics of Albums</h3>
-                    <Bar data={genreChartData} options={genreChartOptions} />
+                    <Bar ref={genreChartRef} data={genreChartData} options={genreChartOptions} />
                   </div>
                   )}
                   <h3>Top Rated Artists</h3>
@@ -886,11 +914,13 @@ const Stats = () => {
                 <button type="submit">Apply Filters</button>
             </form>
             <div className="top-rated-tracks">
+            <button onClick={exportCharts}>Export Charts</button>
+            <p></p>
             {genreChartData && (
                   <div>
                     <h3>Genre Statistics of Tracks</h3>
                     <div style={{ width: '800px', height: '500px' }}>
-                      <Bar data={genreChartData} options={genreLikeChartOptions} />
+                      <Bar ref={genreChartRef} data={genreChartData} options={genreLikeChartOptions} />
                   </div>
                   </div>
                   )}
@@ -898,7 +928,7 @@ const Stats = () => {
                   <div>
                     <h3>Era Statistics of Tracks</h3>
                     <div style={{ width: '800px', height: '500px' }}>
-                      <Bar data={eraChartData} options={eraLikeChartOptions} />
+                      <Bar ref={eraChartRef} data={eraChartData} options={eraLikeChartOptions} />
                   </div>
                   </div>
                   )}
@@ -951,11 +981,13 @@ const Stats = () => {
                 <button type="submit">Apply Filters</button>
             </form>
             <div className="top-rated-albums">
+            <button onClick={exportCharts}>Export Charts</button>
+            <p></p>
             {genreChartData && (
                   <div>
                     <h3>Genre Statistics of Albums</h3>
                     <div style={{ width: '800px', height: '500px' }}>
-                      <Bar data={genreChartData} options={genreLikeChartOptions} />
+                      <Bar ref={genreChartRef} data={genreChartData} options={genreLikeChartOptions} />
                   </div>
                   </div>
                   )}
@@ -963,7 +995,7 @@ const Stats = () => {
                   <div>
                     <h3>Era Statistics of Albums</h3>
                     <div style={{ width: '800px', height: '500px' }}>
-                      <Bar data={eraChartData} options={eraLikeChartOptions} />
+                      <Bar ref={eraChartRef} data={eraChartData} options={eraLikeChartOptions} />
                   </div>
                   </div>
                   )}
@@ -1016,11 +1048,13 @@ const Stats = () => {
                 <button type="submit">Apply Filters</button>
             </form>
             <div className="top-rated-artists">
+            <button onClick={exportCharts}>Export Charts</button>
+            <p></p>
             {genreChartData && (
                   <div>
                     <h3>Genre Statistics of Artists</h3>
                     <div style={{ width: '800px', height: '500px' }}>
-                      <Bar data={genreChartData} options={genreLikeChartOptions} />
+                      <Bar ref={genreChartRef} data={genreChartData} options={genreLikeChartOptions} />
                   </div>
                   </div>
                   )}

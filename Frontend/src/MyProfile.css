@@ -51,6 +51,14 @@
   transition: all 0.3s ease-in-out; /* Smoother transition */
 }
 
+.followers-card {
+  background-color: rgb(0, 0, 0);
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
 /* Buttons and Inputs */
 button {
   background-color: black; /* Black button background */
@@ -145,4 +153,18 @@ input[type="text"] {
 
 .follow-user-container button {
   flex: 0 1 auto;
+}
+
+.block-unblock-button {
+  background-color: #f44336; /* Red color for block button */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.block-unblock-button:hover {
+  background-color: #d32f2f; /* Darker red on hover */
 }

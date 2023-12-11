@@ -11,7 +11,60 @@ const MyProfile = () => {
   const [followedUsername, setFollowedUsername] = useState('');
   const [followedUsers, setFollowedUsers] = useState([]);
   const [showFollowedUsersCard, setShowFollowedUsersCard] = useState(false);
+
+  const [showFollowersCard, setShowFollowersCard] = useState(false);
+  const [followers, setFollowers] = useState([]);
+  const [blockedUsers, setBlockedUsers] = useState(new Set());
+
   const history = useHistory();
+
+  const fetchFollowers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:4000/api/followedUsers/getBlockedUsers', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log(response)
+      setFollowers(response.data.allFollowers); // Assuming the response structure
+      setBlockedUsers(new Set(response.data.blockedUsers));
+    } catch (error) {
+      console.error('Error fetching followers:', error);
+    }
+  };
+
+  const handleBlockUser = async (username) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:4000/api/followedUsers/recommendationBlockUser', 
+        { blockedUsername: username }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchFollowers(); // Refetch followers to update the list
+    } catch (error) {
+      console.error('Error blocking user:', error);
+    }
+  };
+
+  const handleUnblockUser = async (username) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete('http://localhost:4000/api/followedUsers/recommendationUnblockUser', {
+        data: { blockedUsername: username },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchFollowers(); // Refetch followers to update the list
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+    }
+  };
+
+  const handleShowFollowers = () => {
+    setShowFollowersCard(!showFollowersCard);
+    if (!showFollowersCard) {
+      fetchFollowers(); // Fetch followers when opening the card
+    }
+  };
+
 
   const fetchFollowedUsers = async () => {
     try {
@@ -171,13 +224,30 @@ const MyProfile = () => {
                   <li key={index}>
                     {user}
                     <button onClick={() => removeFollowedUser(user)} className="remove-button">
-                      Remove
+                      Unfollow
                     </button>
                   </li>
                 ))}
                 </ul>
               </div>
             )}
+          <button onClick={handleShowFollowers}>Followers</button>
+          {showFollowersCard && (
+            <div className="followers-card">
+              <h3>Followers</h3>
+              <ul>
+                {followers.map((follower, index) => (
+                  <li key={index}>
+                    {follower}
+                    {blockedUsers.has(follower) ? 
+                      <button onClick={() => handleUnblockUser(follower)}>Unblock</button> : 
+                      <button onClick={() => handleBlockUser(follower)}>Block</button>
+                    }
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
         <div className="follow-user-container">
         <input
