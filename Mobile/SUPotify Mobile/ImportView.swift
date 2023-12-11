@@ -20,7 +20,6 @@ struct ImportView: View {
     
     var body: some View {
         
-        
         ZStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/) {
             BackgroundView()
             VStack{
@@ -253,7 +252,6 @@ struct ImportView: View {
     ImportView()
         .preferredColorScheme(.dark)
 }
-
 
 
 struct ResponseStruct: Codable{

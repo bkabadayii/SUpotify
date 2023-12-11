@@ -98,7 +98,7 @@ struct SignUpView: View {
                         if let success2 = result2.success, success2{
                           if let userDetails2 = result2.userDetails {
 
-                            if(!result2.token.isEmpty) {
+                            if(result2.token != "") {
 
                               //self.isLoggedin = true
                               print("Login successful")
