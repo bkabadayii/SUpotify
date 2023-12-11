@@ -17,6 +17,7 @@ struct SignUpView: View {
     @State private var errorMessage: String?
     
     @State var isRotated: Bool = false
+    
 
     // Function to send the sign-up request
     func signup() -> Bool {

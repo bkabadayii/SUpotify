@@ -55,6 +55,7 @@ struct ForYouView: View {
       @State private var currentIdx: Int = 0
       @GestureState private var dragOffset: CGFloat = 0
     @State var isRotated = false
+    @State var isEmptyRecommendation = false
 
       var body: some View {
           ZStack{
@@ -118,6 +119,14 @@ struct ForYouView: View {
                   .onAppear {
                       fetchRecommendations()
                   }
+                  .alert(isPresented: $isEmptyRecommendation) {
+                      Alert(
+                          title: Text("Cannot provide recommendations!"),
+                          message: Text("Either you don't have any friends or your friends does not have any liked songs"),
+                          dismissButton: .default(Text("OK"))
+                      )
+                  }
+                  
               }}
        }
     
@@ -149,7 +158,9 @@ struct ForYouView: View {
                     self.recommendedTracks = response.recommendations.map { $0.track }
                     print(response.recommendations)
                     self.isLoading = false
-                   
+                    if(recommendedTracks.isEmpty){
+                        isEmptyRecommendation = true
+                    }
                 } catch {
                     print("Decoding Error: \(error.localizedDescription)")
                 }

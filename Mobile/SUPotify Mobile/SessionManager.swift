@@ -17,5 +17,5 @@ class SessionManager {
     private init() {
         self.token = ""
         self.username = ""
-    } // Private initialization to ensure just one instance is created.
+    } 
 }

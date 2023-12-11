@@ -12,9 +12,10 @@ var isAdded: Bool = false
 struct ImportView: View {
     @Environment(\.presentationMode) var presentationMode
     @State var importing = false
-    @State var isError = false
     @State var isRotated = false
     @State private var arrowOffset: CGFloat = 0
+    @State var mongoUrl: String
+    @State var isError: Bool = false
     
     var body: some View {
         
@@ -80,6 +81,20 @@ struct ImportView: View {
                     }
                 }
                 Text(" ")
+                
+                /*TextField("MongoDB Url", text: $mongoUrl)
+                HStack{
+                    Button("Import Via MongoDB url") {
+                        importViaMongo(mongoStr: mongoUrl)
+                    }
+                }
+                .padding()
+                .font(.headline)
+                .foregroundColor(.white.opacity(0.90))
+                .frame(width: 300, height: 50)
+                .background(Color.black.opacity(0.50))
+                .cornerRadius(10)*/
+                
                 Text("Please provide a .csv or .txt file that includes the song ids")
                     .font(.caption)
                     .opacity(0.6)
@@ -112,7 +127,7 @@ struct ImportView: View {
 }
 
 #Preview {
-    ImportView()
+    ImportView(mongoUrl: "")
         .preferredColorScheme(.dark)
 }
 
@@ -125,6 +140,42 @@ func read(from url: URL) throws -> String {
     }
     
     return try String(contentsOf: url)
+}
+
+func importViaMongo(mongoStr: String){
+    let token = SessionManager.shared.token
+            let apiUrl = "http://localhost:4000/api/likedContent/addTracksByMongoURL"
+            
+            // Create a URLRequest with the appropriate HTTP method (POST)
+            var request = URLRequest(url: URL(string: apiUrl)!)
+            request.httpMethod = "POST"
+            
+            // Prepare the request body data
+    
+            let body: [String: Any] = ["mongoURL": mongoStr]
+            
+            let jsonData = try? JSONSerialization.data(withJSONObject: body)
+            
+            request.httpBody = jsonData
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue( "Bearer \(token)", forHTTPHeaderField: "Authorization")
+            
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                // Handle the response here (e.g., decode JSON response)
+                if let data = data {
+                    do {
+                        let response = try JSONDecoder().decode(ResponseStruct.self, from: data)
+                        isAdded = true
+                        print(response)
+                    } catch {
+                        print("Error decoding response: \(error)")
+                     
+                    }
+                } else if let error = error {
+                    print("Request error: \(error)")
+                   
+                }
+            }.resume()
 }
 
 func handleImportedFile(fileURL: URL) {
@@ -180,4 +231,9 @@ func addSongsToLikedSongs(trackList: [[String: String]]) {
         print("Error encoding parameters: \(error)")
         isAdded = false // Update UI for error
     }
+}
+
+struct ResponseStruct: Codable{
+    let message: String
+    let success: Bool
 }
