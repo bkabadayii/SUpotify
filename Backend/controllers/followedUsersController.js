@@ -468,13 +468,26 @@ module.exports.getBlockedUsers = async (req, res) => {
 
         let blockedUsers =
             existingUserBlockedUsers.recommendationBlockedUsersList;
-        console.log(blockedUsers);
 
-        let allUsers = existingUserBlockedUsers.followedUsersList;
+        let allUsers = await User.find();
+        let unblockedUsers = [];
+        for (const user of allUsers) {
+            let userFollowings = await FollowedUsers.findOne({
+                username: user.username,
+            });
+            userFollowings = userFollowings.followedUsersList;
+            if (
+                username !== user.username &&
+                userFollowings.includes(username) &&
+                !blockedUsers.includes(user.username)
+            ) {
+                unblockedUsers.push(user.username);
+            }
+        }
         res.status(201).json({
             message: "Returned blocked users successfully",
             blockedUsers,
-            allUsers,
+            unblockedUsers,
         });
     } catch (err) {
         console.error(err);
