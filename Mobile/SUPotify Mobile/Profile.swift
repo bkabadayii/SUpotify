@@ -7,7 +7,7 @@ struct Profile: View {
     @State private var errorMessage: String?
     @State private var numberOfPlaylists = 0
     @State private var numberOfFriends = 0
-
+    
     var username = SessionManager.shared.username
     
     func logout() {
@@ -122,7 +122,7 @@ struct Profile: View {
             //.navigationTitle("Profile")
             //.navigationBarHidden(isLogoutSuccessful)
             .background(NavigationLink("", destination: ContentView(), isActive: $isLogoutSuccessful))
-        }
+        }.environmentObject(LikedSongsViewModel.shared)
     }
 }
 
@@ -134,6 +134,7 @@ struct LogoutResponse: Codable {
 struct Profile_Previews: PreviewProvider {
     static var previews: some View {
         Profile().preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+            .environmentObject(LikedSongsViewModel.shared)
     }
 }
 

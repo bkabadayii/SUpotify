@@ -6,6 +6,12 @@ struct PlaylistGrid: View {
     @State private var errorMessage: String?
     @State private var createPlaylist = false
     @State private var isRotated:Bool = false
+    @State private var toDelete:Bool = false
+    @State private var showingDeleteAlert = false
+    @State private var selectedPlaylistId: String = ""
+    @State private var addSongs = false
+    @EnvironmentObject var viewModel: LikedSongsViewModel
+    @State private var playlistView:Bool = false
 
     let layout = [GridItem(.flexible()), GridItem(.flexible())]
 
@@ -29,54 +35,74 @@ struct PlaylistGrid: View {
                 EmptyView()
             }
             
+            NavigationLink(destination: SearchView().environmentObject(viewModel), isActive: $addSongs) {
+                EmptyView()
+            }
+            
            
-
 
             ScrollView {
                 LazyVGrid(columns: layout, spacing: 20) {
-                    ForEach(playlists, id: \.id) { playlist in
+                    ForEach(playlists, id: \._id) { playlist in
                         VStack {
-                            if isLoading {
-                                
-                                Circle()
-                                    .strokeBorder(AngularGradient(gradient: Gradient(
-                                        colors: [.indigo, .blue, .purple, .orange, .red]),
-                                                                  center: .center,
-                                                                  angle: .zero),
-                                                  lineWidth: 15)
-                                    .rotationEffect(isRotated ? .zero : .degrees(360))
-                                    .frame(maxWidth: 70, maxHeight: 70)
-                                    .onAppear {
-                                        withAnimation(Animation.spring(duration: 3)) {
-                                            isRotated.toggle() //toggle the value
-                                        }
-                                        withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
-                                            isRotated.toggle()
-                                        }
-                                    }
-                            }
                             
-                            Image(systemName: "music.note.list")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 100, height: 100)
-                                .padding()
-                                .background(Color.gray.opacity(0.3))
-                                .cornerRadius(10)
-
+                            
+                            NavigationLink(destination: PlaylistView(playlistID: playlist._id)) {
+                                Image(systemName: "music.note.list")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                    .padding()
+                                    .background(Color.gray.opacity(0.3))
+                                    .cornerRadius(10)
+                                    .foregroundColor(.indigo)
+                            }
+                        
                             Text(playlist.name)
                                 .font(.headline)
                                 .foregroundColor(.indigo)
-
-                            Text("\(playlist.tracks.count) Songs")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                            HStack{
+                                Text("\(playlist.tracks.count) Songs")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                               
+                                Button(action: {
+                                    self.addSongs = true
+                                }) {
+                                    Label("Add", systemImage: "plus.circle.fill")
+                                        .foregroundColor(.indigo)
+                                        .labelStyle(.titleAndIcon)
+                                        .font(.footnote)
+                                }
+                            }
+                            
+                            
+                            Button(action: {
+                                self.selectedPlaylistId = playlist._id
+                                self.showingDeleteAlert = true
+                            }) {
+                                Label("Delete", systemImage: "minus.circle.fill")
+                                    .foregroundColor(.red)
+                                    .labelStyle(.titleAndIcon)
+                                    .font(.footnote)
+                            }
+                            .alert(isPresented: $showingDeleteAlert) {
+                                Alert(
+                                    title: Text("Delete Playlist"),
+                                    message: Text("Are you sure you want to delete this playlist?"),
+                                    primaryButton: .destructive(Text("Delete")) {
+                                        deletePlaylist(playlistId: selectedPlaylistId)
+                                    },
+                                    secondaryButton: .cancel()
+                                )
+                            }
                         }
                         .padding()
                         .background(Color.black.opacity(0.50))
                         .cornerRadius(12)
                         .shadow(radius: 5)
                     }
+
                 }
                 .padding()
             }
@@ -114,7 +140,6 @@ struct PlaylistGrid: View {
                 do {
                     let response = try JSONDecoder().decode(PlaylistResponse.self, from: data)
                     if response.success {
-                        // Access the playlists from the userToPlaylists object
                         self.playlists = response.userToPlaylists.playlists
                     } else {
                         errorMessage = response.message
@@ -126,30 +151,46 @@ struct PlaylistGrid: View {
             }
         }.resume()
     }
+    
+    private func deletePlaylist(playlistId: String) {
+          let baseURL = "http://localhost:4000/api/playlists/deletePlaylist"
+          let token = SessionManager.shared.token
 
+          guard let url = URL(string: baseURL) else { return }
 
+          var request = URLRequest(url: url)
+          request.httpMethod = "DELETE"
+          request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+          request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+          request.httpBody = try? JSONEncoder().encode(["playlistID": playlistId])
 
-
+          URLSession.shared.dataTask(with: request) { data, response, error in
+              DispatchQueue.main.async {
+                  if let error = error {
+                      print("Network error: \(error.localizedDescription)")
+                      errorMessage = error.localizedDescription
+                      return
+                  }
+                  self.playlists.removeAll { $0._id == playlistId }
+              }
+          }.resume()
+      }
+    
 }
 
-struct PlaylistGrid_Previews: PreviewProvider {
+/*struct PlaylistGrid_Previews: PreviewProvider {
     static var previews: some View {
         PlaylistGrid()
             .preferredColorScheme(.dark)
     }
-}
+}*/
 
-struct Playlist: Identifiable, Codable {
-    var id: String
-    var name: String
-    var owner: String
-    var tracks: [Track]
-    var __v: Int
-    
-    enum CodingKeys: String, CodingKey {
-          case id = "_id"  // Map the "_id" JSON field to the "id" property
-          case name, owner, tracks, __v
-      }
+struct Playlist: Codable {
+    let _id: String
+    let name: String
+    let owner: String
+    let tracks: [String]
+    let __v: Int
 }
 
 struct PlaylistResponse: Codable {

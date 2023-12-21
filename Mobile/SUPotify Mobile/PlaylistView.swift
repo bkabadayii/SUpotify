@@ -8,141 +8,234 @@
 import SwiftUI
 
 struct PlaylistView: View {
-    //@State var isRotated: Bool = false
+    @StateObject private var viewModel = PlaylistViewModel()
+    let playlistID: String
     @Environment(\.presentationMode) var presentationMode
+    @State private var showActionSheet = false
+    @State private var selectedTrackId: String = ""
     
-    var topSpacer_height:CGFloat = 400
-    @State var playButton_offset:CGFloat = 335
+    var topSpacer_height:CGFloat = 380
     
     var body: some View {
         ZStack{
-            
             LinearGradient(gradient: Gradient(colors:
-                [Color.init(red:55/255, 
-                green: 100/255, blue: 120/255),
-                 Color.black,Color.black]),
-               startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)
+                                                [Color.init(red:55/255,
+                                                            green: 50/255, blue: 200/255),
+                                                 Color.black,Color.black]),
+                           startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)
             
             // Layer 1
+            Spacer()
             VStack {
                 Spacer()
                     .frame(height:50)
                 Image(systemName: "music.mic")
                     .resizable()
                     .frame(width:200, height:200)
-                Text("Title")
-                    .foregroundColor(Color.white)
-                    .font(.system(size: 24, weight: .bold))
-                Text("Subtitle")
-                    .foregroundColor(Color.white)
-                    .font(.system(size: 16, weight: .medium))
+                    .padding()
+                   
+                
+                if let playlist = viewModel.playlist {
+                    Text(playlist.name)
+                        .foregroundColor(Color.white)
+                        .font(.system(size: 24, weight: .bold))
+                        .padding()
+                        
+                }
+                
                 Spacer()
             }
             
+            
             // Layer 2
             ScrollView {
-                GeometryReader{geo -> AnyView? in
-                    let thisOffset = geo.frame(in: .global).minY
-                    DispatchQueue.main.async {
-                        if thisOffset > -300{
-                            self.playButton_offset = thisOffset
-                        }
-                        else{
-                            self.playButton_offset = -300
-                        }
-                    }
-                    return nil
-                }
                 VStack(spacing:0) {
-                    
                     HStack{
                         Spacer()
                             .frame(height:topSpacer_height)
                             .background(LinearGradient(gradient:
-                                Gradient(colors:
-                                [Color.clear,
-                                 Color.clear,
-                                 Color.clear,
-                                 Color.clear,
-                                 Color.clear,
-                                 Color.clear,
-                                 Color.black]),
-                               startPoint: .top, endPoint: .bottom))
+                                                        Gradient(colors:
+                                                                    [Color.clear,
+                                                                     Color.clear,
+                                                                     Color.clear,
+                                                                     Color.clear,
+                                                                     Color.clear,
+                                                                     Color.clear,
+                                                                     Color.black]),
+                                                       startPoint: .top, endPoint: .bottom))
+                        Spacer()
                     }
+                    
                     VStack {
-                        ForEach(0..<30){ i in
-                            HStack{
-                              LImage_RText(contentID: "", contentType: "TRACK", songName: "track", artistNames: "artists", imageURL: "https://i.scdn.co/image/ab6761610000e5eb59ba2466b22929f5e7ca21e4")
+                        ForEach(viewModel.tracks ?? []) { track in
+                            HStack {
+                                LImage_RText(contentID: track.id, contentType: "TRACK", songName: track.name, artistNames: track.artists.map { $0.name }.joined(separator: ", "), imageURL: track.album.imageURL, isPlaylist: true)
+                                
                                 Spacer()
+                                
+                                Image(systemName: "ellipsis")
+                                    .padding(.trailing, 10)
+                                    .onTapGesture {
+                                        self.showActionSheet = true
+                                        self.selectedTrackId = track.id
+                                    }
                             }
                         }
                     }.background(Color.black)
-                    
+                        .actionSheet(isPresented: $showActionSheet) {
+                            ActionSheet(
+                                title: Text("Options"),
+                                buttons: [
+                                    .destructive(Text("Delete")) {
+                                        
+                                        viewModel.removeTrackFromPlaylist(playlistID: playlistID, trackID: selectedTrackId) 
+                                     
+                                    },
+                                    .cancel()
+                                ]
+
+                            )}
                 }
-            }
-            
-           // .background(Color.black.opacity(0.5))
-            VStack{
-                LinearGradient(gradient: Gradient(colors:
-                [Color.init(red:55/255,
-                  green: 100/255, blue: 120/255), Color.clear]),
-                startPoint: .top, endPoint: .bottom).frame(height:300)
-                Spacer()
-            }.edgesIgnoringSafeArea(.all)
-            
-            // Layer 3
-            VStack {
-                Spacer()
-                    .frame(height:playButton_offset + 300)
                 
-                HStack{
-                    if(playButton_offset > -300){
-                        Text("PLAY")
-                    }
-                    else{
-                        Image(systemName: "play.fill")
-                    }
-                }
-                    .foregroundColor(.white)
-                    .frame(width:get_playButtonWidth(), height:50)
-                    .background(Color.indigo)
-                    .cornerRadius(25)
-                .font(.system(size: 17, weight:.bold))
-                .shadow(radius: 20)
-                Spacer()
             }
-            // Layer 4
-            
-            VStack{
-                HStack{
-                    Image(systemName: "chevron.left")
-                        .onTapGesture {
-                            self.presentationMode.wrappedValue.dismiss()
-                        }
-                    Spacer()
-                    Image(systemName: "ellipsis")
-                }
-                .foregroundColor(.white)
-                .padding()
-                Spacer()
+            .onAppear {
+                viewModel.getPlaylist(playlistID: playlistID)
             }
-        }
-        .navigationBarBackButtonHidden(true)
+        }.navigationBarBackButtonHidden(false)
+        
     }
-    func get_playButtonWidth() -> CGFloat {
-        if playButton_offset > -150 {
-            return 240
+}
+
+
+class PlaylistViewModel: ObservableObject {
+    @Published var playlist: Playlistt? = nil
+    @Published var tracks: [Playlistt.Track]? = nil
+    @Published var isLoading = false
+    @Published var errorMessage: String? = nil
+    let token = SessionManager.shared.token
+    
+    
+    func getPlaylist(playlistID: String) {
+        isLoading = true
+        let urlString = "http://localhost:4000/api/playlists/getPlaylist/\(playlistID)"
+        guard let url = URL(string: urlString) else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                if let data = data {
+                    do {
+                        let decodedResponse = try JSONDecoder().decode(getPlaylistResponse.self, from: data)
+                        self?.playlist = decodedResponse.playlist
+                        self?.tracks = decodedResponse.playlist.tracks
+                        print(decodedResponse)
+                    } catch {
+                        self?.errorMessage = "Failed to decode playlist"
+                        print("Decoding Error: \(error)")
+                    }
+                } else if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                    print("Network Error: \(error.localizedDescription)")
+                }
+            }
+        }.resume()
+    }
+    
+    
+    func removeTrackFromPlaylist(playlistID: String, trackID: String) {
+        guard let url = URL(string: "http://localhost:4000/api/playlists/removeTrackFromPlaylist") else { return }
+        
+        let token = SessionManager.shared.token
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: String] = [
+            "playlistID": playlistID,
+            "trackID": trackID
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            print("Error: Unable to encode body parameters \(error)")
+            return
         }
-        else if playButton_offset <= -300{
-            return 50
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Network error: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                print("Invalid response from server.")
+                return
+            }
+            
+            if httpResponse.statusCode == 201 {
+                do {
+                    let response = try JSONDecoder().decode(RemoveTrackResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        // Handle the updated playlist here
+                        print("Removed track from playlist: \(response.updatedPlaylist)")
+                    }
+                } catch {
+                    print("Decoding error: \(error)")
+                }
+            } else {
+                print("Failed to remove track from playlist. Status code: \(httpResponse.statusCode)")
+            }
+            self.getPlaylist(playlistID: playlistID)
+        }.resume()
+    }
+    
+    struct RemoveTrackResponse: Codable {
+        let message: String
+        let success: Bool
+        let updatedPlaylist: Playlistt
+    }
+    
+}
+
+struct getPlaylistResponse: Codable {
+    let message: String
+    let success: Bool
+    let playlist: Playlistt
+}
+
+
+struct Playlistt: Codable{
+    let _id: String
+    let name: String
+    let tracks: [Track]
+    
+    struct Track: Codable, Identifiable {
+        let _id: String
+        let name: String
+        let artists: [Artist]
+        let album: Album
+        
+        var id: String { _id }
+        
+        struct Artist: Codable {
+            let name: String
         }
-        else{
-            var width: CGFloat = 240 - (190*(((-1*playButton_offset) - 150) / 150))
-            return width
+        struct Album: Codable {
+            let imageURL: String
         }
     }
 }
 
+
 #Preview {
-    PlaylistView()
+  PlaylistView(playlistID: "")
+    .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+
 }

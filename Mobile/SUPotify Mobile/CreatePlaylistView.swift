@@ -8,7 +8,6 @@ struct CreatePlaylistView: View {
     @State private var searchSongs:Bool = false
     @State private var isPlaylistCreated:Bool = false
    
-
     
     var body: some View {
         NavigationStack{
@@ -47,22 +46,6 @@ struct CreatePlaylistView: View {
                         }
                     
                     Spacer()
-                    
-                    Button(action: {
-                        searchSongs = true
-                    }) {
-                        Text("Choose songs")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
-                            .background(Color.indigo.opacity(0.85))
-                            .cornerRadius(15)
-                    }
-                    
-                    NavigationLink(destination: SearchView(), isActive: $searchSongs){
-                        EmptyView()
-                    }
-                    
                     
                     Button(action: {
                         isPlaylistCreated = true
@@ -125,14 +108,6 @@ struct CreatePlaylistView: View {
                                 let responseString = String(data: data!, encoding: .utf8) ?? "Unable to decode data"
                                 print("Response: \(responseString)")
                             }
-                   /* guard let data = data, let response = try? JSONDecoder().decode(PlaylistCreationResponse.self, from: data), response.success
-                    else {
-                        print("Playlist creation failed with message: \(response.message)")
-                        return
-               
-                        }*/
-                    //isPlaylistCreated = true // Update the state on success
-                   
                 }
             }.resume()
         }
@@ -147,10 +122,5 @@ struct CreatePlaylistView: View {
     }
     
     
-    struct CreatePlaylistView_Previews: PreviewProvider {
-        static var previews: some View {
-            CreatePlaylistView()
-                .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
-        }
-    }
 }
+

@@ -9,7 +9,6 @@ import SwiftUI
 import Foundation
 
 struct LImage_RText: View {
-
   @EnvironmentObject var viewModel: LikedSongsViewModel
   @State private var showActionSheet = false
   var contentID: String
@@ -17,6 +16,7 @@ struct LImage_RText: View {
   var songName: String
   var artistNames: String
   var imageURL: String
+    var isPlaylist: Bool
 
   var body: some View {
 
@@ -45,14 +45,19 @@ struct LImage_RText: View {
          .padding(.leading, 5)
          Spacer()
          */
-        Image(systemName: "ellipsis")
-        // .resizable()
-        // .frame(width:30, height:30)
-          .padding(.trailing, 10)
-          .onTapGesture {
-            self.showActionSheet = true
+          if(isPlaylist){
+              
           }
-
+          else{
+              Image(systemName: "ellipsis")
+              // .resizable()
+              // .frame(width:30, height:30)
+                .padding(.trailing, 10)
+                .onTapGesture {
+                  self.showActionSheet = true
+                }
+          }
+      
       }
       .padding(15)
       .background(Color.black)
@@ -70,17 +75,19 @@ struct LImage_RText: View {
                 // Implement share action
               },
               .destructive(Text("Delete")) {
-                viewModel.removeFromUserLikedSongs(contentID: contentID, contentType: contentType, userToken: SessionManager.shared.token) { result in
-                  switch result {
-                  case .success(let response):
-                    print("Success: \(response)")
-                    DispatchQueue.main.async {
-                        viewModel.refreshLibrary()
-                    }
-                  case .failure(let error):
-                    print("Error: \(error.localizedDescription)")
-                  }
-                }
+                 
+                      viewModel.removeFromUserLikedSongs(contentID: contentID, contentType: contentType, userToken: SessionManager.shared.token){result in
+                        switch result {
+                        case .success(let response):
+                          print("Success: \(response)")
+                          DispatchQueue.main.async {
+                              viewModel.refreshLibrary()
+                          }
+                        case .failure(let error):
+                          print("Error: \(error.localizedDescription)")
+                        }
+                      }
+                  
               },
               .cancel()
             ]
@@ -91,6 +98,5 @@ struct LImage_RText: View {
 }
 
 #Preview {
-  LImage_RText(contentID: "", contentType: "TRACK", songName: "track", artistNames: "artists", imageURL: "")
-    .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+  LImage_RText(contentID: "", contentType: "TRACK", songName: "track", artistNames: "artists", imageURL: "", isPlaylist: true)
 }

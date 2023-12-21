@@ -288,7 +288,6 @@ module.exports.addTrackToPlaylist = async (req, res) => {
                 success: false,
             });
         }
-
         // Check if the track exists in all tracks
         let existingTrack = await Track.findById(trackID);
         if (!existingTrack) {

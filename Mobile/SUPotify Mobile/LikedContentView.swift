@@ -375,13 +375,6 @@ struct LikedContentView: View {
           }
           Spacer()
         }
-        /* For UI adjustments
-         VStack{
-         Text("\(searchBox_offset)")
-         .foregroundColor(.yellow)
-         Spacer()
-         }
-         */
 
 
         .sheet(isPresented: $showExportOptions, onDismiss: {
@@ -410,5 +403,4 @@ struct LikedContentView: View {
 #Preview {
   LikedContentView()
     .environmentObject(LikedSongsViewModel.shared).preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
-
 }

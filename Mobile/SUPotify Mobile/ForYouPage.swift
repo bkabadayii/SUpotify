@@ -252,19 +252,6 @@ struct TrackCardView: View {
                     )
                 }
 
-                
-                Button(action: {
-                    AddToPlaylist()
-                }, label: {
-                    VStack (spacing: 8){
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title)
-                            .foregroundColor(.indigo)
-                    }
-                })
-                .alert(isPresented: $showErrorAlert) {
-                        Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
-                    }
                 Button(action: {
                     Share()
                 }, label: {

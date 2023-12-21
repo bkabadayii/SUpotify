@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchResult: Codable {
   let message : String
   let success : Bool
-  let data : Data
+  let data : Data?
 }
 
 struct Data: Codable {
@@ -33,6 +33,21 @@ struct Albums: Codable {
   let artists: [String]
   let image: String?
 }
+
+
+struct PlaylistAddingResponse: Codable{
+    let message: String
+    let success: Bool
+    let existingPlaylist: Playlist
+}
+
+/*struct Eplaylist: Codable {
+    let _id: String
+    let name: String
+    let owner: String
+    let tracks: [String]
+    let __v: Int
+}*/
 
 struct SearchView: View {
     @ObservedObject var searchViewModel = SearchViewModel()
@@ -75,21 +90,30 @@ struct SearchView: View {
                                 }
                             )
                             .padding(.horizontal, 10)
+                        Button(action: {
+                            hasSearched = true
+                            searchViewModel.performSearch(with: searchTerm)
+                        }) {
+                            Image(systemName: "magnifyingglass.circle")
+                                .foregroundColor(.white)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 10)
+                        }
+                    
                       NavigationLink(destination: AddCustomSong().environmentObject(viewModel)){
                         Image(systemName: "plus.circle")
                           .foregroundColor(.white)
                           .padding(.vertical, 10)
-                          .padding(.horizontal, 20)
-                          //.background(Color.indigo.opacity(0.5))
-                          //.cornerRadius(50)
+                          .padding(.horizontal, 10)
+                        
                       }
 
                     }
                     .padding(.horizontal, 10)
-                    .onChange(of: searchTerm) { newValue in
+                    /*.onChange(of: searchTerm) { newValue in
                         hasSearched = true
                         searchViewModel.performSearch(with: newValue)
-                    }
+                    }*/
                     .alert(isPresented: $searchViewModel.showAlert) {
                                 Alert(title: Text("Error Adding Song"), message: Text(searchViewModel.alertMessage), dismissButton: .default(Text("OK")))
                     }
@@ -161,6 +185,8 @@ struct SearchView: View {
 
     struct ResultsListView: View {
         @ObservedObject var searchViewModel: SearchViewModel
+        @State private var selectedPlaylistId: String = ""
+        @State private var showingPlaylistPicker = false
 
       @EnvironmentObject var viewModel: LikedSongsViewModel
 
@@ -169,6 +195,7 @@ struct SearchView: View {
                 if !searchViewModel.tracks.isEmpty {
                     Section(header: Text("Tracks").foregroundStyle(.indigo).font(.largeTitle)) {
                         ForEach(searchViewModel.tracks, id: \.id) { track in
+                           
                             HStack{
                                 if(track.image == nil){
                                     Image(systemName: "music.note")
@@ -190,6 +217,7 @@ struct SearchView: View {
                                 VStack (alignment: .leading) {
                                     Text(track.name)
                                         .fontWeight(.medium)
+                                    //Text(track.id)
                                     Text(track.artists[0])
                                         .font(.caption)
                                         .foregroundColor(.secondary)
@@ -197,17 +225,23 @@ struct SearchView: View {
 
                                 Spacer()
 
+                                Button(action: {
+                                   // self.selectedPlaylistId = ""
+                                    self.showingPlaylistPicker = true
+                                    searchViewModel.fetchPlaylists()
+                                }) {
                                 Image(systemName: "plus.circle.fill")
-                                    .padding()
                                     .foregroundColor(.indigo)
-                                    .onTapGesture {
-                                        //Handle add to playlist
-                                    }
+                                }
+                                .sheet(isPresented: $showingPlaylistPicker) {
+                                    PlaylistPickerView(playlists: $searchViewModel.playlists, selectedPlaylistId: $selectedPlaylistId, trackId: track.id, searchViewModel: searchViewModel)
+                                    
+                                }
 
                                 Image(systemName: searchViewModel.favoritedTracks.contains(track.id) ? "heart.fill" : "heart")
                                     .foregroundColor(.pink)
                                     .onTapGesture {
-                                      searchViewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
+                                        searchViewModel.addTrackToLikedSongs(trackId: track.id, albumId: track.albumID)
                                     }
 
                             }
@@ -281,12 +315,6 @@ struct SearchView: View {
                                 }
                                 Spacer()
 
-                                Image(systemName: "plus.circle.fill")
-                                    .padding()
-                                    .foregroundColor(.indigo)
-                                    .onTapGesture{
-                                        //Handle add to playlist
-                                    }
 
                                 Image(systemName: searchViewModel.favoritedAlbums.contains(album.id) ? "heart.fill" : "heart")
                                     .foregroundColor(.pink)
@@ -301,16 +329,6 @@ struct SearchView: View {
             }
         }
     }
-
-    /*
-    struct SearchView_Previews: PreviewProvider {
-        static var previews: some View {
-            SearchView()
-                .preferredColorScheme(.dark)
-
-        }
-    }
-  */
 
 
     struct ProgressView : View {
@@ -339,8 +357,7 @@ struct SearchView: View {
     }
 
     class SearchViewModel: ObservableObject {
-        //static let shared = LikedSongsViewModel()
-        //private var likedSongsViewModel: LikedSongsViewModel
+      
         private var token : String
         @Published var tracks: [Tracks] = []
         @Published var artists: [Artists] = []
@@ -352,14 +369,12 @@ struct SearchView: View {
         @Published var isNotFound: Bool = false
         @Published var showAlert = false
         @Published var alertMessage = ""
-
-
+        @Published var playlists: [Playlist] = []
+        @State private var errorMessage: String?
 
       init() {
             self.token = SessionManager.shared.token
-          //self.likedSongsViewModel = likedSongsViewModel
         }
-
 
         func toggleFavorite(for trackId: String) {
             if favoritedTracks.contains(trackId) {
@@ -383,6 +398,47 @@ struct SearchView: View {
             } else {
                 favoritedAlbums.insert(albumId)
             }
+        }
+        
+         func fetchPlaylists() {
+            let baseURL = "http://localhost:4000/api/playlists/getUserPlaylists"
+            let token = SessionManager.shared.token
+
+            guard let url = URL(string: baseURL) else { return }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async {
+                    self.isLoading = false
+
+                    if let error = error {
+                        print("Network error: \(error.localizedDescription)")
+                        self.errorMessage = error.localizedDescription
+                        return
+                    }
+
+                    guard let data = data else {
+                        print("No data received")
+                        self.errorMessage = "No data received"
+                        return
+                    }
+
+                    do {
+                        let response = try JSONDecoder().decode(PlaylistResponse.self, from: data)
+                        if response.success {
+                            self.playlists = response.userToPlaylists.playlists
+                        } else {
+                            self.errorMessage = response.message
+                        }
+                    } catch {
+                        print("Decoding error: \(error)")
+                        self.errorMessage = "Failed to decode response"
+                    }
+                }
+            }.resume()
         }
 
         func performSearch(with searchTerm: String) {
@@ -413,12 +469,12 @@ struct SearchView: View {
                     self?.isLoading = false
 
                     if let data = data, let responseString = String(data: data, encoding: .utf8) {
-                        print(responseString)
+                        //print(responseString)
                         do {
                             let searchResult = try JSONDecoder().decode(SearchResult.self, from: data)
-                            self?.tracks = searchResult.data.Tracks ?? []
-                            self?.artists = searchResult.data.Artists ?? []
-                            self?.albums = searchResult.data.Albums ?? []
+                            self?.tracks = searchResult.data?.Tracks ?? []
+                            self?.artists = searchResult.data?.Artists ?? []
+                            self?.albums = searchResult.data?.Albums ?? []
                             self?.isNotFound = self?.tracks.isEmpty ?? true &&
                             self?.artists.isEmpty ?? true &&
                             self?.albums.isEmpty ?? true
@@ -619,11 +675,140 @@ struct SearchView: View {
                                             }
                             }.resume()
                         }
+        
+        func addTrackToPlaylist(trackId: String, playlistId: String) {
+                guard let url = URL(string: "http://localhost:4000/api/playlists/addTrackToPlaylist") else { return }
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
+                let body: [String: Any] = [
+                    "playlistID": playlistId,
+                    "trackID": trackId
+                ]
+
+                do {
+                    request.httpBody = try JSONSerialization.data(withJSONObject: body)
+                } catch {
+                    print("Error: Unable to encode body parameters \(error)")
+                    return
+                }
+
+                URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                    if let error = error {
+                        DispatchQueue.main.async {
+                            self?.alertMessage = "Network error: \(error.localizedDescription)"
+                            self?.showAlert = true
+                        }
+                        return
+                    }
+                    
+                    guard let data = data,
+                          let httpResponse = response as? HTTPURLResponse else {
+                        DispatchQueue.main.async {
+                            self?.alertMessage = "Invalid response from server."
+                            self?.showAlert = true
+                        }
+                        return
+                    }
+                    
+                    if httpResponse.statusCode == 201 {
+                        do {
+                            let response = try JSONDecoder().decode(PlaylistAddingResponse.self, from: data)
+                            DispatchQueue.main.async {
+                                print(response)
+                                if response.success {
+                                  
+                                    // Handle successful addition here
+                                    self?.alertMessage = response.message
+                                } else {
+                                    self?.alertMessage = response.message
+                                }
+                                self?.showAlert = true
+                            }
+                        } catch {
+                            DispatchQueue.main.async {
+                                self?.alertMessage = "Failed to decode response."
+                                self?.showAlert = true
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self?.alertMessage = "Failed to add track to playlist."
+                            self?.showAlert = true
+                        }
+                    }
+                    self?.fetchPlaylists()
+                }.resume()
+            }
+        
     }
+    
+    struct PlaylistPickerView: View {
+        @Binding var playlists: [Playlist]
+        @Binding var selectedPlaylistId: String
+        let trackId: String
+        let searchViewModel: SearchViewModel
+        @State var isRotated = false
+
+        var body: some View {
+            ZStack{
+                VStack{
+                    HStack{
+                        Circle()
+                            .strokeBorder(AngularGradient(gradient: Gradient(
+                              colors: [.indigo, .blue, .purple, .orange, .red]),
+                                                          center: .center,
+                                                          angle: .zero),
+                                          lineWidth: 15)
+                            .rotationEffect(isRotated ? .zero : .degrees( 360))
+                            .frame(maxWidth: 50, maxHeight: 50)
+                            .onAppear {
+                                withAnimation(Animation.spring(duration: 3)) {
+                                    isRotated.toggle()
+                                }
+                                withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                                    isRotated.toggle()
+                                }
+                            }
+                            .padding()
+                        
+                        Text("Your playlists")
+                            .font(.title)
+                            .foregroundColor(.indigo)
+                            .bold()
+                            .padding()
+                        
+                    }
+                    List(playlists, id: \._id) { playlist in
+                        HStack {
+                            Text(playlist.name)
+                            Spacer()
+                            Text(trackId)
+                            if selectedPlaylistId == playlist._id {
+                                Image(systemName: "checkmark")
+                                 .foregroundColor(.indigo)
+                                 .font(.headline)
+                            }
+                        }
+                            .onTapGesture {
+                                self.selectedPlaylistId = playlist._id
+                            }
+                    }
+                    Button("Add to Selected Playlist") {
+                                    searchViewModel.addTrackToPlaylist(trackId: trackId, playlistId: selectedPlaylistId)
+                    }
+                        .disabled(selectedPlaylistId.isEmpty)
+                
+                }.navigationTitle("Select Playlist")
+            }
+        }
+    }
+
 }
 
-/*#Preview {
-  SearchView().preferredColorScheme(.dark)
-}
-*/
+
+
+
+
