@@ -124,7 +124,7 @@ struct HomeView: View {
         switch selectedTab {
         case .tracks:
           //NavigationView{
-            TracksStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 5, homeViewModel: homeViewModel)
+            TracksStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
               //.foregroundColor(Color.clear)
          // }.background(Color.indigo)
 
@@ -191,7 +191,7 @@ class HomeViewModel: ObservableObject {
           let decodedResponse = try JSONDecoder().decode(TopRatedTracksResponse.self, from: data)
           self?.topRatedTracksResponse = decodedResponse
           self?.showBarChart = true
-          print(decodedResponse)
+          //print(decodedResponse)
         } catch {
           print("Error decoding response: \(error)")
         }
@@ -216,34 +216,142 @@ struct CategoryPicker: View {
   }
 }
 
+struct BarChartView2: View {
+    var trackRatings: [TopRatedTracksResponse.TrackRating]
+    @State private var barWidths: [String: CGFloat] = [:]
+
+    // Sorting the track ratings by rating in descending order
+    var sortedTrackRatings: [TopRatedTracksResponse.TrackRating] {
+        trackRatings.sorted { $0.rating > $1.rating }
+    }
+
+    var body: some View {
+      ZStack {
+        BackgroundView()
+        VStack(alignment: .leading) {
+              Text("Top Rated Tracks")
+                  .font(.headline)
+                  .padding()
+
+              // Creating rows for each track rating
+              ForEach(sortedTrackRatings, id: \.track._id) { trackRating in
+                  HStack(alignment: .center) {
+                      Text(trackRating.track.name)
+                          .font(.caption)
+                          .frame(width: 100, alignment: .leading)
+
+                      // Using GeometryReader to animate the bar's width
+                      GeometryReader { geometry in
+                          HStack {
+                              Rectangle()
+                                  .fill(trackRating.rating > 3 ? Color.blue : Color.red)
+                                  .frame(width: self.barWidths[trackRating.track._id, default: 0], height: 20)
+                                  .onAppear {
+                                      withAnimation(.easeOut(duration: 1.5)) {
+                                          self.barWidths[trackRating.track._id] = CGFloat(trackRating.rating) / CGFloat(sortedTrackRatings.first?.rating ?? 1) * geometry.size.width
+                                      }
+                                  }
+                              Spacer() // Pushes the bar to the left
+                          }
+                      }
+
+                      // Displaying the rating value to the right of the bar
+                      Text("\(trackRating.rating)")
+                          .font(.caption)
+                          .foregroundColor(.white)
+                          .frame(width: 30, alignment: .center)
+                  }
+                  .frame(height: 30) // Fixed height for each row
+              }
+          }
+        .padding(.horizontal)
+      }
+    }
+}
+
+
+
+/*
+
+struct BarChartView2: View {
+    var trackRatings: [TopRatedTracksResponse.TrackRating]
+
+    // Sorting the track ratings by rating in descending order
+    var sortedTrackRatings: [TopRatedTracksResponse.TrackRating] {
+        trackRatings.sorted { $0.rating > $1.rating }
+    }
+
+  @State private var barWidths: [String: CGFloat] = [:]
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Top Rated Tracks")
+                .font(.headline)
+                .padding()
+
+            // Use Chart if you are using SwiftUI Charts
+            Chart(sortedTrackRatings) { trackRating in
+                BarMark(
+                    x: .value("Track Name", trackRating.track.name),
+                    y: .value("Rating", trackRating.rating)
+                )
+                .foregroundStyle(trackRating.rating > 3 ? Color.green : Color.red)
+                .annotation(position: .top, alignment: .center) {
+                    Text("\(trackRating.rating)")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                }
+            }
+            .chartYAxis(.hidden)
+        }
+        .padding(.horizontal)
+    }
+}
+
+*/
+
 struct BarChartView: View {
-  var trackRatings: [TopRatedTracksResponse.TrackRating]
+
+  var trackRatings: [TopRatedTracksResponse.TrackRating] = [
+    TopRatedTracksResponse.TrackRating(track: TopRatedTracksResponse.TrackRating.Track(_id: "1", name: "Song A", popularity: 80, durationMS: 200000, spotifyID: "sptfy1", spotifyURL: "https://spotify.com/track1", previewURL: nil, __v: 0), rating: 5, ratedAt: "2022-12-01T00:00:00Z", _id: "tr1"),
+    TopRatedTracksResponse.TrackRating(track: TopRatedTracksResponse.TrackRating.Track(_id: "2", name: "Song B", popularity: 70, durationMS: 180000, spotifyID: "sptfy2", spotifyURL: "https://spotify.com/track2", previewURL: nil, __v: 0), rating: 4, ratedAt: "2022-12-02T00:00:00Z", _id: "tr2"),
+          // Add more mock TrackRating items...
+      ]
+
+  //var trackRatings: [TopRatedTracksResponse.TrackRating]
 
   var sortedTrackRatings: [TopRatedTracksResponse.TrackRating] {
     trackRatings.sorted { $0.rating > $1.rating }
   }
 
   var body: some View {
-    VStack {
-      Text("Top Rated Tracks")
-        .font(.headline)
+    ZStack {
+      BackgroundView()
+      VStack {
+        Text("Top Rated Tracks")
+          .font(.headline)
 
-      ForEach(sortedTrackRatings, id: \.track._id) { trackRating in
-        HStack {
-          Text(trackRating.track.name)
-            .frame(width: 100, alignment: .leading)
+        ForEach(sortedTrackRatings, id: \.track._id) { trackRating in
+          HStack {
+            Text(trackRating.track.name)
+              .frame(width: 100, alignment: .leading)
 
-          Rectangle()
-            .fill(Color.blue)
-            .frame(width: CGFloat(trackRating.rating) * 3, height: 20) // Adjust multiplier as needed
+            Rectangle()
+              .fill(Color.blue)
+              .frame(width: CGFloat(trackRating.rating) * 8, height: 30) // Adjust multiplier as needed
+          }
         }
       }
+      .padding()
     }
-    .padding()
   }
 }
 
-
+#Preview {
+  
+  BarChartView()
+    .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+}
 
 struct DatePickerRange: View {
   @Binding var startDate: Date
@@ -373,13 +481,17 @@ struct TracksStatisticsView: View {
         .cornerRadius(8)
 
 
-      NavigationLink(destination: BarChartView(trackRatings: homeViewModel.topRatedTracksResponse?.trackRatings ?? []),
+      NavigationLink(destination: BarChartView2(trackRatings: homeViewModel.topRatedTracksResponse?.trackRatings ?? []),
                      isActive: $navigateToBarChart) {
         //EmptyView()
       }
        .onReceive(homeViewModel.$showBarChart) { showChart in
          if showChart {
            self.navigateToBarChart = true
+
+           DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+               homeViewModel.showBarChart = false
+           }
          }
        }
       Spacer()
@@ -429,7 +541,14 @@ struct ArtistsStatisticsView: View {
 }
 
 
+extension TopRatedTracksResponse.TrackRating: Identifiable {
+    public var id: String { self._id }
+}
+
+
+/*
 #Preview {
   HomeView()
     .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
 }
+*/
