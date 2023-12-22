@@ -21,6 +21,7 @@ const ratingRoute = require("./routes/ratingRoute");
 const recommendationRoute = require("./routes/recommendationRoute");
 const statisticsRoute = require("./routes/statisticsRoute");
 const commentRoute = require("./routes/commentRoute");
+const geniusAPiRoute=require("./routes/geniusApiRoute");
 // ----- Routes -----
 
 console.log("Starting SUpotify...");
@@ -75,6 +76,8 @@ async function startServer() {
         app.use("/api/recommendation", recommendationRoute);
         app.use("/api/statistics", statisticsRoute);
         app.use("/api/comments", commentRoute);
+        app.use("/api/getFromGenius", geniusAPiRoute);
+
 
         app.use("/api/getFromSpotify", spotifyApiRoute);
 
