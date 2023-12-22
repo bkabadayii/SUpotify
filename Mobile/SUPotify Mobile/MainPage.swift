@@ -13,7 +13,9 @@ struct MainMenu: View {
     var body: some View {
         TabView {
             
+          NavigationView{
             HomeView()
+          }
             .tabItem {
                 Image(systemName: "house.fill")
                 Text("Home")

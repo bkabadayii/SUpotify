@@ -59,7 +59,7 @@ struct TopRatedTracksResponse: Codable {
 
 struct HomeView: View {
   @StateObject var homeViewModel = HomeViewModel() // ViewModel instance
-  @State private var selectedTab: StatisticCategory = .albums
+  @State private var selectedTab: StatisticCategory = .tracks
   // @State private var startDate: Date = Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? Date()
   //   @State private var endDate: Date = Date()
 
@@ -122,10 +122,14 @@ struct HomeView: View {
         .padding()
 
         switch selectedTab {
+        case .tracks:
+          //NavigationView{
+            TracksStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 5, homeViewModel: homeViewModel)
+              //.foregroundColor(Color.clear)
+         // }.background(Color.indigo)
+
         case .albums:
           AlbumsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists)
-        case .tracks:
-          TracksStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 5, homeViewModel: homeViewModel)
         case .artists:
           ArtistsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists)
         }
@@ -142,6 +146,7 @@ struct HomeView: View {
 
 class HomeViewModel: ObservableObject {
   @Published var topRatedTracksResponse: TopRatedTracksResponse?
+  @Published var showBarChart = false
 
   func fetchTopRatedTracks(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, artists: String, numItems: Int) {
 
@@ -185,6 +190,7 @@ class HomeViewModel: ObservableObject {
         do {
           let decodedResponse = try JSONDecoder().decode(TopRatedTracksResponse.self, from: data)
           self?.topRatedTracksResponse = decodedResponse
+          self?.showBarChart = true
           print(decodedResponse)
         } catch {
           print("Error decoding response: \(error)")
@@ -210,26 +216,33 @@ struct CategoryPicker: View {
   }
 }
 
-/*  struct BarChartView: View {
- var trackRatings: [TopRatedTracksResponse.TrackRating]
+struct BarChartView: View {
+  var trackRatings: [TopRatedTracksResponse.TrackRating]
 
- var body: some View {
- HStack(alignment: .bottom, spacing: 2) {
- ForEach(trackRatings) { rating in
- VStack {
- Text("\(rating.track.popularity)")
- .font(.caption)
- Rectangle()
- .fill(Color.blue)
- .frame(width: 20, height: CGFloat(rating.track.popularity))
- Text(rating.track.name)
- .font(.caption)
- .lineLimit(1)
- }
- }
- }
- }
- }*/
+  var sortedTrackRatings: [TopRatedTracksResponse.TrackRating] {
+    trackRatings.sorted { $0.rating > $1.rating }
+  }
+
+  var body: some View {
+    VStack {
+      Text("Top Rated Tracks")
+        .font(.headline)
+
+      ForEach(sortedTrackRatings, id: \.track._id) { trackRating in
+        HStack {
+          Text(trackRating.track.name)
+            .frame(width: 100, alignment: .leading)
+
+          Rectangle()
+            .fill(Color.blue)
+            .frame(width: CGFloat(trackRating.rating) * 3, height: 20) // Adjust multiplier as needed
+        }
+      }
+    }
+    .padding()
+  }
+}
+
 
 
 struct DatePickerRange: View {
@@ -291,8 +304,8 @@ struct MonthYearPicker: View {
 
 
 enum StatisticCategory: String, CaseIterable {
-  case albums = "Albums"
   case tracks = "Tracks"
+  case albums = "Albums"
   case artists = "Artists"
 }
 
@@ -335,7 +348,9 @@ struct TracksStatisticsView: View {
   var artists: String
   var numItems: Int
   let userToken = SessionManager.shared.token
-  var homeViewModel: HomeViewModel
+  @ObservedObject var homeViewModel: HomeViewModel
+  @State private var navigateToBarChart = false
+
   var body: some View {
     VStack {
       Button("Calculate") {
@@ -347,19 +362,35 @@ struct TracksStatisticsView: View {
         )
         let request = TopRatedTracksRequest(filters: filters, numItems: 10)
         homeViewModel.fetchTopRatedTracks(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, artists: artists, numItems: numItems)
+
+
+        //self.showBarChart = true
       }.font(.subheadline)
         .padding()
         .background(.black.opacity(0.5))
         .foregroundColor(.white)
         .font(.caption2)
         .cornerRadius(8)
-      Text("Songs statistics view")
-        .font(.subheadline)
 
 
+      NavigationLink(destination: BarChartView(trackRatings: homeViewModel.topRatedTracksResponse?.trackRatings ?? []),
+                     isActive: $navigateToBarChart) {
+        //EmptyView()
+      }
+       .onReceive(homeViewModel.$showBarChart) { showChart in
+         if showChart {
+           self.navigateToBarChart = true
+         }
+       }
+      Spacer()
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity) // Fill the parent view
+    .background(Color.clear) // Set the background color
+    .edgesIgnoringSafeArea(.all) // Extend into the safe area
     // Add BarChartView here
   }
+
+
   var dateFormatter: DateFormatter {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM" // Adjust format as needed
