@@ -112,53 +112,55 @@ struct SongDetailsView: View {
       BackgroundView()
       
       // Layer 1
-      VStack {
-        Spacer()
-        
-        ImageView(urlString: imageURL)
-          .aspectRatio(contentMode: .fill)
-          .frame(maxWidth: 300, maxHeight: 300, alignment: .center)
-          .shadow(radius: 20)
-          .clipped()
-        
-        HStack {
-          VStack(alignment: .leading) {
-            Text(songName)
-              .font(.title.bold())
+      ScrollView {
+        VStack {
+          //Spacer()
+
+          ImageView(urlString: imageURL)
+            .aspectRatio(contentMode: .fill)
+            .frame(maxWidth: 300, maxHeight: 300, alignment: .center)
+            .shadow(radius: 20)
+            .clipped()
+          
+          HStack {
+            VStack(alignment: .leading) {
+              Text(songName)
+                .font(.title.bold())
+                .foregroundStyle(.white)
+              Text(artistNames)
+                .foregroundStyle(.white)
+            }
+            
+            Spacer()
+            
+            Button {
+              print("Favorited")
+            } label: {
+              Image(systemName: "heart.fill")
+                .font(.title)
+                .foregroundStyle(.green)
+            }
+          }
+          .padding()
+          HStack {
+            Text("My Rating:")
+              .font(.system(size: 14, weight: .medium))
               .foregroundStyle(.white)
-            Text(artistNames)
-              .foregroundStyle(.white)
+            
+            Slider(value: $songRating, in: 0...10, step: 0.1, onEditingChanged: sliderEditingChanged)
+              .tint(.white)
+            /*
+             .onChange(of: songRating) { newValue in
+             let roundedRating = Double(round(100 * newValue) / 100)
+             print("Slider changing to: \(roundedRating)")
+             }*/
+              .padding()
           }
           
           Spacer()
-          
-          Button {
-            print("Favorited")
-          } label: {
-            Image(systemName: "heart.fill")
-              .font(.title)
-              .foregroundStyle(.green)
-          }
         }
         .padding()
-        HStack {
-          Text("My Rating:")
-            .font(.system(size: 14, weight: .medium))
-            .foregroundStyle(.white)
-          
-          Slider(value: $songRating, in: 0...10, step: 0.1, onEditingChanged: sliderEditingChanged)
-            .tint(.white)
-          /*
-           .onChange(of: songRating) { newValue in
-           let roundedRating = Double(round(100 * newValue) / 100)
-           print("Slider changing to: \(roundedRating)")
-           }*/
-            .padding()
-        }
-        
-        Spacer()
       }
-      .padding()
     }
     .onAppear {
       if initialRating == nil {
