@@ -1,6 +1,7 @@
 import SwiftUI
 import Charts
 
+
 struct TopRatedTracksRequest: Codable {
   let filters: Filters
   let numItems: Int
@@ -13,10 +14,22 @@ struct Filters: Codable {
   let artists: [String]
 }
 
+
+struct TopRatedArtistsRequest: Codable {
+  let filters: Filters2
+  let numItems: Int
+}
+
+struct Filters2: Codable {
+  let rateDate: [String]
+  let genres: [String]
+}
+
+
 struct TopRatedTracksResponse: Codable {
   var message: String
   var success: Bool
-  var trackRatings: [TrackRating]
+  var trackRatings: [TrackRating]?
   // var genreToRating: Genrer
   // var artistToRating: Artistr
   // var eraToRating:
@@ -29,14 +42,14 @@ struct TopRatedTracksResponse: Codable {
     struct Track: Codable {
       var _id: String
       var name: String
-      var popularity: Int
-      var durationMS: Int
+      var popularity: Int?
+      var durationMS: Int?
       //var album: Album
       //var artists: Artist
-      var spotifyID: String
-      var spotifyURL: String
+      var spotifyID: String?
+      var spotifyURL: String?
       var previewURL: String?
-      var __v: Int
+      var __v: Int?
     }
     /*
      struct Album: Codable {
@@ -57,13 +70,71 @@ struct TopRatedTracksResponse: Codable {
   }
 }
 
+struct TopRatedAlbumsResponse: Codable {
+  var message: String
+  var success: Bool
+  var albumRatings: [AlbumRating]?
+  // var genreToRating: Genrer
+  // var artistToRating: Artistr
+  // var eraToRating:
+
+  struct AlbumRating: Codable {
+    var album: AlbumStat
+    var rating: Int
+    var ratedAt: String
+    var _id: String
+    struct AlbumStat: Codable {
+      var _id: String
+      var name: String
+      var releaseDate: String
+      var totalTracks: Int?
+      var genres: [String]?
+      var artists: [ArtistStat]
+      var tracks: [String]?
+      var spotifyID: String?
+      var spotifyURL: String?
+      var imageURL: String?
+      var __v: Int?
+    }
+
+     struct ArtistStat: Codable {
+     var _id: String
+     var name: String
+     var genres: [String]?
+     var popularity: Int?
+     var spotifyURL: String?
+     var imageURL: String?
+     }
+  }
+}
+
+
+struct TopRatedArtistsResponse: Codable {
+  var message: String
+  var success: Bool
+  var artistRatings: [ArtistRating]?
+  // var genreToRating: Genrer
+
+  struct ArtistRating: Codable {
+    var artist: ArtistStat
+    var rating: Double
+    var ratedAt: String
+    var _id: String
+
+     struct ArtistStat: Codable {
+     var _id: String
+     var name: String
+     var genres: [String]?
+     var popularity: Int?
+     var spotifyURL: String?
+     var imageURL: String?
+     }
+  }
+}
+
 struct HomeView: View {
-  @StateObject var homeViewModel = HomeViewModel() // ViewModel instance
+  @StateObject var homeViewModel = HomeViewModel()
   @State private var selectedTab: StatisticCategory = .tracks
-  // @State private var startDate: Date = Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? Date()
-  //   @State private var endDate: Date = Date()
-
-
 
   // State variables for the start date picker
   @State private var startMonth: Int = Calendar.current.component(.month, from: Date())
@@ -88,7 +159,6 @@ struct HomeView: View {
       VStack {
         CategoryPicker(selectedTab: $selectedTab)
 
-        //DatePickerRange(startDate: $startDate, endDate: $endDate)
         HStack {
           MonthYearPicker(selectedMonth: $startMonth, selectedYear: $startYear, selectedDateAsString: $startDateAsString)
           MonthYearPicker(selectedMonth: $endMonth, selectedYear: $endYear, selectedDateAsString: $endDateAsString)
@@ -123,15 +193,11 @@ struct HomeView: View {
 
         switch selectedTab {
         case .tracks:
-          //NavigationView{
-            TracksStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
-              //.foregroundColor(Color.clear)
-         // }.background(Color.indigo)
-
+          TracksStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
         case .albums:
-          AlbumsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists)
+          AlbumsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
         case .artists:
-          ArtistsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists)
+          ArtistsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, numItems: 10, homeViewModel: homeViewModel)
         }
 
         Spacer()
@@ -146,6 +212,8 @@ struct HomeView: View {
 
 class HomeViewModel: ObservableObject {
   @Published var topRatedTracksResponse: TopRatedTracksResponse?
+  @Published var topRatedAlbumsResponse: TopRatedAlbumsResponse?
+  @Published var topRatedArtistsResponse: TopRatedArtistsResponse?
   @Published var showBarChart = false
 
   func fetchTopRatedTracks(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, artists: String, numItems: Int) {
@@ -192,6 +260,104 @@ class HomeViewModel: ObservableObject {
           self?.topRatedTracksResponse = decodedResponse
           self?.showBarChart = true
           //print(decodedResponse)
+        } catch {
+          print("Error decoding response: \(error)")
+        }
+      }
+    }.resume()
+  }
+
+  func fetchTopRatedAlbums(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, artists: String, numItems: Int){
+    let requestBody = TopRatedTracksRequest( // Request body same as tracks
+      filters: Filters(
+        rateDate: [startDateAsString, endDateAsString],
+        releaseDate: [startDateAsString, endDateAsString],
+        genres: genre.isEmpty ? [] : [genre],
+        artists: artists.isEmpty ? [] : artists.components(separatedBy: ",")
+      ),
+      numItems: numItems
+    )
+    guard let url = URL(string: "http://localhost:4000/api/statistics/getTopRatedAlbums") else { return }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    do {
+      request.httpBody = try JSONEncoder().encode(requestBody)
+    } catch {
+      print("Error encoding request body: \(error)")
+      return
+    }
+
+    URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+      DispatchQueue.main.async {
+        if let error = error {
+          print("Error: \(error)")
+          return
+        }
+        guard let data = data else {
+          print("No data received")
+          return
+        }
+        // Print raw JSON string for debugging
+        if let json = String(data: data, encoding: .utf8) {
+          print("Raw JSON response: \(json)")
+        }
+        do {
+          let decodedResponse = try JSONDecoder().decode(TopRatedAlbumsResponse.self, from: data)
+          self?.topRatedAlbumsResponse = decodedResponse
+          self?.showBarChart = true
+          print(decodedResponse)
+        } catch {
+          print("Error decoding response: \(error)")
+        }
+      }
+    }.resume()
+  }
+
+  func fetchTopRatedArtists(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, numItems: Int){
+    let requestBody = TopRatedArtistsRequest(
+      filters: Filters2(
+        rateDate: [startDateAsString, endDateAsString],
+        genres: genre.isEmpty ? [] : [genre]
+      ),
+      numItems: numItems
+    )
+    guard let url = URL(string: "http://localhost:4000/api/statistics/getTopRatedArtists") else { return }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    do {
+      request.httpBody = try JSONEncoder().encode(requestBody)
+    } catch {
+      print("Error encoding request body: \(error)")
+      return
+    }
+
+    URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+      DispatchQueue.main.async {
+        if let error = error {
+          print("Error: \(error)")
+          return
+        }
+        guard let data = data else {
+          print("No data received")
+          return
+        }
+        // Print raw JSON string for debugging
+        if let json = String(data: data, encoding: .utf8) {
+          print("Raw JSON response: \(json)")
+        }
+        do {
+          let decodedResponse = try JSONDecoder().decode(TopRatedArtistsResponse.self, from: data)
+          self?.topRatedArtistsResponse = decodedResponse
+          self?.showBarChart = true
+          print(decodedResponse)
         } catch {
           print("Error decoding response: \(error)")
         }
@@ -251,17 +417,15 @@ struct BarChartView2: View {
                                           self.barWidths[trackRating.track._id] = CGFloat(trackRating.rating) / CGFloat(sortedTrackRatings.first?.rating ?? 1) * geometry.size.width
                                       }
                                   }
-                              Spacer() // Pushes the bar to the left
+                              Spacer()
                           }
                       }
-
-                      // Displaying the rating value to the right of the bar
                       Text("\(trackRating.rating)")
                           .font(.caption)
                           .foregroundColor(.white)
                           .frame(width: 30, alignment: .center)
                   }
-                  .frame(height: 30) // Fixed height for each row
+                  .frame(height: 30)
               }
           }
         .padding(.horizontal)
@@ -270,46 +434,128 @@ struct BarChartView2: View {
 }
 
 
-
-/*
-
-struct BarChartView2: View {
-    var trackRatings: [TopRatedTracksResponse.TrackRating]
-
-    // Sorting the track ratings by rating in descending order
-    var sortedTrackRatings: [TopRatedTracksResponse.TrackRating] {
-        trackRatings.sorted { $0.rating > $1.rating }
-    }
-
-  @State private var barWidths: [String: CGFloat] = [:]
+struct BarChartView3: View {
+    var albumRatings: [TopRatedAlbumsResponse.AlbumRating]
+    @State private var barWidths: [String: CGFloat] = [:]
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Top Rated Tracks")
-                .font(.headline)
-                .padding()
+        ZStack {
+            // Assuming BackgroundView() is a view you have defined elsewhere
+            BackgroundView()
+            VStack(alignment: .leading) {
+                Text("Top Rated Albums")
+                    .font(.headline)
+                    .padding()
 
-            // Use Chart if you are using SwiftUI Charts
-            Chart(sortedTrackRatings) { trackRating in
-                BarMark(
-                    x: .value("Track Name", trackRating.track.name),
-                    y: .value("Rating", trackRating.rating)
-                )
-                .foregroundStyle(trackRating.rating > 3 ? Color.green : Color.red)
-                .annotation(position: .top, alignment: .center) {
-                    Text("\(trackRating.rating)")
-                        .font(.caption)
-                        .foregroundColor(.white)
+                // Creating rows for each album rating
+                ForEach(sortedAlbumRatings) { albumRating in
+                    HStack(alignment: .center) {
+                        Text(albumRating.album.name)
+                            .font(.caption)
+                            .frame(width: 100, alignment: .leading)
+
+                        GeometryReader { geometry in
+                            HStack {
+                                Rectangle()
+                                    .fill(albumRating.rating > 3 ? Color.blue : Color.red)
+                                    .frame(width: barWidth(for: albumRating, in: geometry), height: 20)
+                                    .animation(.easeOut(duration: 1.5), value: barWidths[albumRating.id])
+                                Spacer()
+                            }
+                        }
+                        .frame(height: 20)
+
+                        Text("\(albumRating.rating)")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .frame(width: 30, alignment: .center)
+                    }
+                    .frame(height: 30)
                 }
             }
-            .chartYAxis(.hidden)
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
+    }
+
+    // Sorted album ratings
+    private var sortedAlbumRatings: [TopRatedAlbumsResponse.AlbumRating] {
+        albumRatings.sorted { $0.rating > $1.rating }
+    }
+
+    // Calculate bar width
+    private func barWidth(for albumRating: TopRatedAlbumsResponse.AlbumRating, in geometry: GeometryProxy) -> CGFloat {
+        let width = CGFloat(albumRating.rating) / CGFloat(sortedAlbumRatings.first?.rating ?? 1) * geometry.size.width
+        DispatchQueue.main.async {
+            barWidths[albumRating.id] = width
+        }
+        return barWidths[albumRating.id, default: 0]
     }
 }
 
-*/
 
+struct BarChartView4: View {
+    var artistRatings: [TopRatedArtistsResponse.ArtistRating]
+    @State private var barWidths: [String: CGFloat] = [:]
+
+    var body: some View {
+        ZStack {
+            BackgroundView() // Assuming this is a view you have defined elsewhere
+            VStack(alignment: .leading) {
+                Text("Top Rated Artists")
+                    .font(.headline)
+                    .padding()
+
+                // Creating rows for each artist rating
+                ForEach(sortedArtistRatings) { artistRating in
+                    HStack(alignment: .center) {
+                        Text(artistRating.artist.name)
+                            .font(.caption)
+                            .frame(width: 100, alignment: .leading)
+
+                        GeometryReader { geometry in
+                            HStack {
+                                Rectangle()
+                                    .fill(artistRating.rating > 3 ? Color.blue : Color.red)
+                                    .frame(width: self.barWidth(for: artistRating, in: geometry), height: 20)
+                                    .animation(.easeOut(duration: 1.5), value: barWidths[artistRating.id])
+                                Spacer()
+                            }
+                        }
+                        .frame(height: 20)
+
+                      let rating: Double = artistRating.rating
+                      let ratingString = String(format: "%.0f", rating)
+                        Text("\(ratingString)")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .frame(width: 30, alignment: .center)
+                    }
+                    .frame(height: 30)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+
+    // Sorted artist ratings
+    private var sortedArtistRatings: [TopRatedArtistsResponse.ArtistRating] {
+        artistRatings.sorted { $0.rating > $1.rating }
+    }
+
+    // Calculate bar width
+    private func barWidth(for artistRating: TopRatedArtistsResponse.ArtistRating, in geometry: GeometryProxy) -> CGFloat {
+        let width = CGFloat(artistRating.rating) / CGFloat(sortedArtistRatings.first?.rating ?? 1) * geometry.size.width
+        DispatchQueue.main.async {
+            barWidths[artistRating.id] = width
+        }
+        return barWidths[artistRating.id, default: 0]
+    }
+}
+
+
+
+/*
+// Depracated
 struct BarChartView: View {
 
   var trackRatings: [TopRatedTracksResponse.TrackRating] = [
@@ -353,10 +599,11 @@ struct BarChartView: View {
     .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
 }
 
+ */
+
 struct DatePickerRange: View {
   @Binding var startDate: Date
   @Binding var endDate: Date
-
 
   var body: some View {
     VStack {
@@ -377,12 +624,11 @@ struct MonthYearPicker: View {
   @Binding var selectedMonth: Int
   @Binding var selectedYear: Int
   @Binding var selectedDateAsString: String
-
   private let months = Calendar.current.monthSymbols
 
   private var years: [Int] {
     let currentYear = Calendar.current.component(.year, from: Date())
-    return Array(currentYear-20...currentYear+20) // Adjust range as needed
+    return Array(currentYear-20...currentYear)
   }
 
   var body: some View {
@@ -417,38 +663,6 @@ enum StatisticCategory: String, CaseIterable {
   case artists = "Artists"
 }
 
-// Example Views for Each Category (Replace with actual content)
-struct AlbumsStatisticsView: View {
-
-  @Binding var startDateAsString: String
-  @Binding var endDateAsString: String
-  var genre: String
-  var artists: String
-
-  var body: some View {
-
-    // Replace with your actual UI components for displaying albums statistics
-    Button("Calculate") {
-      let filters = Filters(
-        rateDate: [startDateAsString, endDateAsString],
-        releaseDate: [startDateAsString, endDateAsString],
-        genres: [genre],
-        artists: [artists]
-      )
-      let request = TopRatedTracksRequest(filters: filters, numItems: 10)
-      //viewModel.fetchTopRatedTracks(userToken: userToken, requestBody: request)
-    }
-    .font(.subheadline)
-    .padding()
-    .background(.black.opacity(0.5))
-    .foregroundColor(.white)
-    .font(.caption2)
-    .cornerRadius(8)
-    Text("Albums statistics view")
-      .font(.subheadline)
-  }
-}
-
 struct TracksStatisticsView: View {
   @Binding var startDateAsString: String
   @Binding var endDateAsString: String
@@ -470,7 +684,6 @@ struct TracksStatisticsView: View {
         )
         let request = TopRatedTracksRequest(filters: filters, numItems: 10)
         homeViewModel.fetchTopRatedTracks(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, artists: artists, numItems: numItems)
-
 
         //self.showBarChart = true
       }.font(.subheadline)
@@ -496,47 +709,121 @@ struct TracksStatisticsView: View {
        }
       Spacer()
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity) // Fill the parent view
-    .background(Color.clear) // Set the background color
-    .edgesIgnoringSafeArea(.all) // Extend into the safe area
-    // Add BarChartView here
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.clear)
+    .edgesIgnoringSafeArea(.all)
   }
 
-
+/*
   var dateFormatter: DateFormatter {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM" // Adjust format as needed
     return formatter
+  }*/
+}
+
+
+
+struct AlbumsStatisticsView: View {
+  @Binding var startDateAsString: String
+  @Binding var endDateAsString: String
+  var genre: String
+  var artists: String
+  var numItems: Int
+  let userToken = SessionManager.shared.token
+  @ObservedObject var homeViewModel: HomeViewModel
+  @State private var navigateToBarChart = false
+
+  var body: some View {
+    VStack {
+      Button("Calculate") {
+        let filters = Filters(
+          rateDate: [startDateAsString, endDateAsString],
+          releaseDate: [startDateAsString, endDateAsString],
+          genres: [genre],
+          artists: [artists]
+        )
+        let request = TopRatedTracksRequest(filters: filters, numItems: 10) // Request body is the same as tracks.
+        homeViewModel.fetchTopRatedAlbums(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, artists: artists, numItems: numItems)
+
+      }.font(.subheadline)
+        .padding()
+        .background(.black.opacity(0.5))
+        .foregroundColor(.white)
+        .font(.caption2)
+        .cornerRadius(8)
+
+
+      NavigationLink(destination: BarChartView3(albumRatings: homeViewModel.topRatedAlbumsResponse?.albumRatings ?? []),
+                     isActive: $navigateToBarChart) {
+        //EmptyView()
+      }
+       .onReceive(homeViewModel.$showBarChart) { showChart in
+         if showChart {
+           self.navigateToBarChart = true
+
+           DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+               homeViewModel.showBarChart = false
+           }
+         }
+       }
+      Spacer()
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.clear)
+    .edgesIgnoringSafeArea(.all)
   }
 }
+
+
 
 struct ArtistsStatisticsView: View {
   @Binding var startDateAsString: String
   @Binding var endDateAsString: String
-
   var genre: String
-  var artists: String
+  //var artists: String
+  var numItems: Int
+  let userToken = SessionManager.shared.token
+  @ObservedObject var homeViewModel: HomeViewModel
+  @State private var navigateToBarChart = false
 
   var body: some View {
-    Button("Calculate") {
-      let filters = Filters(
-        rateDate: [startDateAsString, endDateAsString],
-        releaseDate: [startDateAsString, endDateAsString],
-        genres: [genre],
-        artists: [artists]
-      )
-      let request = TopRatedTracksRequest(filters: filters, numItems: 10)
-      //viewModel.fetchTopRatedTracks(userToken: userToken, requestBody: request)
-    }
-    .font(.subheadline)
-    .padding()
-    .background(.black.opacity(0.5))
-    .foregroundColor(.white)
-    .font(.caption2)
-    .cornerRadius(8)
+    VStack {
+      Button("Calculate") {
+        let filters = Filters2(
+          rateDate: [startDateAsString, endDateAsString],
+          genres: [genre]
+        )
+        let request = TopRatedArtistsRequest(filters: filters, numItems: 10)
+        homeViewModel.fetchTopRatedArtists(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, numItems: numItems)
 
-    Text("Artists statistics view")
-      .font(.subheadline)
+        //self.showBarChart = true
+      }.font(.subheadline)
+        .padding()
+        .background(.black.opacity(0.5))
+        .foregroundColor(.white)
+        .font(.caption2)
+        .cornerRadius(8)
+
+
+      NavigationLink(destination: BarChartView4(artistRatings: homeViewModel.topRatedArtistsResponse?.artistRatings ?? []),
+                     isActive: $navigateToBarChart) {
+        //EmptyView()
+      }
+       .onReceive(homeViewModel.$showBarChart) { showChart in
+         if showChart {
+           self.navigateToBarChart = true
+
+           DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+               homeViewModel.showBarChart = false
+           }
+         }
+       }
+      Spacer()
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.clear)
+    .edgesIgnoringSafeArea(.all)
   }
 }
 
@@ -545,10 +832,19 @@ extension TopRatedTracksResponse.TrackRating: Identifiable {
     public var id: String { self._id }
 }
 
+extension TopRatedAlbumsResponse.AlbumRating: Identifiable {
+    public var id: String { self._id }
+}
 
-/*
+extension TopRatedArtistsResponse.ArtistRating: Identifiable {
+    public var id: String { self._id }
+}
+
+
+
+
 #Preview {
   HomeView()
     .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
 }
-*/
+

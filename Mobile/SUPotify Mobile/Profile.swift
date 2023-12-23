@@ -55,6 +55,7 @@ struct Profile: View {
     var body: some View {
         NavigationView {
             ZStack {
+              BackgroundView()
                 ScrollView {
                     VStack {
                         HStack {
