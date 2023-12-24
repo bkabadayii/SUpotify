@@ -80,7 +80,8 @@ class RatingService {
 
   func getLyrics(songName: String, artistName: String, completion: @escaping (String?) -> Void) {
       let formattedSongName = songName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-      let formattedArtistName = artistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+      let firstArtistName = artistName.components(separatedBy: ", ").first ?? ""
+      let formattedArtistName = firstArtistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
       let urlString = "http://localhost:4000/api/getFromGenius/getLyricsOfASong/\(formattedSongName)/\(formattedArtistName)"
       guard let url = URL(string: urlString) else {
           completion(nil)
@@ -108,6 +109,7 @@ class RatingService {
             // Print the raw JSON string for debugging
                         if let jsonStr = String(data: data, encoding: .utf8) {
                             print("Raw JSON response: \(jsonStr)")
+                          print(artistName)
                         }
 
               do {
@@ -163,6 +165,7 @@ struct SongDetailsView: View {
   @State private var hasRating: Bool = false
   @State private var isSliderInUse: Bool = false
   @State private var lyrics: String? = nil
+  @State var isRotated: Bool = false
 
   var body: some View {
     ZStack {
@@ -201,16 +204,17 @@ struct SongDetailsView: View {
           }
           .padding()
           HStack {
-            Text("My Rating:")
+            Text("Rating:")
               .font(.system(size: 14, weight: .medium))
               .foregroundStyle(.white)
-            
+
+
             RatingView(rating: $songRating) { newRating in
                 updateRating(ratingType: ratingType, newRating: newRating)
             }
             .padding()
 
-              .padding()
+
           }
 
           if let lyrics = lyrics {
@@ -220,9 +224,22 @@ struct SongDetailsView: View {
                   .padding()
           } else {
               // Optionally, show a loading indicator or a "Lyrics not available" message
-              Text("Fetching lyrics...")
-                  .foregroundColor(.gray)
-                  .padding()
+            Circle()
+                .strokeBorder(AngularGradient(gradient: Gradient(
+                    colors: [.indigo, .blue, .purple, .orange, .red]),
+                                              center: .center,
+                                              angle: .zero),
+                              lineWidth: 15)
+                .rotationEffect(isRotated ? .zero : .degrees(360))
+                .frame(maxWidth: 70, maxHeight: 70)
+                .onAppear {
+                    withAnimation(Animation.spring(duration: 3)) {
+                        isRotated.toggle() //toggle the value
+                    }
+                    withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                        isRotated.toggle()
+                    }
+                }
           }
 
           Spacer()
