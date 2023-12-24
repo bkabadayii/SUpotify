@@ -61,7 +61,7 @@ const App = () => {
             <Route path='/artist/:artistID'>
               <ArtistDetails />
             </Route>
-            <Route path='/playlist/:playlistId'>
+            <Route path='/playlist/:playlistID'>
             <PlaylistPage/>
             </Route>
             <Route exact path = '/myratings'>

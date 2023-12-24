@@ -5,13 +5,21 @@ import { postRating } from './postRating';
 import getRatingInfo from './getRatingInfo';
 import { useHistory } from 'react-router-dom';
 import './SongDetails.css'
+import { FaThumbsUp, FaRegThumbsUp } from 'react-icons/fa';
 import Navbar from './Navbar';
 
 const SongDetails = () => {
   const [songDetails, setSongDetails] = useState(null);
   const { trackID } = useParams(); // Assuming you are using react-router
   const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username');
   const [ratingInfo, setRatingInfo] = useState(null);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [userPlaylists, setUserPlaylists] = useState([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState('');
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+
   const history = useHistory();
 
   const goToAlbumPage = () => {
@@ -25,6 +33,30 @@ const SongDetails = () => {
   const handleRating = (rating) => {
     const token = localStorage.getItem('token');
     postRating(token, "TRACK", trackID, rating);
+  };
+
+  const handleCommentSubmit = () => {
+    // Post New Comment
+    axios.post('http://localhost:4000/api/comments/commentContent', {
+      contentType: 'TRACK',
+      relatedID: trackID,
+      comment: newComment
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(response => {
+      if (response.data.success) {
+        setComments([...comments, {
+          username: username, 
+          commentContent: newComment,
+          // ... other comment details
+        }]);
+        setNewComment('');
+        alert('Comment posted successfully');
+        fetchComments();
+      }
+    })
+    .catch(error => console.error('Error posting comment:', error));
   };
 
   const handleLikeSong = async () => {
@@ -44,9 +76,69 @@ const SongDetails = () => {
     }
   };
 
+  const formatCommentDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+  };
+
+  const handleLikeComment = (commentIndex) => {
+    // Logic to like/unlike a comment
+
+    fetchComments(); 
+  };
+
+  const handleAddToPlaylist = async () => {
+    if (!selectedPlaylistId) {
+      alert('Please select a playlist.');
+      return;
+    }
+  
+    try {
+      await axios.post('http://localhost:4000/api/playlists/addTrackToPlaylist', {
+        playlistID: selectedPlaylistId,
+        trackID: trackID
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('Song added to playlist!');
+    } catch (error) {
+      console.error('Error adding song to playlist:', error);
+      alert('Failed to add song to playlist.');
+    }
+  };  
+
+  const fetchComments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/comments/getContentComments/TRACK/${trackID}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        setComments(response.data.allComments);
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
   useEffect(() => {
     console.log(trackID);
-    
+
+    const fetchUserPlaylists = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/playlists/getUserPlaylists', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.success) {
+          setUserPlaylists(response.data.userToPlaylists.playlists);
+        }
+      } catch (error) {
+        console.error('Error fetching playlists:', error);
+      }
+    };
+  
+    fetchUserPlaylists();
+
     const fetchSongDetails = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/api/content/getTrack/${trackID}`, {
@@ -83,6 +175,8 @@ const SongDetails = () => {
       });
     }
 
+    fetchComments();
+
   }, [trackID, token]);
 
   if (!songDetails) {
@@ -93,6 +187,24 @@ const SongDetails = () => {
     <div>
       <Navbar/>
     <div className="song-details">
+      {/* Overlay */}
+      <div className={showPlaylistModal ? 'overlay active' : 'overlay'} onClick={() => setShowPlaylistModal(false)}></div>
+      {showPlaylistModal && (
+        <div className="playlist-modal">
+          <h2>Select a Playlist</h2>
+          <select 
+            value={selectedPlaylistId} 
+            onChange={(e) => setSelectedPlaylistId(e.target.value)}
+          >
+            <option value="">Select a playlist</option>
+            {userPlaylists.map(playlist => (
+              <option key={playlist._id} value={playlist._id}>{playlist.name}</option>
+            ))}
+          </select>
+          <button onClick={handleAddToPlaylist}>Add to Playlist</button>
+          <button onClick={() => setShowPlaylistModal(false)}>Cancel</button>
+        </div>
+      )}
       <h1>{songDetails.name}</h1>
       <div className="artists">
         {songDetails.artists.map((artist) => (
@@ -111,6 +223,8 @@ const SongDetails = () => {
         </div>
       </div>
       <button className="songdetail-like-button" onClick={handleLikeSong}>Add to Liked Songs</button>
+      <p></p>
+      <button onClick={() => setShowPlaylistModal(true)}>Add to Playlist</button>
       <p></p>
       <a>Rate Song:</a>
       <div className="rating-container">
@@ -131,7 +245,26 @@ const SongDetails = () => {
       <div className="song-preview">
         {songDetails.previewURL && <audio controls src={songDetails.previewURL}>Your browser does not support the audio element.</audio>}
       </div>
-      {/* Include a back button or navigation as needed */}
+      <div className="song-detail-comments-section">
+        <h2>Comments</h2>
+        <ul>
+          {comments.map((comment, index) => (
+            <li key={index}>
+              <p><strong>{comment.username}</strong>: {comment.commentContent}</p>
+              <p>Commented on {formatCommentDate(comment.commentedAt)}</p>
+              <button 
+                className="song-detail-like-comment-button" 
+                onClick={() => handleLikeComment(index)}
+              >
+                {comment.selfLike ? <FaThumbsUp /> : <FaRegThumbsUp />} 
+                <span>{comment.totalLikes}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} />
+        <button onClick={handleCommentSubmit}>Comment</button>
+      </div>
     </div>
     </div>
   );

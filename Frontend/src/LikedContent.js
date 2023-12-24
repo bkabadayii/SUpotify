@@ -27,6 +27,11 @@ const LikedContent = () => {
   const [isMongoCardVisible, setIsMongoCardVisible] = useState(false);
   const [mongoURL, setMongoURL] = useState('');
   
+  const [userPlaylists, setUserPlaylists] = useState([]);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [selectedTrackId, setSelectedTrackId] = useState('');
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState('');  
+
   const token = localStorage.getItem('token');
 
   // Event handler for MongoDB URL input change
@@ -174,6 +179,7 @@ const LikedContent = () => {
   useEffect(() => {
     if (activeTab === 'likedSongs') {
       fetchLikedContent('TRACK');
+      fetchUserPlaylists();
     } else if (activeTab === 'likedAlbums') {
       fetchLikedContent('ALBUM');
     } else if (activeTab === 'likedArtists') {
@@ -212,6 +218,34 @@ const LikedContent = () => {
     }
   };
 
+  const fetchUserPlaylists = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/api/playlists/getUserPlaylists', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setUserPlaylists(response.data.userToPlaylists.playlists);
+      }
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+    }
+  };
+
+  const addTrackToPlaylist = async () => {
+    try {
+      await axios.post(
+        'http://localhost:4000/api/playlists/addTrackToPlaylist',
+        { playlistID: selectedPlaylistId, trackID: selectedTrackId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Track added to playlist successfully');
+      setShowPlaylistModal(false);
+    } catch (error) {
+      console.error('Error adding track to playlist:', error);
+      alert('Failed to add track to playlist');
+    }
+  };
+
   const removeLikedContent = async (contentId, contentType, event) => {
     event.stopPropagation()
     try {
@@ -235,6 +269,24 @@ const LikedContent = () => {
     <div>
       <Navbar/>
     <div className="liked-content">
+      {/* Overlay */}
+      <div className={showPlaylistModal ? 'overlay active' : 'overlay'} onClick={() => setShowPlaylistModal(false)}></div>
+      {showPlaylistModal && (
+        <div className="playlist-modal">
+          <h2>Select a Playlist</h2>
+          <select 
+            value={selectedPlaylistId} 
+            onChange={(e) => setSelectedPlaylistId(e.target.value)}
+          >
+            <option value="">Select a playlist</option>
+            {userPlaylists.map(playlist => (
+              <option key={playlist._id} value={playlist._id}>{playlist.name}</option>
+            ))}
+          </select>
+          <button onClick={addTrackToPlaylist}>Add to Playlist</button>
+          <button onClick={() => setShowPlaylistModal(false)}>Cancel</button>
+        </div>
+      )}
       <div className="tabs">
         <button onClick={() => setActiveTab('likedSongs')} className={activeTab === 'likedSongs' ? 'active' : ''}>Liked Songs</button>
         <button onClick={() => setActiveTab('likedAlbums')} className={activeTab === 'likedAlbums' ? 'active' : ''}>Liked Albums</button>
@@ -334,6 +386,15 @@ const LikedContent = () => {
                       onClick={(event) => removeLikedContent(item.track._id, 'TRACK', event)}
                     >
                       <FaTrashAlt className="icon" />
+                    </button>
+                    <button 
+                      onClick={(event) => {
+                        event.stopPropagation(); // Prevents the event from bubbling up to parent elements
+                        setShowPlaylistModal(true);
+                        setSelectedTrackId(item.track._id);
+                      }}
+                    >
+                      Add to Playlist
                     </button>
                   </div>
                 </li>

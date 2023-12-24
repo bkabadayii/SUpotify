@@ -135,3 +135,127 @@
 .album-link:hover {
   text-decoration: underline;
 }
+
+/* Overlay Style */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  backdrop-filter: blur(5px); /* Blur effect for the background */
+  z-index: 999; /* Ensure it's above other elements */
+  display: none; /* Hidden by default */
+}
+
+/* Show the overlay when active */
+.overlay.active {
+  display: block;
+}
+
+/* Updated Modal Style */
+.playlist-modal {
+  display: block;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #282828;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #3820a3; /* Border for the modal */
+  z-index: 1000; /* Above the overlay */
+}
+
+.playlist-modal select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #282828;
+  background-color: #000000;
+  color: white;
+}
+
+.playlist-modal h2 {
+  background-color: #282828;
+}
+
+.song-detail-comments-section {
+  margin-top: 20px;
+  background-color: #282828;
+  padding: 15px;
+  border-radius: 10px;
+  width: 90%; /* Adjust the width as needed */
+  max-width: 800px; /* Set a maximum width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.song-detail-comments-section p {
+  background-color: #383838;
+}
+
+.song-detail-comments-section strong {
+  background-color: #383838;
+}
+
+.song-detail-comments-section h2 {
+  margin-bottom: 10px;
+  color: white;
+  background-color: #282828;
+}
+
+.song-detail-comments-section ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 300px; /* Adjust as needed for longer comment lists */
+  overflow-y: auto; /* Scroll for overflow */
+  background-color: #282828;
+}
+
+.song-detail-comments-section li {
+  margin-bottom: 10px;
+  background-color: #383838;
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+}
+
+.song-detail-comments-section textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.song-detail-comments-section button {
+  padding: 10px 20px;
+  background-color: #3820a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.song-detail-comments-section button:hover {
+  background-color: #261572;
+}
+
+.song-detail-like-comment-button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.song-detail-like-comment-button span {
+  margin-left: 5px;
+  background-color: #3820a3;
+}

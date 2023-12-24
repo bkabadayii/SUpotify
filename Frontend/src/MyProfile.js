@@ -101,8 +101,8 @@ const MyProfile = () => {
     }
   };
 
-  const navigateToPlaylist = (playlistId) => {
-    history.push(`/playlist/${playlistId}`); // Update the route as per your route configuration
+  const navigateToPlaylist = (playlistID) => {
+    history.push(`/playlist/${playlistID}`); // Update the route as per your route configuration
   };
 
   const handleFollowUser = async () => {
@@ -180,12 +180,12 @@ const MyProfile = () => {
     }
   };
 
-  const handleDeletePlaylist = async (playlistId, event) => {
+  const handleDeletePlaylist = async (playlistID, event) => {
     event.stopPropagation()
     try {
       const token = localStorage.getItem('token');
       await axios.delete('http://localhost:4000/api/playlists/deletePlaylist', {
-        data: { playlistID: playlistId },
+        data: { playlistID: playlistID },
         headers: { Authorization: `Bearer ${token}` }
       });
 
