@@ -19,6 +19,9 @@ const SongDetails = () => {
   const [selectedPlaylistId, setSelectedPlaylistId] = useState('');
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const [showLyricsModal, setShowLyricsModal] = useState(false);
+  const [lyrics, setLyrics] = useState('');
+
 
   const history = useHistory();
 
@@ -121,50 +124,72 @@ const SongDetails = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(trackID);
-
-    const fetchUserPlaylists = async () => {
+  const fetchLyrics = async () => {
+    if (songDetails) {
       try {
-        const response = await axios.get('http://localhost:4000/api/playlists/getUserPlaylists', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.data.success) {
-          setUserPlaylists(response.data.userToPlaylists.playlists);
-        }
-      } catch (error) {
-        console.error('Error fetching playlists:', error);
-      }
-    };
+        // Encode the song name and artist name to handle spaces and special characters
+        const songName = encodeURIComponent(songDetails.name);
+        const artistName = encodeURIComponent(songDetails.artists.map(artist => artist.name).join(', '));
   
-    fetchUserPlaylists();
-
-    const fetchSongDetails = async () => {
-      try {
-        const response = await axios.get(`http://localhost:4000/api/content/getTrack/${trackID}`, {
+        // Construct the API URL with encoded parameters
+        const url = `http://localhost:4000/api/getFromGenius/getLyricsOfASong/${songName}/${artistName}`;
+        console.log('Fetching lyrics from URL:', url);
+  
+        const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` }
         });
+  
+        // Check and set the lyrics
         if (response.data.success) {
-          setSongDetails(response.data.track);
-          console.log(response);
+          setLyrics(response.data.lyrics.split('\n'));
         }
       } catch (error) {
-        console.error('Error fetching song details:', error);
-        // Handle error
+        console.error('Error fetching lyrics:', error);
       }
-    };
+    }
+  };
+   
+  const fetchSongDetails = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/content/getTrack/${trackID}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setSongDetails(response.data.track);
+        console.log(response);
+      }
+    } catch (error) {
+      console.error('Error fetching song details:', error);
+      // Handle error
+    }
+  };
 
+  const fetchUserPlaylists = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/api/playlists/getUserPlaylists', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setUserPlaylists(response.data.userToPlaylists.playlists);
+      }
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+    }
+  };
+
+  const fetchRating = async () => {
+    const ratingInfo = await getRatingInfo(token, 'TRACK', trackID);
+    if (ratingInfo && ratingInfo.success) {
+        console.log("Rating Info:", ratingInfo);
+        setRatingInfo(ratingInfo);
+        // Process and display the rating information
+    }
+  };
+
+  useEffect(() => {
+  
     fetchSongDetails();
-
-    const fetchRating = async () => {
-      const ratingInfo = await getRatingInfo(token, 'TRACK', trackID);
-      if (ratingInfo && ratingInfo.success) {
-          console.log("Rating Info:", ratingInfo);
-          setRatingInfo(ratingInfo);
-          // Process and display the rating information
-      }
-    };
-
+    fetchUserPlaylists();
     fetchRating();
 
     if (ratingInfo && ratingInfo.success) {
@@ -179,14 +204,21 @@ const SongDetails = () => {
 
   }, [trackID, token]);
 
+  useEffect(() => {
+    if (songDetails) {
+      fetchLyrics();
+    }
+  }, [songDetails, token]);
+
   if (!songDetails) {
-    return <div>Loading...</div>; // or any other loading state representation
+    return <div>Loading..</div>; // or any other loading state representation
   }
 
   return (
     <div>
       <Navbar/>
     <div className="song-details">
+
       {/* Overlay */}
       <div className={showPlaylistModal ? 'overlay active' : 'overlay'} onClick={() => setShowPlaylistModal(false)}></div>
       {showPlaylistModal && (
@@ -205,6 +237,27 @@ const SongDetails = () => {
           <button onClick={() => setShowPlaylistModal(false)}>Cancel</button>
         </div>
       )}
+
+      {/* Overlay for Lyrics Modal */}
+      <div className={showLyricsModal ? 'lyrics-overlay active' : 'lyrics-overlay'} onClick={() => setShowLyricsModal(false)}></div>
+      {/* Lyrics Modal */}
+      {showLyricsModal && (
+        <div className="lyrics-modal">
+          <h2>Lyrics</h2>
+          <p></p>
+          <div className="lyrics-content">
+            {lyrics.length > 0 ? (
+              lyrics.map((line, index) => (
+                <p key={index}>{line}</p>
+              ))
+            ) : (
+              <p>Loading lyrics...</p>
+            )}
+          </div>
+          <button onClick={() => setShowLyricsModal(false)}>Close</button>
+        </div>
+      )}
+
       <h1>{songDetails.name}</h1>
       <div className="artists">
         {songDetails.artists.map((artist) => (
@@ -225,6 +278,8 @@ const SongDetails = () => {
       <button className="songdetail-like-button" onClick={handleLikeSong}>Add to Liked Songs</button>
       <p></p>
       <button onClick={() => setShowPlaylistModal(true)}>Add to Playlist</button>
+      <p></p>
+      <button onClick={() => setShowLyricsModal(true)}>Show Lyrics</button>
       <p></p>
       <a>Rate Song:</a>
       <div className="rating-container">

@@ -5,14 +5,18 @@ import { postRating } from './postRating';
 import getRatingInfo from './getRatingInfo';
 import { useHistory } from 'react-router-dom';
 import './ArtistDetails.css';
+import { FaThumbsUp, FaRegThumbsUp } from 'react-icons/fa';
 import Navbar from './Navbar';
 
 const ArtistDetails = () => {
     const [artistDetails, setArtistDetails] = useState(null);
     const { artistID } = useParams();
     const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
     const [ratingInfo, setRatingInfo] = useState(null);
     const history = useHistory();
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
 
     const handleRating = (rating) => {
       const token = localStorage.getItem('token');
@@ -21,6 +25,55 @@ const ArtistDetails = () => {
 
     const goToAlbumDetails = (albumId) => {
         history.push(`/album/${albumId}`);
+      };
+
+    const handleCommentSubmit = () => {
+        // Post New Comment
+        axios.post('http://localhost:4000/api/comments/commentContent', {
+          contentType: 'ARTIST',
+          relatedID: artistID,
+          comment: newComment
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => {
+          if (response.data.success) {
+            setComments([...comments, {
+              username: username, 
+              commentContent: newComment,
+              // ... other comment details
+            }]);
+            setNewComment('');
+            alert('Comment posted successfully');
+            fetchComments();
+          }
+        })
+        .catch(error => console.error('Error posting comment:', error));
+    };
+
+    const formatCommentDate = (dateString) => {
+        const date = new Date(dateString);
+        return `${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+    };
+
+    const handleLikeComment = (commentIndex) => {
+        // Logic to like/unlike a comment
+    
+        fetchComments(); 
+    };
+
+    const fetchComments = async () => {
+        try {
+          const response = await axios.get(`http://localhost:4000/api/comments/getContentComments/ARTIST/${artistID}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+    
+          if (response.data.success) {
+            setComments(response.data.allComments);
+          }
+        } catch (error) {
+          console.error('Error fetching comments:', error);
+        }
       };
 
     useEffect(() => {
@@ -58,6 +111,8 @@ const ArtistDetails = () => {
                 numUsersRated: ratingInfo.numUsersRated
             });
           }
+
+          fetchComments();
 
     }, [artistID, token]);
 
@@ -106,6 +161,26 @@ const ArtistDetails = () => {
                     </li>
                 ))}
                 </ul>
+            </div>
+            <div className="artist-detail-comments-section">
+                <h2>Comments</h2>
+                <ul>
+                {comments.map((comment, index) => (
+                    <li key={index}>
+                    <p><strong>{comment.username}</strong>: {comment.commentContent}</p>
+                    <p>Commented on {formatCommentDate(comment.commentedAt)}</p>
+                    <button 
+                        className="artist-detail-like-comment-button" 
+                        onClick={() => handleLikeComment(index)}
+                    >
+                        {comment.selfLike ? <FaThumbsUp /> : <FaRegThumbsUp />} 
+                        <span>{comment.totalLikes}</span>
+                    </button>
+                    </li>
+                ))}
+                </ul>
+                <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} />
+                <button onClick={handleCommentSubmit}>Comment</button>
             </div>
         </div>
         </div>
