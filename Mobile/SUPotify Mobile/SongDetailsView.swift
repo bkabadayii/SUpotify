@@ -165,6 +165,7 @@ struct SongDetailsView: View {
   @State private var hasRating: Bool = false
   @State private var isSliderInUse: Bool = false
   @State private var lyrics: String? = nil
+
   @State var isRotated: Bool = false
 
   var body: some View {
@@ -194,13 +195,12 @@ struct SongDetailsView: View {
             
             Spacer()
             
-            Button {
-              print("Favorited")
-            } label: {
-              Image(systemName: "heart.fill")
+            NavigationLink(destination: CommentView(songName: songName, artistName: artistNames)) {
+              Image(systemName: "text.bubble")
                 .font(.title)
-                .foregroundStyle(.green)
+                .foregroundStyle(.blue)
             }
+
           }
           .padding()
           HStack {
@@ -224,22 +224,25 @@ struct SongDetailsView: View {
                   .padding()
           } else {
               // Optionally, show a loading indicator or a "Lyrics not available" message
-            Circle()
+            ZStack{
+              Circle()
                 .strokeBorder(AngularGradient(gradient: Gradient(
-                    colors: [.indigo, .blue, .purple, .orange, .red]),
+                  colors: [.indigo, .blue, .purple, .orange, .red]),
                                               center: .center,
                                               angle: .zero),
                               lineWidth: 15)
                 .rotationEffect(isRotated ? .zero : .degrees(360))
                 .frame(maxWidth: 70, maxHeight: 70)
                 .onAppear {
-                    withAnimation(Animation.spring(duration: 3)) {
-                        isRotated.toggle() //toggle the value
-                    }
-                    withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
-                        isRotated.toggle()
-                    }
+                  withAnimation(Animation.spring(duration: 3)) {
+                    isRotated.toggle()
+                  }
+                  withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                    isRotated.toggle()
+                  }
                 }
+            }.frame(width: 100, height: 100, alignment: .center)
+
           }
 
           Spacer()
