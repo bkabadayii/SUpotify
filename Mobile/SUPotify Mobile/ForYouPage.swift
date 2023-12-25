@@ -49,12 +49,21 @@ struct ResponseTrackInfo: Codable {
     let success: Bool
 }
 
+struct LyricsResponse: Codable {
+    let lyrics: String
+    let success: Bool
+}
+
+
 struct ForYouView: View {
     @State private var recommendedTracks: [Track] = []
       @State private var isLoading = true
       @State private var currentIdx: Int = 0
       @GestureState private var dragOffset: CGFloat = 0
     @State var isRotated = false
+    @State private var songLyrics: String = ""
+    @State private var showLyricsPopup = false
+
 
       var body: some View {
           ZStack{
@@ -166,8 +175,6 @@ struct ForYouView: View {
         .preferredColorScheme(.dark)
 }
 
-
-
 class Host: UIHostingController<ContentView> {
     override var preferredStatusBarStyle: UIStatusBarStyle{
         return .lightContent
@@ -179,7 +186,10 @@ struct TrackCardView: View {
     @State var isAdded: Bool = false
     @State var showErrorAlert: Bool = false
        @State var errorMessage: String = ""
-    
+    @State private var songLyrics: String = ""
+    @State private var showLyricsPopup = false
+ 
+
     var body: some View {
         VStack{
             
@@ -223,7 +233,9 @@ struct TrackCardView: View {
             
             HStack (spacing: 12){
                 Button(action: {
-                    ShowSongInfo()
+                    self.showLyricsPopup = true
+                    ShowSongInfo(track: track)
+                   
                 }, label: {
                     VStack (spacing: 8){
                         Image(systemName: "music.note.list")
@@ -231,7 +243,9 @@ struct TrackCardView: View {
                             .foregroundColor(.indigo)
                         
                     }
-                })
+                }).sheet(isPresented: $showLyricsPopup) {
+                    LyricsPopupView(lyrics: songLyrics)
+                }
                 
                 
                 Button(action: {
@@ -333,20 +347,83 @@ struct TrackCardView: View {
                        }
                    }.resume()
     }
+    
+    func ShowSongInfo(track: Track) {
+        guard let artistName = track.artists.first?.name else { return }
+        let songName = track.name
+        
+        let token = SessionManager.shared.token
+        let encodedSongName = songName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedArtistName = artistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+        let urlString = "http://localhost:4000/api/getFromGenius/getLyricsOfASong/\(encodedSongName)/\(encodedArtistName)"
+        guard let url = URL(string: urlString) else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data = data {
+                do {
+                    let jsonResponse = try JSONDecoder().decode(LyricsResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.songLyrics = jsonResponse.lyrics
+                    }
+                } catch {
+                    print("Error decoding lyrics: \(error)")
+                }
+            } else if let error = error {
+                print("Network error: \(error)")
+            }
+        }.resume()
+    }
+
+
         
 }
 
-func ShowSongInfo(){
-    
-}
-
-
-
-func AddToPlaylist(){
-    
-}
 
 func Share(){
     
 }
+
+
+struct LyricsPopupView: View {
+    var lyrics: String
+    var body: some View {
+        ZStack {
+           
+            Color.black.opacity(0.2)
+                .edgesIgnoringSafeArea(.all)
+
+            VStack(spacing: 15) {
+                Text("Lyrics")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.top, 15)
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        ForEach(lyrics.split(separator: "\n"), id: \.self) { line in
+                            Text(line)
+                                .foregroundColor(.white)
+                                .font(.body)
+                                .padding([.horizontal, .bottom], 10)
+                        }
+                    }
+                    .padding(.top)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background( LinearGradient(colors: [.blue, .indigo, .blue, .indigo, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .opacity(0.4)
+                    .ignoresSafeArea())
+                .cornerRadius(20)
+                .padding()
+            }
+        }
+    }
+}
+
 

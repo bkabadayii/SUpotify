@@ -186,7 +186,6 @@ struct SearchView: View {
     struct ResultsListView: View {
         @ObservedObject var searchViewModel: SearchViewModel
         @State private var selectedPlaylistId: String = ""
-        @State private var showingPlaylistPicker = false
 
       @EnvironmentObject var viewModel: LikedSongsViewModel
 
@@ -225,7 +224,7 @@ struct SearchView: View {
 
                                 Spacer()
 
-                                Button(action: {
+                              /*  Button(action: {
                                    // self.selectedPlaylistId = ""
                                     self.showingPlaylistPicker = true
                                     searchViewModel.fetchPlaylists()
@@ -234,9 +233,9 @@ struct SearchView: View {
                                     .foregroundColor(.indigo)
                                 }
                                 .sheet(isPresented: $showingPlaylistPicker) {
-                                    PlaylistPickerView(playlists: $searchViewModel.playlists, selectedPlaylistId: $selectedPlaylistId, trackId: track.id, searchViewModel: searchViewModel)
+                                    PlaylistPickerView(playlists: $searchViewModel.playlists, selectedPlaylistId: $selectedPlaylistId, track: track, searchViewModel: searchViewModel)
                                     
-                                }
+                                }*/
 
                                 Image(systemName: searchViewModel.favoritedTracks.contains(track.id) ? "heart.fill" : "heart")
                                     .foregroundColor(.pink)
@@ -676,135 +675,11 @@ struct SearchView: View {
                             }.resume()
                         }
         
-        func addTrackToPlaylist(trackId: String, playlistId: String) {
-                guard let url = URL(string: "http://localhost:4000/api/playlists/addTrackToPlaylist") else { return }
-                var request = URLRequest(url: url)
-                request.httpMethod = "POST"
-                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
-                let body: [String: Any] = [
-                    "playlistID": playlistId,
-                    "trackID": trackId
-                ]
-
-                do {
-                    request.httpBody = try JSONSerialization.data(withJSONObject: body)
-                } catch {
-                    print("Error: Unable to encode body parameters \(error)")
-                    return
-                }
-
-                URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-                    if let error = error {
-                        DispatchQueue.main.async {
-                            self?.alertMessage = "Network error: \(error.localizedDescription)"
-                            self?.showAlert = true
-                        }
-                        return
-                    }
-                    
-                    guard let data = data,
-                          let httpResponse = response as? HTTPURLResponse else {
-                        DispatchQueue.main.async {
-                            self?.alertMessage = "Invalid response from server."
-                            self?.showAlert = true
-                        }
-                        return
-                    }
-                    
-                    if httpResponse.statusCode == 201 {
-                        do {
-                            let response = try JSONDecoder().decode(PlaylistAddingResponse.self, from: data)
-                            DispatchQueue.main.async {
-                                print(response)
-                                if response.success {
-                                  
-                                    // Handle successful addition here
-                                    self?.alertMessage = response.message
-                                } else {
-                                    self?.alertMessage = response.message
-                                }
-                                self?.showAlert = true
-                            }
-                        } catch {
-                            DispatchQueue.main.async {
-                                self?.alertMessage = "Failed to decode response."
-                                self?.showAlert = true
-                            }
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            self?.alertMessage = "Failed to add track to playlist."
-                            self?.showAlert = true
-                        }
-                    }
-                    self?.fetchPlaylists()
-                }.resume()
-            }
+        
         
     }
     
-    struct PlaylistPickerView: View {
-        @Binding var playlists: [Playlist]
-        @Binding var selectedPlaylistId: String
-        let trackId: String
-        let searchViewModel: SearchViewModel
-        @State var isRotated = false
-
-        var body: some View {
-            ZStack{
-                VStack{
-                    HStack{
-                        Circle()
-                            .strokeBorder(AngularGradient(gradient: Gradient(
-                              colors: [.indigo, .blue, .purple, .orange, .red]),
-                                                          center: .center,
-                                                          angle: .zero),
-                                          lineWidth: 15)
-                            .rotationEffect(isRotated ? .zero : .degrees( 360))
-                            .frame(maxWidth: 50, maxHeight: 50)
-                            .onAppear {
-                                withAnimation(Animation.spring(duration: 3)) {
-                                    isRotated.toggle()
-                                }
-                                withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
-                                    isRotated.toggle()
-                                }
-                            }
-                            .padding()
-                        
-                        Text("Your playlists")
-                            .font(.title)
-                            .foregroundColor(.indigo)
-                            .bold()
-                            .padding()
-                        
-                    }
-                    List(playlists, id: \._id) { playlist in
-                        HStack {
-                            Text(playlist.name)
-                            Spacer()
-                            Text(trackId)
-                            if selectedPlaylistId == playlist._id {
-                                Image(systemName: "checkmark")
-                                 .foregroundColor(.indigo)
-                                 .font(.headline)
-                            }
-                        }
-                            .onTapGesture {
-                                self.selectedPlaylistId = playlist._id
-                            }
-                    }
-                    Button("Add to Selected Playlist") {
-                                    searchViewModel.addTrackToPlaylist(trackId: trackId, playlistId: selectedPlaylistId)
-                    }
-                        .disabled(selectedPlaylistId.isEmpty)
-                
-                }.navigationTitle("Select Playlist")
-            }
-        }
-    }
+    
 
 }
 

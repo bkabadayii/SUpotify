@@ -7,8 +7,17 @@ struct Profile: View {
     @State private var errorMessage: String?
     @State private var numberOfPlaylists = 0
     @State private var numberOfFriends = 0
+    @ObservedObject var viewModel = SharedViewModel()
+    
+    @State private var selectedTab = 0
+    @State private var mycolor = ""
+
     
     var username = SessionManager.shared.username
+    
+    init() {
+        self.viewModel.fetchPlaylists()
+    }
     
     func logout() {
         let body: [String: String] = ["username": username]
@@ -47,11 +56,7 @@ struct Profile: View {
             }
         }.resume()
     }
-    
-    @State private var selectedTab = 0
-    @State private var mycolor = ""
 
-    
     var body: some View {
         NavigationView {
             ZStack {
@@ -59,6 +64,7 @@ struct Profile: View {
                 ScrollView {
                     VStack {
                         HStack {
+                           
                             Spacer()
                             Button("Logout") {
                                 logout()
@@ -134,8 +140,10 @@ struct LogoutResponse: Codable {
 
 struct Profile_Previews: PreviewProvider {
     static var previews: some View {
-        Profile().preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+        Profile()
+            .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
             .environmentObject(LikedSongsViewModel.shared)
+            .environmentObject(SharedViewModel.shared)
     }
 }
 

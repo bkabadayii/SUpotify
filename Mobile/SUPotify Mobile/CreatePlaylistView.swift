@@ -7,7 +7,9 @@ struct CreatePlaylistView: View {
     @State private var isRotated:Bool = false
     @State private var searchSongs:Bool = false
     @State private var isPlaylistCreated:Bool = false
-   
+    @Environment(\.presentationMode) var presentationMode
+    @ObservedObject var viewModel = SharedViewModel()
+
     
     var body: some View {
         NavigationStack{
@@ -48,8 +50,11 @@ struct CreatePlaylistView: View {
                     Spacer()
                     
                     Button(action: {
-                        isPlaylistCreated = true
+                       // isPlaylistCreated = true
                         playlistCreate(playlistName: name)
+                        self.viewModel.fetchPlaylists()
+                        //presentationMode.wrappedValue.dismiss()
+                        
                     }) {
                         Text("Create Playlist")
                             .font(.headline)
@@ -59,14 +64,10 @@ struct CreatePlaylistView: View {
                             .cornerRadius(15)
                     }
                     .padding()
-                    
-                    
-                    NavigationLink(destination: Profile(), isActive: $isPlaylistCreated){
-                        EmptyView()
-                        
-                        Spacer()
+                    .alert(isPresented: $isPlaylistCreated) {
+                        Alert(title: Text("Success"), message: Text("Created playlist successfully"), dismissButton: .default(Text("OK")))
                     }
-                    .padding(.top, 50)
+                    
                 }
             }.navigationTitle("Create Playlist")
         }
@@ -108,10 +109,10 @@ struct CreatePlaylistView: View {
                                 let responseString = String(data: data!, encoding: .utf8) ?? "Unable to decode data"
                                 print("Response: \(responseString)")
                             }
+                    self.viewModel.fetchPlaylists()
                 }
             }.resume()
         }
-
 
 
     struct PlaylistCreationResponse: Codable {
