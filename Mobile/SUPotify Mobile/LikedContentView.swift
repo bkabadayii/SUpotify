@@ -244,7 +244,6 @@ class LikedSongsViewModel: ObservableObject {
 struct LikedContentView: View {
   @State var searchBox_offset:CGFloat = 30
 
-  //@State private var searchText = ""
   @State private var isSearchEmpty = false
 
   @State private var showExportOptions = false
@@ -403,4 +402,5 @@ struct LikedContentView: View {
 #Preview {
   LikedContentView()
     .environmentObject(LikedSongsViewModel.shared).preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+    .environmentObject(SharedViewModel.shared)
 }

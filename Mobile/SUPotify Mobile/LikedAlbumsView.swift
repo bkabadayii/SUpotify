@@ -15,7 +15,7 @@ struct LikedAlbumsView: View {
         let artists = album.artists.map { $0.name }.joined(separator: ", ")
         let albumImageURL = album.imageURL
         HStack{
-          LImage_RText(contentID: album._id, contentType: "ALBUM", songName: album.name, artistNames: artists, imageURL: albumImageURL, isPlaylist: false)
+          LImage_RText(contentID: album._id, contentType: "ALBUM", songName: album.name, artistNames: artists, imageURL: albumImageURL, isPlaylist: false).environmentObject(SharedViewModel.shared)
           Spacer()
         }
       }

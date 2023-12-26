@@ -12,8 +12,14 @@ struct PlaylistGrid: View {
     @State private var addSongs = false
     @EnvironmentObject var viewModel: LikedSongsViewModel
     @State private var playlistView:Bool = false
+    @ObservedObject var viewModel2 = SharedViewModel()
+    
 
     let layout = [GridItem(.flexible()), GridItem(.flexible())]
+    
+    init() {
+        self.viewModel2.fetchPlaylists()
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -35,11 +41,6 @@ struct PlaylistGrid: View {
                 EmptyView()
             }
             
-            NavigationLink(destination: SearchView().environmentObject(viewModel), isActive: $addSongs) {
-                EmptyView()
-            }
-            
-           
 
             ScrollView {
                 LazyVGrid(columns: layout, spacing: 20) {
@@ -61,20 +62,11 @@ struct PlaylistGrid: View {
                             Text(playlist.name)
                                 .font(.headline)
                                 .foregroundColor(.indigo)
-                            HStack{
+                          
                                 Text("\(playlist.tracks.count) Songs")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
-                               
-                                Button(action: {
-                                    self.addSongs = true
-                                }) {
-                                    Label("Add", systemImage: "plus.circle.fill")
-                                        .foregroundColor(.indigo)
-                                        .labelStyle(.titleAndIcon)
-                                        .font(.footnote)
-                                }
-                            }
+                            
                             
                             
                             Button(action: {
@@ -111,7 +103,7 @@ struct PlaylistGrid: View {
         .onAppear(perform: fetchPlaylists)
     }
 
-    private func fetchPlaylists() {
+   private func fetchPlaylists() {
         let baseURL = "http://localhost:4000/api/playlists/getUserPlaylists"
         let token = SessionManager.shared.token
 
@@ -141,6 +133,7 @@ struct PlaylistGrid: View {
                     let response = try JSONDecoder().decode(PlaylistResponse.self, from: data)
                     if response.success {
                         self.playlists = response.userToPlaylists.playlists
+                        print(self.playlists)
                     } else {
                         errorMessage = response.message
                     }
@@ -176,14 +169,141 @@ struct PlaylistGrid: View {
           }.resume()
       }
     
+    
 }
 
-/*struct PlaylistGrid_Previews: PreviewProvider {
-    static var previews: some View {
-        PlaylistGrid()
-            .preferredColorScheme(.dark)
+class SharedViewModel: ObservableObject {
+    @Published var playlists = [Playlist]()
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var createPlaylist = false
+    @State private var isRotated:Bool = false
+    @State private var toDelete:Bool = false
+    @State private var showingDeleteAlert = false
+    @Published private var selectedPlaylistId: String = ""
+    @State private var addSongs = false
+    @EnvironmentObject var viewModel: LikedSongsViewModel
+    @State private var playlistView:Bool = false
+    @State private var alertMessage: String?
+    @State private var showAlert:Bool = false
+    static let shared = SharedViewModel()
+    let token = SessionManager.shared.token
+   
+    func fetchPlaylists() {
+       let baseURL = "http://localhost:4000/api/playlists/getUserPlaylists"
+       let token = SessionManager.shared.token
+
+       guard let url = URL(string: baseURL) else { return }
+
+       var request = URLRequest(url: url)
+       request.httpMethod = "GET"
+       request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+       URLSession.shared.dataTask(with: request) { data, response, error in
+           DispatchQueue.main.async {
+               self.isLoading = false
+
+               if let error = error {
+                   print("Network error: \(error.localizedDescription)")
+                   self.errorMessage = error.localizedDescription
+                   return
+               }
+
+               guard let data = data else {
+                   print("No data received")
+                   self.errorMessage = "No data received"
+                   return
+               }
+
+               do {
+                   let response = try JSONDecoder().decode(PlaylistResponse.self, from: data)
+                   if response.success {
+                       self.playlists = response.userToPlaylists.playlists
+                      // print(response.userToPlaylists.playlists)
+                       print(self.playlists)
+                   } else {
+                       self.errorMessage = response.message
+                   }
+               } catch {
+                   print("Decoding error: \(error)")
+                   self.errorMessage = "Failed to decode response"
+               }
+           }
+       }.resume()
+   }
+    
+    func addTrackToPlaylist(trackId: String, playlistId: String) {
+       
+        guard let url = URL(string: "http://localhost:4000/api/playlists/addTrackToPlaylist") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let body: [String: Any] = [
+            "playlistID": playlistId,
+            "trackID": trackId
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            print("Error: Unable to encode body parameters \(error)")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    // self?.alertMessage = "Network error: \(error.localizedDescription)"
+                    // self?.showAlert = true
+                }
+                return
+            }
+            
+            guard let data = data,
+                  let httpResponse = response as? HTTPURLResponse else {
+                DispatchQueue.main.async {
+                    //self?.alertMessage = "Invalid response from server."
+                    // self?.showAlert = true
+                }
+                return
+            }
+            
+            if httpResponse.statusCode == 201 {
+                do {
+                    let response = try JSONDecoder().decode(PlaylistAddingResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        print(response)
+                        if response.success {
+                            
+                            // Handle successful addition here
+                             self.alertMessage = response.message
+                        } else {
+                            self.alertMessage = response.message
+                        }
+                         self.showAlert = true
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.alertMessage = "Failed to decode response."
+                        self.showAlert = true
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.alertMessage = "Failed to add track to playlist."
+                    self.showAlert = true
+                }
+            }
+            
+            self.fetchPlaylists()
+            
+        }.resume()
     }
-}*/
+    
+}
+
 
 struct Playlist: Codable {
     let _id: String
@@ -205,4 +325,9 @@ struct UserToPlaylists: Codable {
     let username: String
     let playlists: [Playlist]
     let __v: Int
+}
+
+#Preview {
+  PlaylistGrid()
+    .environmentObject(SharedViewModel.shared)
 }

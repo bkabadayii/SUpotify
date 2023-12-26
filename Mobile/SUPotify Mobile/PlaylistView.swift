@@ -69,7 +69,7 @@ struct PlaylistView: View {
                     VStack {
                         ForEach(viewModel.tracks ?? []) { track in
                             HStack {
-                                LImage_RText(contentID: track.id, contentType: "TRACK", songName: track.name, artistNames: track.artists.map { $0.name }.joined(separator: ", "), imageURL: track.album.imageURL, isPlaylist: true)
+                                LImage_RText(contentID: track.id, contentType: "TRACK", songName: track.name, artistNames: track.artists.map { $0.name }.joined(separator: ", "), imageURL: track.album.imageURL, isPlaylist: true).environmentObject(SharedViewModel.shared)
                                 
                                 Spacer()
                                 
@@ -237,5 +237,6 @@ struct Playlistt: Codable{
 #Preview {
   PlaylistView(playlistID: "")
     .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+    .environmentObject(SharedViewModel.shared)
 
 }

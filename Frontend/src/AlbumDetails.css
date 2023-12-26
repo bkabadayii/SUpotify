@@ -121,3 +121,81 @@
 .albumdetail-like-button:focus {
   outline: none;
 }
+
+.album-detail-comments-section {
+  margin-top: 20px;
+  background-color: #282828;
+  padding: 15px;
+  border-radius: 10px;
+  width: 90%; /* Adjust the width as needed */
+  max-width: 800px; /* Set a maximum width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.album-detail-comments-section p {
+  background-color: #383838;
+}
+
+.album-detail-comments-section strong {
+  background-color: #383838;
+}
+
+.album-detail-comments-section h2 {
+  margin-bottom: 10px;
+  color: white;
+  background-color: #282828;
+}
+
+.album-detail-comments-section ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 300px; /* Adjust as needed for longer comment lists */
+  overflow-y: auto; /* Scroll for overflow */
+  background-color: #282828;
+}
+
+.album-detail-comments-section li {
+  margin-bottom: 10px;
+  background-color: #383838;
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+}
+
+.album-detail-comments-section textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.album-detail-comments-section button {
+  padding: 10px 20px;
+  background-color: #3820a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.album-detail-comments-section button:hover {
+  background-color: #261572;
+}
+
+.album-detail-like-comment-button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.album-detail-like-comment-button span {
+  margin-left: 5px;
+  background-color: #3820a3;
+}

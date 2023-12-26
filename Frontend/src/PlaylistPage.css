@@ -1,0 +1,96 @@
+.playlist-page {
+  color: white;
+  background-color: black;
+  padding: 20px;
+  text-align: center;
+}
+
+.playlist-info img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.playlist-info h1 {
+  font-size: 2.5rem;
+  margin-top: 1rem;
+}
+
+.find-more-songs-button {
+  background-color: #282828;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.find-more-songs-button:hover {
+  background-color: #3820a3;
+}
+
+.playlist-track-list {
+  list-style: none;
+  padding: 0;
+}
+
+.playlist-track-item {
+  display: flex;
+  align-items: center; /* Ensure vertical center alignment */
+  justify-content: space-between; /* Space out items */
+  background-color: #282828;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.playlist-track-item:hover {
+  transform: translateY(-5px); /* Moves the item up by 5 pixels */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Optional: Adds shadow for a "lifting" effect */
+}
+
+.playlist-track-info-container {
+  display: flex;
+  align-items: center; /* Align content of div */
+  flex-grow: 1;
+  background-color: #282828;
+}
+
+.playlist-track-image {
+  width: 100px; /* Smaller width */
+  height: 100px; /* Smaller height, keep the same as width for a square aspect ratio */
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.playlist-track-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: #282828;
+}
+
+.playlist-track-name, .playlist-track-artist, .playlist-track-album, .playlist-track-duration {
+  margin: 0;
+  background-color: transparent;
+}
+
+.playlist-remove-track-button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 5px;
+}
+
+.playlist-remove-track-button:hover {
+  color: #FF1744;
+}
+
