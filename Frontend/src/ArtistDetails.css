@@ -166,3 +166,28 @@
   margin-left: 5px;
   background-color: #3820a3;
 }
+
+.artist-detail-like-comment-button svg {
+  background-color: #3820a3;
+}
+
+/* Styles for the delete comment button */
+.artist-delete-comment-button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.artist-delete-comment-button:hover {
+  background-color: #D50000; /* Slightly darker red on hover */
+  transform: scale(1.05); /* Slight increase in size on hover */
+}
+
+.artist-delete-comment-button:focus {
+  outline: none; /* Remove focus outline */
+}

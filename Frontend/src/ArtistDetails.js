@@ -56,10 +56,40 @@ const ArtistDetails = () => {
         return `${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
     };
 
-    const handleLikeComment = (commentIndex) => {
-        // Logic to like/unlike a comment
-    
-        fetchComments(); 
+    const handleLikeComment = async (commentID) => {
+        try {
+          await axios.post(
+            'http://localhost:4000/api/comments/switchCommentLikeStatus',
+            { commentID },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          // Refetch comments to update UI
+          fetchComments();
+        } catch (error) {
+          console.error('Error switching like status of comment:', error);
+        }
+    };
+
+    const handleDeleteComment = async (commentID) => {
+      try {
+        await axios.delete(
+          'http://localhost:4000/api/comments/deleteComment',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            data: { // Axios delete requests require data to be in the config object
+              commentID,
+              contentType: "ARTIST",
+              relatedID: artistID
+            }
+          }
+        );
+        // Refetch comments to update UI
+        fetchComments();
+        alert('Comment deleted successfully.');
+      } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment.');
+      }
     };
 
     const fetchComments = async () => {
@@ -171,11 +201,20 @@ const ArtistDetails = () => {
                     <p>Commented on {formatCommentDate(comment.commentedAt)}</p>
                     <button 
                         className="artist-detail-like-comment-button" 
-                        onClick={() => handleLikeComment(index)}
+                        onClick={() => handleLikeComment(comment._id)}
                     >
                         {comment.selfLike ? <FaThumbsUp /> : <FaRegThumbsUp />} 
                         <span>{comment.totalLikes}</span>
                     </button>
+                    {/* Only show delete button for user's own comments */}
+                    {comment.username === username && (
+                      <button 
+                        className="artist-delete-comment-button" 
+                        onClick={() => handleDeleteComment(comment._id)}
+                      >
+                        Delete
+                      </button>
+                    )}
                     </li>
                 ))}
                 </ul>
