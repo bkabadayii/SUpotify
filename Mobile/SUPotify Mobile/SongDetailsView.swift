@@ -195,7 +195,7 @@ struct SongDetailsView: View {
             
             Spacer()
             
-            NavigationLink(destination: CommentView(songName: songName, artistName: artistNames)) {
+            NavigationLink(destination: CommentView(contentID: songID, contentType: ratingType, songName: songName, artistName: artistNames)) {
               Image(systemName: "text.bubble")
                 .font(.title)
                 .foregroundStyle(.blue)
