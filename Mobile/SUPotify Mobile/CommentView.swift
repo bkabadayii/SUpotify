@@ -147,49 +147,58 @@ struct CommentView: View {
               }
             }
         } else {
-          VStack {
-              List {
-                ForEach(comments) { comment in
-                      HStack {
-                          VStack(alignment: .leading) {
-                              Text(comment.username)
-                                  .fontWeight(.bold)
-                              Text(comment.commentContent)
-                              Text("Likes: \(comment.totalLikes ?? 0)")
-                          }
-
-                          Spacer()
-
-                          Button(action: {
-                              self.likeComment(commentID: comment.id)
-                          }) {
-                              Image(systemName: comment.selfLike == true ? "hand.thumbsup.fill" : "hand.thumbsup")
-                                  .foregroundColor(comment.selfLike == true ? .blue : .gray)
-                          }
-
-                          if comment.username == SessionManager.shared.username {
-                              Button(action: {
-                                self.deleteComment(commentID: comment._id)
-                              }) {
-                                  Image(systemName: "trash")
-                              }
-                          }
-                      }
+            VStack {
+            List {
+              ForEach(comments) { comment in
+                HStack {
+                  VStack(alignment: .leading) {
+                    Text(comment.username)
+                      .fontWeight(.bold)
+                    Text(comment.commentContent)
+                    Text("Likes: \(comment.totalLikes ?? 0)")
                   }
+
+                  Spacer()
+
+                  Button(action: {
+                    self.likeComment(commentID: comment._id)
+                  }) {
+                    Image(systemName: comment.selfLike == true ? "hand.thumbsup.fill" : "hand.thumbsup")
+                      .foregroundColor(comment.selfLike == true ? .blue : .gray)
+                  }
+
+                  if comment.username == SessionManager.shared.username {
+                    Button(action: {
+                      self.deleteComment(commentID: comment._id)
+                    }) {
+                      Image(systemName: "trash")
+                    }
+                  }
+                }
+                //.background(Color.clear)
               }
+              .background(Color.clear)
+            }
+            .listStyle(PlainListStyle())
 
-              HStack {
-                  TextField("Write a comment...", text: $newComment)
-                      .textFieldStyle(RoundedBorderTextFieldStyle())
+            HStack {
+              TextField("Write a comment...", text: $newComment)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                  Button("Post", action: postNewComment)
-              }.padding()
+              Button("Post", action: postNewComment)
+            }.padding()
           }
+
         }
 
       //.navigationTitle("Comments of \(songName) by \(artistName)")
       //.navigationBarTitleDisplayMode(.inline)
     }
+      .onAppear {
+          loadComments()
+      }
+      .navigationTitle("Comments of \(songName) by \(artistName)")
+      .navigationBarTitleDisplayMode(.inline)
   }
 }
 
