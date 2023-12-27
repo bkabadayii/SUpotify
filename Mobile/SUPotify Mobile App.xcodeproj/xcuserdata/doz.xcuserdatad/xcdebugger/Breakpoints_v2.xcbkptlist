@@ -68,5 +68,53 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0E2C9EBC-8C75-45A1-B018-A4713BEEED6C"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SUPotify Mobile/ForYouPage.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "417"
+            endingLineNumber = "417"
+            landmarkName = "SharedForRecommendation"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "0E2C9EBC-8C75-45A1-B018-A4713BEEED6C - d36f87cf9e18a615"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable (Swift.Optional&lt;Foundation.Data&gt;, Swift.Optional&lt;__C.NSURLResponse&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in SUPotify.SharedForRecommendation.ShowSongInfo(track: SUPotify.Track) -&gt; ()"
+                  moduleName = "SUPotify"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/doz/Desktop/SUpotify/Mobile/SUPotify%20Mobile/ForYouPage.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "418"
+                  endingLineNumber = "418"
+                  offsetFromSymbolStart = "1300">
+               </Location>
+               <Location
+                  uuid = "0E2C9EBC-8C75-45A1-B018-A4713BEEED6C - 44a01a17c4f102c4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SUPotify.SharedForRecommendation.fetchRecommendations() -&gt; ()"
+                  moduleName = "SUPotify"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/doz/Desktop/SUpotify/Mobile/SUPotify%20Mobile/ForYouPage.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "418"
+                  endingLineNumber = "418"
+                  offsetFromSymbolStart = "348">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

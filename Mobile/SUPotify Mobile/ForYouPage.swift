@@ -7,34 +7,34 @@
 import SwiftUI
 
 struct Track: Codable {
-  // let id: String
+   // let _id: String?
     let name: String
-   // let popularity: Int
-   // let durationMS: Int
+  // let popularity: Int?
+  // let durationMS: Int?
     let album: Album
     let artists: [Artist]
    let spotifyID: String
-   // let spotifyURL: URL
-  //  let previewURL: URL
-  //  let v: Int
+  //  let spotifyURL: URL?
+ // let previewURL: URL?
+ // let __v: Int?
 }
 
 struct Album: Codable {
     let _id: String
     let name: String
-    let imageURL: String
+   let imageURL: String?
 }
 
 struct Artist: Codable {
-  // let _id: String
+  let _id: String?
     let name: String
     let genres: [String]
 }
 
 struct LikedTrack: Codable {
     let track: Track
-  //  let likedAt: Date
-   // let id: String
+   let likedAt: String?
+    let _id: String?
 }
 
 struct Response: Codable {
@@ -56,123 +56,36 @@ struct LyricsResponse: Codable {
 
 
 struct ForYouView: View {
-    @State private var recommendedTracks: [Track] = []
-      @State private var isLoading = true
-      @State private var currentIdx: Int = 0
-      @GestureState private var dragOffset: CGFloat = 0
-    @State var isRotated = false
-    @State private var songLyrics: String = ""
-    @State private var showLyricsPopup = false
-
+    @State private var selectedTab = 0
+    @EnvironmentObject var viewModelRec: SharedForRecommendation
 
       var body: some View {
           ZStack{
               BackgroundView()
-              NavigationStack {
-                  VStack {
-                      if isLoading {
-                              HStack{
-                                  Circle()
-                                      .strokeBorder(AngularGradient(gradient: Gradient(
-                                        colors: [.indigo, .blue, .purple, .orange, .red]),
-                                                                    center: .center,
-                                                                    angle: .zero),
-                                                    lineWidth: 15)
-                                      .rotationEffect(isRotated ? .zero : .degrees( 360))
-                                      .frame(maxWidth: 70, maxHeight: 70)
-                                      .onAppear {
-                                          withAnimation(Animation.spring(duration: 3)) {
-                                              isRotated.toggle()
-                                          }
-                                          withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
-                                              isRotated.toggle()
-                                          }
-                                      }
-                                      .padding()
-                                  Text("We are bringing your recommendations for you!")
-                                      .font(.title)
-                                      .padding()
-                                      .foregroundColor(.white)
-                              }
-                          }
-                      else {
-                          ZStack {
-                              ForEach(recommendedTracks.indices, id: \.self) { index in
-                                  Group {
-                                      if index == currentIdx {
-                                          TrackCardView(track: recommendedTracks[index])
-                                              .offset(x: dragOffset)
-                                              .transition(.slide)
-                                              .animation(.easeInOut, value: dragOffset)
-                                      }
-                                  }
-                              }
-                          }
-                          .gesture(
-                            DragGesture()
-                                .updating($dragOffset, body: { value, state, _ in
-                                    state = value.translation.width
-                                })
-                                .onEnded({ value in
-                                    let threshold: CGFloat = 50
-                                    if value.translation.width > threshold {
-                                        currentIdx = max(0, currentIdx - 1)
-                                    } else if value.translation.width < -threshold {
-                                        currentIdx = min(recommendedTracks.count - 1, currentIdx + 1)
-                                    }
-                                })
-                          )
+              VStack {
+                  Picker("Options", selection: $selectedTab) {
+                                         Text("Friend based").tag(0)
+                                         Text("Rating based").tag(1)
                       }
-                  }
-                  .onAppear {
-                      fetchRecommendations()
-                  }
+                      .pickerStyle(SegmentedPickerStyle())
+                      .padding()
+
+                      if selectedTab == 0 {
+                         FriendBased()
+                          
+                      } else {
+                        RatingBased()
+                      }
+                 
               }}
        }
-    
-    func fetchRecommendations() {
-        let trackNum = 10
-        let token = SessionManager.shared.token
-        let url = URL(string: "http://localhost:4000/api/recommendation/recommendTrackFromFollowedUser/\(trackNum)")!
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("Error: \(error.localizedDescription)")
-                    return
-                }
-                
-                guard let data = data else {
-                    print("No data received")
-                    return
-                }
-                
-                do {
-                    let response = try JSONDecoder().decode(Response.self, from: data)
-                    print(response)
-                    self.recommendedTracks = response.recommendations.map { $0.track }
-                    print(response.recommendations)
-                    self.isLoading = false
-                   
-                } catch {
-                    print("Decoding Error: \(error.localizedDescription)")
-                }
-            }
-            
-        }.resume()
-    }
-
 }
 
 
 #Preview {
     ForYouView()
         .preferredColorScheme(.dark)
+        .environmentObject(SharedForRecommendation.shared)
 }
 
 class Host: UIHostingController<ContentView> {
@@ -183,18 +96,15 @@ class Host: UIHostingController<ContentView> {
 
 struct TrackCardView: View {
     let track: Track
-    @State var isAdded: Bool = false
-    @State var showErrorAlert: Bool = false
-       @State var errorMessage: String = ""
-    @State private var songLyrics: String = ""
+    @State var errorMessage: String = ""
     @State private var showLyricsPopup = false
- 
+    @EnvironmentObject var viewModelRec: SharedForRecommendation
+    @State private var showSpotifyURL: Bool = false
 
     var body: some View {
         VStack{
-            
             VStack(alignment: .center, spacing: 10) {
-                if let url = URL(string: track.album.imageURL) {
+                if let url = URL(string: track.album.imageURL ?? "") {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .empty:
@@ -234,8 +144,7 @@ struct TrackCardView: View {
             HStack (spacing: 12){
                 Button(action: {
                     self.showLyricsPopup = true
-                    ShowSongInfo(track: track)
-                   
+                    viewModelRec.ShowSongInfo(track: track)
                 }, label: {
                     VStack (spacing: 8){
                         Image(systemName: "music.note.list")
@@ -244,21 +153,18 @@ struct TrackCardView: View {
                         
                     }
                 }).sheet(isPresented: $showLyricsPopup) {
-                    LyricsPopupView(lyrics: songLyrics)
+                    LyricsPopupView()
                 }
                 
-                
                 Button(action: {
-                    addToLikedSongs(trackId: track.spotifyID, albumId: track.album._id)
+                    viewModelRec.addToLikedSongs(trackId: track.spotifyID, albumId: track.album._id)
                 }, label: {
                     VStack (spacing: 10){
                         Image(systemName: "heart.fill")
                             .font(.title)
                             .foregroundColor(.indigo)
-                        
-                        
                     }
-                }).alert(isPresented: $isAdded) {
+                }).alert(isPresented: $viewModelRec.isAdded) {
                     Alert(
                         title: Text("Success"),
                         message: Text("Recommended song added to liked songs successfully"),
@@ -267,7 +173,8 @@ struct TrackCardView: View {
                 }
 
                 Button(action: {
-                    Share()
+                    self.showSpotifyURL = true
+                   // UIPasteboard.general.url = track.spotifyURL
                 }, label: {
                     VStack (spacing: 8){
                         Image(systemName: "square.and.arrow.up.fill")
@@ -279,10 +186,138 @@ struct TrackCardView: View {
             .frame(width: 300, height: 60)
             .background(.black.opacity(0.30))
             .cornerRadius(100)
+            .padding(.bottom)
+        }.onAppear{
+            viewModelRec.ShowSongInfo(track: track)
         }
         }
     
-    
+}
+
+
+struct LyricsPopupView: View {
+    @EnvironmentObject var viewModelRec: SharedForRecommendation
+    var body: some View {
+        ZStack {
+           
+            Color.black.opacity(0.2)
+                .edgesIgnoringSafeArea(.all)
+
+            VStack(spacing: 15) {
+                Text("Lyrics")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.top, 15)
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        ForEach(viewModelRec.songLyrics.split(separator: "\n"), id: \.self) { line in
+                            Text(line)
+                                .foregroundColor(.white)
+                                .font(.body)
+                                .padding([.horizontal, .bottom], 10)
+                        }
+                    }
+                    .padding(.top)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background( LinearGradient(colors: [.blue, .indigo, .blue, .indigo, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .opacity(0.4)
+                    .ignoresSafeArea())
+                .cornerRadius(20)
+                .padding()
+            }
+        }
+    }
+}
+
+struct FriendBased: View {
+    //@State private var recommendedTracks: [Track] = []
+    //  @State private var isLoading = true
+     // @State private var currentIdx: Int = 0
+    @GestureState private var dragOffset: CGFloat = 0
+    @State var isRotated = false
+    @State var showErrorAlert: Bool = false
+   // @State var errorMessage: String = ""
+    @EnvironmentObject var viewModelRec: SharedForRecommendation
+
+    var body: some View {
+        VStack {
+            if viewModelRec.isLoading {
+                Spacer()
+                HStack{
+                        Circle()
+                            .strokeBorder(AngularGradient(gradient: Gradient(
+                              colors: [.indigo, .blue, .purple, .orange, .red]),
+                                                          center: .center,
+                                                          angle: .zero),
+                                          lineWidth: 15)
+                            .rotationEffect(isRotated ? .zero : .degrees( 360))
+                            .frame(maxWidth: 70, maxHeight: 70)
+                            .onAppear {
+                                withAnimation(Animation.spring(duration: 3)) {
+                                    isRotated.toggle()
+                                }
+                                withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                                    isRotated.toggle()
+                                }
+                            }
+                            .padding()
+                        Text("We are bringing your recommendations for you!")
+                            .font(.title)
+                            .padding()
+                            .foregroundColor(.white)
+                    }
+                Spacer()
+                }
+            else {
+                ZStack {
+                    ForEach(viewModelRec.recommendedTracks.indices, id: \.self) { index in
+                        Group {
+                            if index == viewModelRec.currentIdx {
+                                TrackCardView(track: viewModelRec.recommendedTracks[index])
+                                    .offset(x: dragOffset)
+                                    .transition(.slide)
+                                    .animation(.easeInOut, value: dragOffset)
+                            }
+                        }
+                    }
+                }
+                .gesture(
+                  DragGesture()
+                      .updating($dragOffset, body: { value, state, _ in
+                          state = value.translation.width
+                      })
+                      .onEnded({ value in
+                          let threshold: CGFloat = 50
+                          if value.translation.width > threshold {
+                              viewModelRec.currentIdx = max(0, viewModelRec.currentIdx - 1)
+                          } else if value.translation.width < -threshold {
+                              viewModelRec.currentIdx = min(viewModelRec.recommendedTracks.count - 1, viewModelRec.currentIdx + 1)
+                          }
+                      })
+                )
+            }
+        }
+        .onAppear {
+            viewModelRec.fetchRecommendations()
+        }
+    }
+}
+
+class SharedForRecommendation: ObservableObject {
+    static let shared = SharedForRecommendation()
+    @Published var recommendedTracks: [Track] = []
+      @Published  var isLoading = true
+      @Published  var currentIdx: Int = 0
+    @Published var isRotated = false
+    @Published  var songLyrics: String = ""
+    @Published var isAdded: Bool = false
+    @Published var showErrorAlert: Bool = false
+       @Published var errorMessage: String = ""
+
+
     func addToLikedSongs(trackId: String, albumId: String) {
         let token = SessionManager.shared.token
         let urlString = "http://localhost:4000/api/likedContent/likeTrackBySpotifyID"
@@ -378,52 +413,215 @@ struct TrackCardView: View {
             }
         }.resume()
     }
-
-
-        
-}
-
-
-func Share(){
     
-}
-
-
-struct LyricsPopupView: View {
-    var lyrics: String
-    var body: some View {
-        ZStack {
-           
-            Color.black.opacity(0.2)
-                .edgesIgnoringSafeArea(.all)
-
-            VStack(spacing: 15) {
-                Text("Lyrics")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.top, 15)
+   /* func fetchRecommendations() {
+        let trackNum = 1
+        let token = SessionManager.shared.token
+        let url = URL(string: "http://localhost:4000/api/recommendation/recommendTrackFromFollowedUser/\(trackNum)")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+           /* DispatchQueue.main.async {
+                if let error = error {
+                    print("Error: \(error.localizedDescription)")
+                    return
+                }
                 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 14) {
-                        ForEach(lyrics.split(separator: "\n"), id: \.self) { line in
-                            Text(line)
-                                .foregroundColor(.white)
-                                .font(.body)
-                                .padding([.horizontal, .bottom], 10)
+                guard let data = data else {
+                    print("No data received")
+                    return
+                }
+                
+                do {
+                    let response = try JSONDecoder().decode(Response.self, from: data)
+                    print(response)
+                    self.recommendedTracks = response.recommendations.map { $0.track }
+                    print(response.recommendations)
+                    self.isLoading = false
+                   
+                } catch {
+                    print("Decoding Error: \(error.localizedDescription)")
+                }
+            }*/
+            if let error = error {
+                  print("Error: \(error.localizedDescription)")
+                  return
+              }
+              
+              guard let data = data else {
+                  print("No data received")
+                  return
+              }
+              
+              // Print raw data for inspection
+              if let responseString = String(data: data, encoding: .utf8) {
+                  print("Raw Response Data: \(responseString)")
+              }
+
+              do {
+                  let response = try JSONDecoder().decode(Response.self, from: data)
+                  print(response)
+                  self.recommendedTracks = response.recommendations.map { $0.track }
+                  print(response.recommendations)
+                  self.isLoading = false
+              } catch {
+                  print("Decoding Error: \(error.localizedDescription)")
+              }
+            
+        }.resume()
+    }*/
+    
+    func fetchRecommendationsRating() {
+        let trackNum = 1
+        let token = SessionManager.shared.token
+        let url = URL(string: "http://localhost:4000/api/recommendation/recommendTrackFromFollowedUser/\(trackNum)")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let data = data else {
+                    print("No data received")
+                    return
+                }
+                
+                do {
+                    let response = try JSONDecoder().decode(Response.self, from: data)
+                    print(response)
+                    self.recommendedTracks = response.recommendations.map { $0.track }
+                    print(response.recommendations)
+                    self.isLoading = false
+                   
+                } catch {
+                    print("Decoding Error: \(error.localizedDescription)")
+                }
+            }
+            
+        }.resume()
+    }
+    
+    func fetchRecommendations() {
+        let trackNum = 10
+        let token = SessionManager.shared.token
+        let url = URL(string: "http://localhost:4000/api/recommendation/recommendTrackFromFollowedUser/\(trackNum)")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async {
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("HTTP Response Status Code: \(httpResponse.statusCode)")
+                    }
+
+                    if let error = error {
+                        print("Network Request Error: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let data = data, !data.isEmpty else {
+                        print("No data received or data is empty")
+                        return
+                    }
+                    
+                    // Print raw data for inspection
+                    if let responseString = String(data: data, encoding: .utf8) {
+                        print("Raw Response Data: \(responseString)")
+                    }
+
+                    do {
+                        let response = try JSONDecoder().decode(Response.self, from: data)
+                        self.recommendedTracks = response.recommendations.map { $0.track }
+                        self.isLoading = false
+                    } catch {
+                        print("Decoding Error: \(error.localizedDescription)")
+                    }
+                }
+            }.resume()
+    }
+}
+    
+
+
+struct RatingBased: View {
+    @EnvironmentObject var viewModelRec: SharedForRecommendation
+    @GestureState private var dragOffset: CGFloat = 0
+    @State var isRotated = false
+    
+    var body: some View {
+      VStack {
+            if viewModelRec.isLoading {
+                Spacer()
+                HStack{
+                        Circle()
+                            .strokeBorder(AngularGradient(gradient: Gradient(
+                              colors: [.indigo, .blue, .purple, .orange, .red]),
+                                                          center: .center,
+                                                          angle: .zero),
+                                          lineWidth: 15)
+                            .rotationEffect(isRotated ? .zero : .degrees( 360))
+                            .frame(maxWidth: 70, maxHeight: 70)
+                            .onAppear {
+                                withAnimation(Animation.spring(duration: 3)) {
+                                    isRotated.toggle()
+                                }
+                                withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                                    isRotated.toggle()
+                                }
+                            }
+                            .padding()
+                        Text("We are bringing your recommendations for you!")
+                            .font(.title)
+                            .padding()
+                            .foregroundColor(.white)
+                    }
+                Spacer()
+                }
+            else {
+                ZStack {
+                    ForEach(viewModelRec.recommendedTracks.indices, id: \.self) { index in
+                        Group {
+                            if index == viewModelRec.currentIdx {
+                                TrackCardView(track: viewModelRec.recommendedTracks[index])
+                                    .offset(x: dragOffset)
+                                    .transition(.slide)
+                                    .animation(.easeInOut, value: dragOffset)
+                            }
                         }
                     }
-                    .padding(.top)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background( LinearGradient(colors: [.blue, .indigo, .blue, .indigo, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    .opacity(0.4)
-                    .ignoresSafeArea())
-                .cornerRadius(20)
-                .padding()
+                .gesture(
+                  DragGesture()
+                      .updating($dragOffset, body: { value, state, _ in
+                          state = value.translation.width
+                      })
+                      .onEnded({ value in
+                          let threshold: CGFloat = 50
+                          if value.translation.width > threshold {
+                              viewModelRec.currentIdx = max(0, viewModelRec.currentIdx - 1)
+                          } else if value.translation.width < -threshold {
+                              viewModelRec.currentIdx = min(viewModelRec.recommendedTracks.count - 1, viewModelRec.currentIdx + 1)
+                          }
+                      })
+                )
             }
+        }
+        .onAppear {
+            viewModelRec.fetchRecommendationsRating()
         }
     }
 }
-
-

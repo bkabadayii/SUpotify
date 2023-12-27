@@ -29,6 +29,7 @@ struct MainMenu: View {
             }
 
             ForYouView()
+            .environmentObject(SharedForRecommendation.shared)
             .tabItem {
                 Image(systemName: "heart.fill")
                 Text("For You")
