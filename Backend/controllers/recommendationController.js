@@ -5,6 +5,7 @@ const {
 } = require("../controllers/followedUsersController");
 const UserToRatings= require("../models/userToRatingsModel");
 const Track= require("../models/trackModel");
+const UserToPlaylists=require("../models/userToPlaylistsModel");
 
 
 module.exports.recommendTrackFromFollowedUser = async (req,res)=>{   
@@ -81,10 +82,12 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
         const followedLikedContentFirst= await LikedContent.findOne({ username: followedUsername })
         const followedLikedContent = await followedLikedContentFirst.populate({
           path: 'likedTracks.track',
-          populate: {
-            path: 'artists',
-            select: 'genres',
-          },
+          populate: [
+            {
+              path: 'artists',
+              select: 'genres',
+            },
+          ],
         });
         
         const likedContent=await LikedContent.findOne({username});
@@ -147,12 +150,12 @@ module.exports.recommendTrackFromUserRatings = async (req, res) => {
           return res.status(500).json({ message: 'Error finding common genre.' });
       }
 
-      const mostPopularTrack = await getMostPopularTrackWithGenre(commonGenre);
-      if (!mostPopularTrack) {
-          return res.status(404).json({ message: 'No most popular track found for the common genre.' });
+      const mostPopularTracks = await getMostPopularTracksWithGenre(username,commonGenre);
+      if (!mostPopularTracks) {
+          return res.status(404).json({ message: 'No most popular tracks found for the common genre.' });
       }
 
-      return res.status(200).json({ mostPopularTrack });
+      return res.status(200).json({ mostPopularTracks });
   } catch (error) {
       console.error('Error:', error.message);
       return res.status(500).json({ message: 'Internal server error.' });
@@ -213,7 +216,7 @@ async function findMostCommonGenre(topTracks) {
   }
 }
 
-async function getMostPopularTrackWithGenre(genre) {
+async function getMostPopularTracksWithGenre(username,genre) {
   try {
     // Fetch tracks with the given genre
     const tracksWithGenre = await Track.find({}).populate({
@@ -227,19 +230,79 @@ async function getMostPopularTrackWithGenre(genre) {
 
     // Get 10 random tracks from the filtered list
     const randomTracks = [];
-    while (randomTracks.length < 10 && tracksFilteredByGenre.length > 0) {
+    while (randomTracks.length < 20 && tracksFilteredByGenre.length > 0) {
         const randomIndex = Math.floor(Math.random() * tracksFilteredByGenre.length);
         const randomTrack = tracksFilteredByGenre.splice(randomIndex, 1)[0];
+        if(checkIfSeenBefore(username,randomTrack._id)){
         randomTracks.push(randomTrack);
+        }
     }
 
     // Sort the random tracks by popularity
     randomTracks.sort((a, b) => b.popularity - a.popularity);
-
-    // Get the most popular track from the sorted list
-    const mostPopularTrack = randomTracks.length > 0 ? randomTracks[0] : null;
-      return mostPopularTrack;
+    return randomTracks;
   } catch (error) {
       throw error;
+  }
+}
+async function checkIfSeenBefore(username, trackId) {
+  try {
+    const userRatings = await UserToRatings.findOne({ username });
+    const likedContent = await LikedContent.findOne({ username });
+    const userPlaylists = await UserToPlaylists.findOne({ username });
+
+    if (!userRatings || !likedContent || !userPlaylists) {
+      return {
+        hasRated: false,
+        hasLiked: false,
+        addedToPlaylist: false,
+      };
+    }
+
+    let hasRated = false;
+    let hasLiked = false;
+    let addedToPlaylist = false;
+
+    if (userRatings.trackRatings) {
+      const ratedTrack = userRatings.trackRatings.find(
+        (rating) => rating.track.toString() === trackId
+      );
+      if (ratedTrack) {
+        hasRated = true;
+      }
+    }
+
+    if (likedContent.likedTracks) {
+      const likedTrack = likedContent.likedTracks.find(
+        (liked) => liked.track.toString() === trackId
+      );
+      if (likedTrack) {
+        hasLiked = true;
+      }
+    }
+
+    if (userPlaylists.playlists) {
+      userPlaylists.playlists.forEach((playlistId) => {
+        if (playlistId.tracks) {
+          const foundTrack = playlistId.tracks.find(
+            (playlistTrack) => playlistTrack.toString() === trackId
+          );
+          if (foundTrack) {
+            addedToPlaylist = true;
+          }
+        }
+      });
+    }
+
+    // Check if any action is performed, return false
+    if (hasRated || hasLiked || addedToPlaylist) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  } catch (error) {
+    console.error('Error checking user activity:', error);
+    return false;
   }
 }
