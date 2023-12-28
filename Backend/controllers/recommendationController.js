@@ -85,7 +85,11 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
           populate: [
             {
               path: 'artists',
-              select: 'genres',
+              select: 'genres name',
+            },
+            {
+              path: 'album',
+              select: '_id imageURL name',
             },
           ],
         });
