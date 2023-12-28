@@ -22,6 +22,15 @@ struct CommentResponse: Codable {
   var allComments: [Comment]?
 }
 
+struct PostCommentRequest: Codable {
+    let contentType: String
+    let relatedID: String
+    let comment: String
+}
+
+struct SwitchLikeStatusRequest: Codable {
+    let commentID: String
+}
 
 
 class CommentService {
@@ -49,34 +58,82 @@ class CommentService {
     }.resume()
   }
 
-  func postComment () {
-    let url = URL(string: "\(baseUrl)/commentContent")!
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+  func postComment(contentType: String, relatedID: String, comment: String, completion: @escaping (Bool, String?) -> Void) {
+      let url = URL(string: "\(baseUrl)/commentContent")!
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
+      let postBody = PostCommentRequest(contentType: contentType, relatedID: relatedID, comment: comment)
+      request.httpBody = try? JSONEncoder().encode(postBody)
 
+      URLSession.shared.dataTask(with: request) { data, response, error in
+          DispatchQueue.main.async {
+              if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 201 {
+                  completion(true, nil) // Success, no error message needed
+              } else {
+                  let errorMessage = error?.localizedDescription ?? "Failed to post comment"
+                  completion(false, errorMessage)
+              }
+          }
+      }.resume()
   }
 
-  func deleteContentComment () {
-    let url = URL(string: "\(baseUrl)/deleteComment")!
-    var request = URLRequest(url: url)
-    request.httpMethod = "DELETE"
-    request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+  func deleteContentComment(commentID: String, contentType: String, relatedID: String, completion: @escaping (Bool) -> Void) {
+      let url = URL(string: "\(baseUrl)/deleteComment")!
+      var request = URLRequest(url: url)
+      request.httpMethod = "DELETE"
+      request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
+      let body: [String: String] = [
+          "commentID": commentID,
+          "contentType": contentType,
+          "relatedID": relatedID
+      ]
 
+      request.httpBody = try? JSONEncoder().encode(body)
+
+      URLSession.shared.dataTask(with: request) { data, response, error in
+        DispatchQueue.main.async {
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 204 {
+                completion(true)
+            } else {
+                completion(false)
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("Error deleting comment with status code: \(httpResponse.statusCode)")
+                }
+                if error != nil {
+                    print("Error while deleting comment. Retry...")
+                }
+            }
+        }
+      }.resume()
   }
 
-  func switchLikeStatus () {
-    let url = URL(string: "\(baseUrl)/switchCommentLikeStatus")!
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
 
+  func switchLikeStatus(commentID: String, completion: @escaping (Bool, String?) -> Void) {
+      let url = URL(string: "\(baseUrl)/switchCommentLikeStatus")!
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.addValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
+      let likeBody = SwitchLikeStatusRequest(commentID: commentID)
+      request.httpBody = try? JSONEncoder().encode(likeBody)
 
+      URLSession.shared.dataTask(with: request) { data, response, error in
+          DispatchQueue.main.async {
+              if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                  completion(true, nil) // Success, no error message needed
+              } else {
+                  let errorMessage = error?.localizedDescription ?? "Failed to switch like status"
+                  completion(false, errorMessage)
+              }
+          }
+      }.resume()
   }
-
 }
 
 struct CommentView: View {
@@ -104,102 +161,175 @@ struct CommentView: View {
 
 
   private func postNewComment() {
-      // Call CommentService to post the new comment
-      // Clear newComment after posting
+      guard !newComment.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+          // Handle empty comment case, maybe show an alert
+          return
+      }
+
+      CommentService().postComment(contentType: contentType, relatedID: contentID, comment: newComment) { success, errorMessage in
+          if success {
+              // Clear the comment field
+              self.newComment = ""
+
+              // Reload the comments to show the new one
+              self.loadComments()
+          } else if let errorMessage = errorMessage {
+              // Handle the error, maybe show an alert with errorMessage
+          }
+      }
   }
 
 
+
   private func deleteComment(commentID: String) {
-      // Call CommentService to delete the comment
-      // Remove comment from local comments array
+      CommentService().deleteContentComment(commentID: commentID, contentType: self.contentType, relatedID: self.contentID) { success in
+          if success {
+            self.comments.removeAll { $0._id == commentID }
+            loadComments()
+          } else {
+            print("Error while deleting comment. Retry...")
+            loadComments()
+          }
+      }
   }
 
 
   private func likeComment(commentID: String) {
-      // Call CommentService to like the comment
-      // Update local comments array accordingly
+      CommentService().switchLikeStatus(commentID: commentID) { success, errorMessage in
+          if success {
+              // Update the local state to reflect the new like status
+              // You might want to find the comment in your `comments` array and toggle the `selfLike` property
+              if let index = self.comments.firstIndex(where: { $0._id == commentID }) {
+                  self.comments[index].selfLike?.toggle()
+                  self.comments[index].totalLikes = (self.comments[index].selfLike == true) ? (self.comments[index].totalLikes ?? 0) + 1 : (self.comments[index].totalLikes ?? 0) - 1
+                self.loadComments()
+              }
+          } else if let errorMessage = errorMessage {
+              // Handle the error, maybe show an alert with errorMessage
+            self.loadComments()
+          }
+      }
   }
-
-
   var body: some View {
+          ZStack {
+              // Layer 0
+              BackgroundView()
 
-      ZStack{
+              // Layer 1
+              if isFetching {
+                  LoadingView(isRotated: $isRotated) // Abstracted loading view
+              } else {
+                  commentsListView
+              }
+          }
+          .onAppear {
+              loadComments()
+          }
+          .navigationTitle("Comments of \(songName) by \(artistName)")
+          .navigationBarTitleDisplayMode(.inline)
+      }
 
-        //Layer 0
-        BackgroundView()
 
-        // Layer 1
-        if (isFetching) {
-          Circle()
-            .strokeBorder(AngularGradient(gradient: Gradient(
-              colors: [.indigo, .blue, .purple, .orange, .red]),
-                                          center: .center,
-                                          angle: .zero),
-                          lineWidth: 15)
+  private var commentsListView: some View {
+          VStack {
+              List {
+                  ForEach(comments) { comment in
+                      CommentRow(comment: comment, likeAction: {
+                          self.likeComment(commentID: comment._id)
+                      }, deleteAction: {
+                          self.deleteComment(commentID: comment._id)
+                      })
+                      .listRowBackground(Color.clear) // Ensure the background is clear
+                  }
+              }
+              .listStyle(PlainListStyle())
+
+              commentInputView // Abstracted input view
+          }
+      }
+
+      // Abstract the input view for better readability and management
+      private var commentInputView: some View {
+          HStack {
+              TextField("Write a comment...", text: $newComment)
+                  .textFieldStyle(RoundedBorderTextFieldStyle())
+
+              Button("Post", action: postNewComment)
+          }
+          .padding()
+      }
+}
+
+
+struct CommentRow: View {
+    let comment: Comment
+    let likeAction: () -> Void
+    let deleteAction: () -> Void
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(comment.username)
+                    .fontWeight(.bold)
+                Text(comment.commentContent)
+                Text("Likes: \(comment.totalLikes ?? 0)")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            }
+            Spacer()
+            LikeButton(isLiked: comment.selfLike ?? false, action: likeAction)
+            if comment.username == SessionManager.shared.username {
+                DeleteButton(action: deleteAction)
+            }
+        }
+    }
+}
+
+// Define a reusable like button component
+struct LikeButton: View {
+    let isLiked: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                .foregroundColor(isLiked ? .blue : .gray)
+        }
+        .buttonStyle(BorderlessButtonStyle()) // Make sure the button has no additional styling or padding
+    }
+}
+
+// Define a reusable delete button component
+struct DeleteButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "trash")
+        }
+        .buttonStyle(BorderlessButtonStyle()) // Make sure the button has no additional styling or padding
+    }
+}
+
+// Define a loading view component
+struct LoadingView: View {
+    @Binding var isRotated: Bool
+
+    var body: some View {
+        Circle()
+            .strokeBorder(AngularGradient(gradient: Gradient(colors: [.indigo, .blue, .purple, .orange, .red]),
+                                          center: .center, angle: .zero), lineWidth: 15)
             .rotationEffect(isRotated ? .zero : .degrees(360))
             .frame(maxWidth: 70, maxHeight: 70)
             .onAppear {
-              withAnimation(Animation.spring(duration: 3)) {
-                isRotated.toggle()
-              }
-              withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
-                isRotated.toggle()
-              }
-            }
-        } else {
-            VStack {
-            List {
-              ForEach(comments) { comment in
-                HStack {
-                  VStack(alignment: .leading) {
-                    Text(comment.username)
-                      .fontWeight(.bold)
-                    Text(comment.commentContent)
-                    Text("Likes: \(comment.totalLikes ?? 0)")
-                  }
-
-                  Spacer()
-
-                  Button(action: {
-                    self.likeComment(commentID: comment._id)
-                  }) {
-                    Image(systemName: comment.selfLike == true ? "hand.thumbsup.fill" : "hand.thumbsup")
-                      .foregroundColor(comment.selfLike == true ? .blue : .gray)
-                  }
-
-                  if comment.username == SessionManager.shared.username {
-                    Button(action: {
-                      self.deleteComment(commentID: comment._id)
-                    }) {
-                      Image(systemName: "trash")
-                    }
-                  }
+                withAnimation(Animation.spring(duration: 3)) {
+                    isRotated.toggle()
                 }
-                //.background(Color.clear)
-              }
-              .background(Color.clear)
+                withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                    isRotated.toggle()
+                }
             }
-            .listStyle(PlainListStyle())
-
-            HStack {
-              TextField("Write a comment...", text: $newComment)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-
-              Button("Post", action: postNewComment)
-            }.padding()
-          }
-
-        }
-
-      //.navigationTitle("Comments of \(songName) by \(artistName)")
-      //.navigationBarTitleDisplayMode(.inline)
     }
-      .onAppear {
-          loadComments()
-      }
-      .navigationTitle("Comments of \(songName) by \(artistName)")
-      .navigationBarTitleDisplayMode(.inline)
-  }
 }
 
 extension Comment: Identifiable {
