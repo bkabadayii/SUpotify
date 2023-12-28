@@ -64,10 +64,35 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
     const currentUser = await FollowedUsers.findOne({ username }); // Find the document with the given username
     let randomFollowedUser;
     if (currentUser) {
-      const followedUsersList = currentUser.followedUsersList;
-      if (followedUsersList.length > 0) {
-        const randomIndex = Math.floor(Math.random() * followedUsersList.length);
-        randomFollowedUser = followedUsersList[randomIndex];
+      const duplicateFollowedUsersList = [...currentUser.followedUsersList];
+
+      for (let index = 0; index < duplicateFollowedUsersList.length; index++) {
+        const currentFollowedUsername = duplicateFollowedUsersList[index];
+
+        // Find the document for the current followed user
+        const currentFollowedUserSchema = await FollowedUsers.findOne({ username: currentFollowedUsername });
+        const currentFollowedUserLikedContent=await LikedContent.findOne({ username: currentFollowedUsername });
+
+        if (currentFollowedUserSchema) {
+          const currentFollowedUsersBlockList = currentFollowedUserSchema.recommendationBlockedUsersList;
+          const currentFollowedUsersLikedTracks = currentFollowedUserLikedContent.likedTracks;
+
+          if (currentFollowedUsersBlockList && currentFollowedUsersBlockList.indexOf(username) !== -1) {
+            // Delete the followedUser that blocked the user
+            duplicateFollowedUsersList.splice(index, 1);
+            index--;
+          }
+          else if(currentFollowedUsersLikedTracks.length==0){
+            //Delete the followedUser if their likedTracks are empty
+            duplicateFollowedUsersList.splice(index, 1);
+            index--;
+          }
+        }
+      }
+      
+      if (duplicateFollowedUsersList.length > 0) {
+          const randomIndex = Math.floor(Math.random() * duplicateFollowedUsersList.length);  
+          randomFollowedUser = duplicateFollowedUsersList[randomIndex];
       } else {
           return { success: false, message: 'The followed users list is empty.', user };
         }
