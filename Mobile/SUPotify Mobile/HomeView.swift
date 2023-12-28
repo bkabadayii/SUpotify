@@ -39,6 +39,7 @@ struct TopRatedTracksResponse: Codable {
     var rating: Int
     var ratedAt: String
     var _id: String
+      
     struct Track: Codable {
       var _id: String
       var name: String
