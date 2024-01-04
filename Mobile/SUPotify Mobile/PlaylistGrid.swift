@@ -60,9 +60,12 @@ struct PlaylistGrid: View {
                             }
                         
                             Text(playlist.name)
-                                .font(.headline)
-                                .foregroundColor(.indigo)
-                          
+                              .font(.headline)
+                              .foregroundColor(.indigo)
+                              .frame(width: 100, height: 20, alignment: .center) // Set a fixed frame
+                              .lineLimit(1) // Ensure text stays within one line
+                              .truncationMode(.tail) // Truncate at the tail if too long
+
                                 Text("\(playlist.tracks.count) Songs")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)

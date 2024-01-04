@@ -217,41 +217,43 @@ struct SongDetailsView: View {
 
           }
 
-          if let lyrics = lyrics {
+          if ratingType == "TRACK" {
+            if let lyrics = lyrics {
               // Displaying the lyrics
               Text(lyrics)
-                  .foregroundColor(.white)
-                  .padding()
-          } else {
+                .foregroundColor(.white)
+                .padding()
+            } else {
               // Optionally, show a loading indicator or a "Lyrics not available" message
-            ZStack{
-              Circle()
-                .strokeBorder(AngularGradient(gradient: Gradient(
-                  colors: [.indigo, .blue, .purple, .orange, .red]),
-                                              center: .center,
-                                              angle: .zero),
-                              lineWidth: 15)
-                .rotationEffect(isRotated ? .zero : .degrees(360))
-                .frame(maxWidth: 70, maxHeight: 70)
-                .onAppear {
-                  withAnimation(Animation.spring(duration: 3)) {
-                    isRotated.toggle()
+              ZStack{
+                Circle()
+                  .strokeBorder(AngularGradient(gradient: Gradient(
+                    colors: [.indigo, .blue, .purple, .orange, .red]),
+                                                center: .center,
+                                                angle: .zero),
+                                lineWidth: 15)
+                  .rotationEffect(isRotated ? .zero : .degrees(360))
+                  .frame(maxWidth: 70, maxHeight: 70)
+                  .onAppear {
+                    withAnimation(Animation.spring(duration: 3)) {
+                      isRotated.toggle()
+                    }
+                    withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
+                      isRotated.toggle()
+                    }
                   }
-                  withAnimation(Animation.linear(duration: 7).repeatForever(autoreverses: false)) {
-                    isRotated.toggle()
-                  }
-                }
-            }.frame(width: 100, height: 100, alignment: .center)
-
+              }.frame(width: 100, height: 100, alignment: .center)
+            }
           }
-
           Spacer()
         }
         .padding()
       }
     }
     .onAppear {
-      fetchLyrics()
+      if ratingType == "TRACK" {
+          fetchLyrics()
+      }
       if initialRating == nil {
         getInitialRatingInfo()
       }

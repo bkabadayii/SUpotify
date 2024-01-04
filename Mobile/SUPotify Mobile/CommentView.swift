@@ -141,6 +141,7 @@ struct CommentView: View {
   @State var comments: [Comment] = []
   @State private var newComment: String = ""
   @State private var isFetching = false
+  @State private var navigationTitle: String = ""
 
   @State var isRotated: Bool = false
   var contentID: String
@@ -224,10 +225,27 @@ struct CommentView: View {
           }
           .onAppear {
               loadComments()
+              setNavigationTitle()
           }
-          .navigationTitle("Comments of \(songName) by \(artistName)")
+          .navigationTitle(navigationTitle)
           .navigationBarTitleDisplayMode(.inline)
+
       }
+
+  private func setNavigationTitle() {
+          switch contentType {
+          case "TRACK":
+              navigationTitle = "Comments of \(songName) by \(artistName)"
+          case "ARTIST":
+              navigationTitle = "Comments on \(songName)"
+          case "ALBUM":
+              navigationTitle = "Comments of \(songName) by \(artistName)"
+          default:
+              navigationTitle = "Comments"
+          }
+      }
+
+
 
 
   private var commentsListView: some View {
