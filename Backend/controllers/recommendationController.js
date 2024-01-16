@@ -6,6 +6,8 @@ const {
 const UserToRatings= require("../models/userToRatingsModel");
 const Track= require("../models/trackModel");
 const UserToPlaylists=require("../models/userToPlaylistsModel");
+const Artist=require("../models/artistModel");
+const Album=require("../models/albumModel");
 
 
 module.exports.recommendTrackFromFollowedUser = async (req,res)=>{   
@@ -162,7 +164,6 @@ module.exports.recommendTrackFromFollowedUser = async (req,res)=>{
     return res.status(500).json({ message: "Internal Server Error" });
   }
 }; 
-
 
 module.exports.recommendTrackFromUserRatings = async (req, res) => {
   try {
@@ -333,5 +334,110 @@ async function checkIfSeenBefore(username, trackId) {
   } catch (error) {
     console.error('Error checking user activity:', error);
     return false;
+  }
+}
+module.exports.recommendTrackFromTemporal = async (req, res) => {
+  try {
+      const user = req.user;
+      const { username } = user;
+
+      //Get a high rated and non recent activity artist
+      const topRatedArtist = await getRecentRatedArtist(username);
+      if (!topRatedArtist) {
+          return res.status(404).json({ message: 'No liked songs before 7 days or no rated artists.' });
+      }
+
+      //Get a random track from given artist
+      const randomTrack = await getRandomTrackFromArtist(topRatedArtist);
+      if (!randomTrack) {
+          return res.status(500).json({ message: 'Error getting random track.' });
+      }
+
+      //Get the artist name
+      const artist=await Artist.findById(topRatedArtist);
+      const artistName=artist.name;
+
+      return res.status(200).json({ 
+        randomTrack,
+        artistName
+       });
+  } catch (error) {
+      console.error('Error:', error.message);
+      return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+async function getRecentRatedArtist(username) {
+  try {
+      // Fetch the user's ratings from the database
+      const userRatings = await UserToRatings.findOne({ username }).exec();
+
+      // Get all artist ratings
+      const artistRatings = userRatings.artistRatings || [];
+
+      //Get all liked content
+      const likedContent=await LikedContent.findOne({ username }).exec();
+
+
+      // Filter tracks that were liked in last 7 days
+      const recentLikedTracks = likedContent.likedTracks.filter((track) => {
+          const last7Days = new Date();
+          last7Days.setDate(last7Days.getDate() - 7);
+          return new Date(track.likedAt) >= last7Days;
+      });
+      const recentTracksIds=recentLikedTracks.map((likedTrack)=>likedTrack.track);
+
+      //Get tracks that liked in last 7 days
+      const recentTracks = await Promise.all(recentTracksIds.map((trackId) => Track.findById(trackId)));;
+
+      //Get artists of those tracks
+      const recentArtistsIds3= (recentTracks.map ((track)=>track.artists));
+
+      const recentArtistsIds2= recentArtistsIds3.flat();
+      const recentArtistsIds1= recentArtistsIds2.map((artistId)=>artistId.toString())
+
+      const recentArtistsIds = [...new Set(recentArtistsIds1)];
+
+
+      // Get artists rated higher than 7
+      const highRatedArtists = artistRatings.filter(artist=>artist.rating > 7.0).map(artist=>artist.artist);
+
+      //Get both high rated non recent activity artists
+      const crossedArtists = recentArtistsIds.filter(element => highRatedArtists.includes(element));
+
+      // Choose one artist randomly from the high rated artists array
+      const randomIndex = Math.floor(Math.random() * crossedArtists.length);
+      const randomArtist = crossedArtists[randomIndex];
+
+
+      return randomArtist;
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+      throw error;
+  }
+}
+
+async function getRandomTrackFromArtist(artistId) {
+  try {
+      // Find the artist by Id
+      const artist = await Artist.findById(artistId).exec();
+
+      // Get random album Id from the artist
+      const randomAlbumId =artist.albums[Math.floor(Math.random() * artist.albums.length)];
+
+      // Get randomAlbum by its Id
+      const randomAlbum= await Album.findById(randomAlbumId).exec();
+
+      // Get a random track Id from the album
+      const randomTrackId = randomAlbum.tracks[Math.floor(Math.random() * randomAlbum.tracks.length)];
+
+      // Get randomTrack by its Id
+      const randomTrack=await Track.findById(randomTrackId).exec();
+
+      // Return the selected random track
+      return randomTrack;
+  } catch (error) {
+      console.error(`Error: ${error.message}`);
+      throw error;
   }
 }
