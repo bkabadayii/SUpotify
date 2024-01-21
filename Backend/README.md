@@ -518,6 +518,24 @@
     "trackNum": 4, 
   }  
   ```
+#### 2. /recommendTrackFromUserRatings
+* __Definition:__ Gets recommendation based on users previous ratings.
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Body:__ No body
+#### 3. /recommendTrackFromTemporal
+* __Definition:__ Gets recommendation from artists that not liked for seven days.
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Body:__ No body    
 ### 8) Spotify: /getFromSpotify
 #### 1. /getTrackData
 * __Definition:__ Gets track information from spotify.
@@ -643,6 +661,102 @@ Number of items(5,20).
     "contentType":"TRACK", // It can be "TRACK","ARTIST" or "ALBUM"
     "source":"LIKES"
   }  
-  ```              
+  ```
+#### 6. /getAllArtists/:contentType/:source
+* __Definition:__ Gets all artists:
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Params:__
+  ```json
+  {
+    "contentType":"ALBUM", // It can be "TRACK","ARTIST" or "ALBUM"
+    "source":"LIKES"
+  }  
+  ```  
+### 10) Genius: /api/getFromGenius 
+#### 1. /getLyricsOfASong/:songName/:artistName
+* __Definition:__ Gets lyrics of a song
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Body:__ No body    
+* __Params:__
+  ```json
+  {
+    "songName ": "Baby",
+    "artistName ": "Justin Bieber",  
+  }  
+  ```
+### 11) Comment: /api/comments 
+#### 1. /getContentComments/:contentType/:relatedID
+* __Definition:__ Gets comments of a given content
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Body:__ No body    
+* __Params:__
+  ```json
+  {
+    "contentType ": "TRACK",  //Can be "TRACK", "ARTIST" OR "ALBUM" type.
+    "relatedID": "656e65f260712a3abffe3222",  
+  }  
+  ```
+#### 2. /commentContent
+* __Definition:__ Posts a comment on given content
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Body:__
+  ```json
+  {
+    "contentType": "TRACK",  //Can be "TRACK", "ARTIST" OR "ALBUM" type.
+    "relatedID": "656e65f260712a3abffe3222",
+    "comment": "Nice songg" 
+  }  
+  ```
+#### 3. /deleteComment
+* __Definition:__ Deletes a comment from given content
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Body:__
+  ```json
+  {
+    "commentID": "6581facc214444f729297ddf",
+    "contentType": "TRACK",  //Can be "TRACK", "ARTIST" OR "ALBUM" type.
+    "relatedID": "656e65f260712a3abffe3222"
+  }  
+  ```
+#### 4. /switchCommentLikeStatus
+* __Definition:__ Likes a content if the content is not liked, remove the like if the content is liked.
+* __Headers:__
+  ```json
+  {
+    "Authorization": "Bearer <user_token>"
+  } 
+  ```
+* __Body:__
+  ```json
+  {
+    "commentID": "65843facbc899fe7a7ad4f7e"
+  }  
+  ```                
+
 
   
