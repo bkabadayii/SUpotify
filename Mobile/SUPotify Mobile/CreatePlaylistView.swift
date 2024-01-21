@@ -10,7 +10,8 @@ struct CreatePlaylistView: View {
     @Environment(\.presentationMode) var presentationMode
     @ObservedObject var viewModel = SharedViewModel()
 
-    
+    @Binding var isSuccessful: Bool
+
     var body: some View {
         NavigationStack{
             ZStack {
@@ -64,8 +65,12 @@ struct CreatePlaylistView: View {
                             .cornerRadius(15)
                     }
                     .padding()
-                    .alert(isPresented: $isPlaylistCreated) {
-                        Alert(title: Text("Success"), message: Text("Created playlist successfully"), dismissButton: .default(Text("OK")))
+                    .alert(isPresented: $isSuccessful) {
+                        Alert(title: Text("Success"), message: Text("Created playlist successfully"),
+                              dismissButton: .default(Text("OK")){
+                          presentationMode.wrappedValue.dismiss()
+                        }
+                        )
                     }
                     
                 }
@@ -101,6 +106,10 @@ struct CreatePlaylistView: View {
                     if let response = try? JSONDecoder().decode(PlaylistCreationResponse.self, from: data!) {
                                 if response.success {
                                     isPlaylistCreated = true
+                                    self.isSuccessful = true
+                                    DispatchQueue.main.async {
+                                      self.isSuccessful = true
+                                    }
                                 } else {
                                     print("Playlist creation failed with message: \(response.message)")
                                 }

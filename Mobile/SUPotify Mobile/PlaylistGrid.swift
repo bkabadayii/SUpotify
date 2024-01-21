@@ -14,6 +14,7 @@ struct PlaylistGrid: View {
     @State private var playlistView:Bool = false
     @ObservedObject var viewModel2 = SharedViewModel()
     
+    @State private var isPlaylistCreated = false
 
     let layout = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -37,7 +38,7 @@ struct PlaylistGrid: View {
             }
             .padding()
 
-            NavigationLink(destination: CreatePlaylistView(), isActive: $createPlaylist) {
+            NavigationLink(destination: CreatePlaylistView(isSuccessful: $isPlaylistCreated), isActive: $createPlaylist) {
                 EmptyView()
             }
             
