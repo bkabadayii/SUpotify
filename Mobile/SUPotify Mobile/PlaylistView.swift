@@ -29,10 +29,32 @@ struct PlaylistView: View {
             VStack {
                 Spacer()
                     .frame(height:50)
-                Image(systemName: "music.mic")
-                    .resizable()
-                    .frame(width:200, height:200)
-                    .padding()
+
+                if let playlist = viewModel.playlist {
+                    if viewModel.tracks?.count ?? 0 >= 4 {
+                        // Display composite image of the first four tracks
+                        let coverImages = viewModel.coverImageURLs(for: playlist)
+                        // Here you would create your composite image view
+                        CompositeImageView(imageURLs: coverImages)
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width:200, height:200)
+
+                        .clipped()
+
+                        .padding()
+                    } else if let firstTrackCover = viewModel.tracks?.first?.album.imageURL {
+                        // Display the cover image of the first track
+                        ImageView(urlString: firstTrackCover)
+                            //.resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width:200, height:200)
+
+                            .clipped()
+                      
+                            .padding()
+                    }
+                }
+
                    
                 
                 if let playlist = viewModel.playlist {
@@ -144,7 +166,12 @@ class PlaylistViewModel: ObservableObject {
             }
         }.resume()
     }
-    
+
+    func coverImageURLs(for playlist: Playlistt) -> [String] {
+        let trackImageURLs = playlist.tracks.prefix(4).compactMap { $0.album.imageURL }
+        return trackImageURLs
+    }
+
     
     func removeTrackFromPlaylist(playlistID: String, trackID: String) {
         guard let url = URL(string: "http://localhost:4000/api/playlists/removeTrackFromPlaylist") else { return }
@@ -229,6 +256,32 @@ struct Playlistt: Codable{
         }
         struct Album: Codable {
             let imageURL: String
+        }
+    }
+}
+
+struct CompositeImageView: View {
+    var imageURLs: [String]
+
+    var body: some View {
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                ForEach(0..<2) { row in
+                    HStack(spacing: 0) {
+                        ForEach(0..<2) { column in
+                            let index = row * 2 + column
+                            if index < imageURLs.count {
+                                ImageView(urlString: imageURLs[index])
+                                    //.resizable() // Ensure the image can be resized
+                                    .scaledToFill() // Fill the frame maintaining aspect ratio
+                                    .frame(width: geometry.size.width / 2, height: geometry.size.height / 2)
+                                    .clipped() // Clip the overflowing parts
+                            }
+                        }
+                    }
+                }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height) // Set the frame for VStack
         }
     }
 }

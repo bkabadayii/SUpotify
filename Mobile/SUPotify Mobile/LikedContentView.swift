@@ -356,14 +356,18 @@ struct LikedContentView: View {
             Spacer()
             Text("Your Library")
               .font(.system(size: 24, weight:.bold))
+              .onTapGesture {
+                self.viewModel.refreshLibrary()
+                  }
             Spacer()
+            /*
             Button(action: {
               viewModel.refreshLibrary()
             }){
               Image(systemName: "arrow.clockwise")
                   .foregroundColor(.white)
                   .padding()
-          }
+          }*/
             Button(action: {
               self.showExportOptions = true
             }) {
@@ -392,6 +396,21 @@ struct LikedContentView: View {
         }
 
       }
+/*
+    .onChange(of: tabSelect) { newValue in
+      if newValue == 0 {
+          viewModel.fetchLikedAlbums()
+        viewModel.fetchLikedArtists()
+      }
+      else if newValue == 1 {
+        viewModel.fetchLikedSongs()
+        viewModel.fetchLikedArtists()
+      }
+      else {
+        viewModel.fetchLikedSongs()
+        viewModel.fetchLikedAlbums()
+      }
+        }*/
     }
 
     func commaSeparatedString(from array: [String]) -> String {
