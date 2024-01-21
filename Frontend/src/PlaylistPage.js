@@ -4,6 +4,8 @@ import { useParams, useHistory } from 'react-router-dom';
 import { FaTrashAlt } from 'react-icons/fa';
 import './PlaylistPage.css';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
+
 
 const PlaylistPage = () => {
   const [playlist, setPlaylist] = useState(null);
@@ -51,7 +53,7 @@ const PlaylistPage = () => {
         ...playlist,
         tracks: playlist.tracks.filter(track => track._id !== trackID)
       });
-      alert('Track removed from playlist.');
+      toast.success('Track removed from playlist.');
     } catch (error) {
       console.error('Error removing track from playlist:', error);
     }

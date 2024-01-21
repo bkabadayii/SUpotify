@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import './AlbumDetails.css';
 import { FaThumbsUp, FaRegThumbsUp } from 'react-icons/fa';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
 
 const AlbumDetails = () => {
   const [albumDetails, setAlbumDetails] = useState(null);
@@ -43,7 +44,7 @@ const AlbumDetails = () => {
           // ... other comment details
         }]);
         setNewComment('');
-        alert('Comment posted successfully');
+        toast.success('Comment posted successfully');
         fetchComments();
       }
     })
@@ -84,10 +85,10 @@ const AlbumDetails = () => {
       );
       // Refetch comments to update UI
       fetchComments();
-      alert('Comment deleted successfully.');
+      toast.success('Comment deleted successfully.');
     } catch (error) {
       console.error('Error deleting comment:', error);
-      alert('Failed to delete comment.');
+      toast.error('Failed to delete comment.');
     }
   };
 
@@ -114,11 +115,11 @@ const AlbumDetails = () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
-            alert("Album added to liked albums!");
+          toast.success("Album added to liked albums!");
         }
     } catch (error) {
         console.error('Error adding album to liked albums:', error);
-        alert('An error occurred while adding the album to liked albums.');
+        toast.error('An error occurred while adding the album to liked albums.');
     }
   };
 

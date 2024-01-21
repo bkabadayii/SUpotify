@@ -4,6 +4,7 @@ import './LikedContent.css';
 import Navbar from './Navbar';
 import { FaTrashAlt } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const LikedContent = () => {
   const [activeTab, setActiveTab] = useState('likedSongs');
@@ -47,10 +48,10 @@ const LikedContent = () => {
         { mongoURL },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(response.data.message);
+      toast.success('Successfully added tracks by MongoDB URL!');
     } catch (error) {
       console.error('Error adding tracks by MongoDB URL:', error);
-      alert('Failed to add tracks by MongoDB URL!');
+      toast.error('Failed to add tracks by MongoDB URL!');
     }
   };
 
@@ -115,7 +116,7 @@ const LikedContent = () => {
 
   const handleSubmit = async () => {
     if (!selectedFile) {
-      alert('Please select a file.');
+      toast.warn('Please select a file.');
       return;
     }
   
@@ -134,20 +135,20 @@ const LikedContent = () => {
             { headers: { Authorization: `Bearer ${token}` } }
           );
           console.log(response.data); // Handle the response as needed
-          alert(response.data.message);
+          toast.success(response.data.message);
           fetchLikedContent('TRACK');
         } catch (apiError) {
           console.error('Error sending data to the server:', apiError);
-          alert('Error occurred while sending data to the server.');
+          toast.error('Error occurred while sending data to the server.');
         }
       };
       fileReader.onerror = (error) => {
         console.error('Error reading file:', error);
-        alert('Error reading the file.');
+        toast.error('Error reading the file.');
       };
     } catch (error) {
       console.error('Error processing file:', error);
-      alert('An error occurred while processing the file.');
+      toast.error('An error occurred while processing the file.');
     }
   };
   
@@ -161,7 +162,7 @@ const LikedContent = () => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert("Custom song added successfully!");
+      toast.success("Custom song added successfully!");
       // Reset the form and hide the card
 
       fetchLikedContent('TRACK');
@@ -172,7 +173,7 @@ const LikedContent = () => {
       setIsCardVisible(false);
     } catch (error) {
       console.error('Error adding custom song:', error);
-      alert('Error adding custom song');
+      toast.error('Error adding custom song');
     }
   };
 
@@ -238,11 +239,11 @@ const LikedContent = () => {
         { playlistID: selectedPlaylistId, trackID: selectedTrackId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert('Track added to playlist successfully');
+      toast.success('Track added to playlist successfully');
       setShowPlaylistModal(false);
     } catch (error) {
       console.error('Error adding track to playlist:', error);
-      alert('Failed to add track to playlist');
+      toast.error('Failed to add track to playlist');
     }
   };
 

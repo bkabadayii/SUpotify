@@ -15,6 +15,9 @@ import ArtistDetails from './ArtistDetails';
 import MyRatings from './MyRatings';
 import Recommendation from './Recommendation';
 import Stats from './Stats';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './CustomToast.css';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -75,6 +78,7 @@ const App = () => {
             </Route>
           </Switch>
         </div>
+        <ToastContainer toastClassName="my-toast"/>
       </div>
     </Router>
   );

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link, useHistory } from 'react-router-dom';
 import './Login.css';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
+
 
 const Login = ({ setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -28,11 +30,11 @@ const Login = ({ setIsAuthenticated }) => {
         history.push('/');
       } else {
         console.error('Token is missing in the response:', res.data);
-        alert('Login failed. Please check your credentials.');
+        toast.error('Login failed. Please check your credentials.');
       }
     } catch (error) {
       console.error('Error during login:', error);
-      alert('An error occurred during login. Please try again.');
+      toast.error('An error occurred during login. Please try again.');
     }
   };
 

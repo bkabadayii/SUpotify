@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import './SearchBar.css';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
 
 const SearchBar = () => {
   const token = localStorage.getItem('token');
@@ -64,13 +65,13 @@ const SearchBar = () => {
       console.log(songId)
 
       if(response.data.success) {
-        alert("Song added to liked songs!");
+        toast.success("Song added to liked songs!");
       } else {
-        alert("Could not add song to liked songs.");
+        toast.error("Could not add song to liked songs.");
       }
     } catch (error) {
       console.error('Error liking song:', error);
-      alert('An error occurred while liking the song.');
+      toast.error('An error occurred while liking the song.');
     }
   };
   
@@ -87,13 +88,13 @@ const SearchBar = () => {
       console.log(response)
 
       if(response.data.success) {
-        alert("Album added to liked albums!");
+        toast.success("Album added to liked albums!");
       } else {
-        alert("Could not add album to liked albums.");
+        toast.error("Could not add album to liked albums.");
       }
     } catch (error) {
       console.error('Error liking album:', error);
-      alert('An error occurred while liking the album.');
+      toast.error('An error occurred while liking the album.');
     }
   };
 
@@ -110,13 +111,13 @@ const SearchBar = () => {
       console.log(response)
 
       if(response.data.success) {
-        alert("Artist added to liked artists!");
+        toast.success("Artist added to liked artists!");
       } else {
-        alert("Could not add artist to liked artists.");
+        toast.error("Could not add artist to liked artists.");
       }
     } catch (error) {
       console.error('Error liking artist:', error);
-      alert('An error occurred while liking the artist.');
+      toast.error('An error occurred while liking the artist.');
     }
   };
 

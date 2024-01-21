@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
 
@@ -17,7 +18,7 @@ const Navbar = () => {
 
       window.location.href = '/login';
     } else {
-      alert('Problem occurred when logging out.');
+      toast.error('Problem occurred when logging out.');
     }
   }
 

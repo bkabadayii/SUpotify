@@ -4,6 +4,7 @@ import 'chart.js/auto';
 import './Stats.css';
 import Navbar from './Navbar';
 import { Bar } from 'react-chartjs-2';
+import { toast } from 'react-toastify';
 
 const genreChartOptions = {
   scales: {
@@ -332,11 +333,11 @@ const Stats = () => {
                     break;
             }
         } else {
-            alert('Failed to fetch liked content statistics.');
+          toast.error('Failed to fetch liked content statistics.');
         }
     } catch (error) {
         console.error('Error fetching liked content statistics:', error);
-        alert('An error occurred while fetching liked content statistics.');
+        toast.error('An error occurred while fetching liked content statistics.');
     }
 };
 
@@ -409,11 +410,11 @@ const Stats = () => {
 
 
       } else {
-        alert('Failed to fetch top rated albums.');
+        toast.error('Failed to fetch top rated albums.');
       }
     } catch (error) {
       console.error('Error fetching top rated albums:', error);
-      alert('An error occurred while fetching top rated albums.');
+      toast.error('An error occurred while fetching top rated albums.');
     }
   };
 
@@ -485,11 +486,11 @@ const Stats = () => {
     })
 
       } else {
-        alert('Failed to fetch top rated tracks.');
+        toast.error('Failed to fetch top rated tracks.');
       }
     } catch (error) {
       console.error('Error fetching top rated tracks:', error);
-      alert('An error occurred while fetching top rated tracks.');
+      toast.error('An error occurred while fetching top rated tracks.');
     }
   };
 
@@ -537,11 +538,11 @@ const Stats = () => {
 
 
       } else {
-        alert('Failed to fetch top rated artists.');
+        toast.error('Failed to fetch top rated artists.');
       }
     } catch (error) {
       console.error('Error fetching top rated artists:', error);
-      alert('An error occurred while fetching top rated artists.');
+      toast.error('An error occurred while fetching top rated artists.');
     }
   };
 

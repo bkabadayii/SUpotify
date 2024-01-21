@@ -4,6 +4,8 @@ import { useHistory } from 'react-router-dom';
 import { getTrackInfo } from './getTrackInfo';
 import './Recommendation.css';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
+
 
 const Recommendation = () => {
     const [activeTab, setActiveTab] = useState('followedUsers');
@@ -42,11 +44,11 @@ const Recommendation = () => {
                 setRecommendations(detailedRecommendations);
                 setRecommendingUser(response.data.message);
             } else {
-                alert('Failed to fetch recommendations.');
+                toast.error('Failed to fetch recommendations.');
             }
         } catch (error) {
             console.error('Error fetching recommendations:', error);
-            alert('An error occurred while fetching recommendations.');
+            toast.error('An error occurred while fetching recommendations.');
         }
     };
 
@@ -64,11 +66,11 @@ const Recommendation = () => {
                 );
                 setUserRatingsRecommendations(detailedTracks);
             } else {
-                alert('Failed to fetch user ratings recommendations.');
+                toast.error('Failed to fetch user ratings recommendations.');
             }
         } catch (error) {
             console.error('Error fetching user ratings recommendations:', error);
-            alert('An error occurred while fetching recommendations.');
+            toast.error('An error occurred while fetching recommendations.');
         }
     };
 
@@ -81,11 +83,11 @@ const Recommendation = () => {
                 const detailedTrack = await getTrackInfo(token, response.data.randomTrack._id);
                 setTemporalRecommendation({ ...detailedTrack, artistName: response.data.artistName });
             } else {
-                alert('Failed to fetch temporal recommendation.');
+                toast.error('Failed to fetch temporal recommendation.');
             }
         } catch (error) {
             console.error('Error fetching temporal recommendation:', error);
-            alert('An error occurred while fetching the temporal recommendation.');
+            toast.error('An error occurred while fetching the temporal recommendation.');
         }
     };
 

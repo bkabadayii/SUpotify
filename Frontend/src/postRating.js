@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
+
 
 export const postRating = async (token, ratingType, relatedID, rating) => {
     try {
@@ -9,12 +11,12 @@ export const postRating = async (token, ratingType, relatedID, rating) => {
         );
         console.log(response);
         if (response.data.success) {
-            alert("Rating submitted successfully!");
+            toast.success("Rating submitted successfully!");
         } else {
-            alert("Failed to submit rating.");
+            toast.error("Failed to submit rating.");
         }
     } catch (error) {
         console.error('Error submitting rating:', error);
-        alert('An error occurred while submitting the rating.');
+        toast.error('An error occurred while submitting the rating.');
     }
 };
