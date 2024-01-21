@@ -46,7 +46,7 @@ struct TopRatedTracksResponse: Codable {
       var popularity: Int?
       var durationMS: Int?
       //var album: Album
-      //var artists: Artist
+      //var artists: [Artist]
       var spotifyID: String?
       var spotifyURL: String?
       var previewURL: String?
@@ -137,15 +137,18 @@ struct HomeView: View {
   @StateObject var homeViewModel = HomeViewModel()
   @State private var selectedTab: StatisticCategory = .tracks
 
-  // State variables for the start date picker
-  @State private var startMonth: Int = Calendar.current.component(.month, from: Date())
-  @State private var startYear: Int = Calendar.current.component(.year, from: Date())
-  @State private var startDateAsString: String = ""
+  @State private var ratingStartDate = Date()
+  @State private var ratingEndDate = Date()
+  @State private var releaseStartDate = Date()
+  @State private var releaseEndDate = Date()
+  @State private var useReleaseDate: Bool = false
+  @State private var useRatingDate: Bool = false
 
-  // State variables for the end date picker
-  @State private var endMonth: Int = Calendar.current.component(.month, from: Date())
-  @State private var endYear: Int = Calendar.current.component(.year, from: Date())
-  @State private var endDateAsString: String = ""
+
+  @State private var ratingStartDateAsString: String = ""
+  @State private var ratingEndDateAsString: String = ""
+  @State private var releaseStartDateAsString: String = ""
+  @State private var releaseEndDateAsString: String = ""
 
   @State private var genre: String = "" // Provide a default value
   @State private var artists: String = "" // Provide a default value
@@ -160,11 +163,64 @@ struct HomeView: View {
       VStack {
         CategoryPicker(selectedTab: $selectedTab)
 
-        HStack {
-          MonthYearPicker(selectedMonth: $startMonth, selectedYear: $startYear, selectedDateAsString: $startDateAsString)
-          MonthYearPicker(selectedMonth: $endMonth, selectedYear: $endYear, selectedDateAsString: $endDateAsString)
-        }
+        Divider()
 
+        Toggle(isOn: $useRatingDate, label: {
+          Text("Filter on Your Rating Date:")
+            .font(.system(size: 18, weight: .bold))
+        })
+        //Divider()
+
+        HStack {
+          Spacer()
+          Text("From:")
+            .font(.system(size: 14))
+            DatePicker("", selection: $ratingStartDate, in: ...Date() , displayedComponents: .date)
+            .onChange(of: ratingStartDate) { newValue in
+                    self.ratingStartDateAsString = formatToYearMonth(newValue)
+                }
+            .padding(.trailing)
+          Text("To:")
+            .font(.system(size: 14))
+            DatePicker("", selection: $ratingEndDate, in: ...Date() , displayedComponents: .date)
+            .onChange(of: ratingEndDate) { newValue in
+                    self.ratingEndDateAsString = formatToYearMonth(newValue)
+                }
+            .padding(.trailing)
+        }
+        .padding(.top)
+        .padding(.bottom)
+
+        Divider()
+
+        Toggle(isOn: $useReleaseDate, label: {
+          Text("Filter on Release Dates:")
+            .font(.system(size: 18, weight: .bold))
+        })
+
+        //Divider()
+
+        HStack {
+          Spacer()
+          Text("From:")
+            .font(.system(size: 14))
+          DatePicker("", selection: $releaseStartDate, in: ...Date() , displayedComponents: .date)
+            .onChange(of: releaseStartDate) { newValue in
+                    self.releaseStartDateAsString = formatToYearMonth(newValue)
+                }
+            .padding(.trailing)
+          Text("To:")
+            .font(.system(size: 14))
+          DatePicker("", selection: $releaseEndDate, in: ...Date() , displayedComponents: .date)
+            .onChange(of: releaseEndDate) { newValue in
+                    self.releaseEndDateAsString = formatToYearMonth(newValue)
+                }
+            .padding(.trailing)
+        }
+        .padding(.top)
+        .padding(.bottom)
+
+        /*
         HStack{
           TextField("Genre", text: $genre)
             .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -174,7 +230,7 @@ struct HomeView: View {
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding()
             .font(.subheadline)
-        }
+        }*/
 
         Menu {
           ForEach(options, id: \.self) { option in
@@ -194,11 +250,11 @@ struct HomeView: View {
 
         switch selectedTab {
         case .tracks:
-          TracksStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
+          TracksStatisticsView(ratingStartDateAsString: $ratingStartDateAsString, ratingEndDateAsString: $ratingEndDateAsString, releaseStartDateAsString: $releaseStartDateAsString, releaseEndDateAsString: $releaseEndDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
         case .albums:
-          AlbumsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
+          AlbumsStatisticsView(ratingStartDateAsString: $ratingStartDateAsString, ratingEndDateAsString: $ratingEndDateAsString, releaseStartDateAsString: $releaseStartDateAsString, releaseEndDateAsString: $releaseEndDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
         case .artists:
-          ArtistsStatisticsView(startDateAsString: $startDateAsString, endDateAsString: $endDateAsString, genre: genre, numItems: 10, homeViewModel: homeViewModel)
+          ArtistsStatisticsView(startDateAsString: $releaseStartDateAsString, endDateAsString: $releaseEndDateAsString, genre: genre, numItems: 10, homeViewModel: homeViewModel)
         }
 
         Spacer()
@@ -209,6 +265,13 @@ struct HomeView: View {
       .foregroundColor(.indigo)
     }
   }
+
+
+  func formatToYearMonth(_ date: Date) -> String {
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "YYYY-MM"
+      return dateFormatter.string(from: date)
+  }
 }
 
 class HomeViewModel: ObservableObject {
@@ -217,12 +280,12 @@ class HomeViewModel: ObservableObject {
   @Published var topRatedArtistsResponse: TopRatedArtistsResponse?
   @Published var showBarChart = false
 
-  func fetchTopRatedTracks(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, artists: String, numItems: Int) {
+  func fetchTopRatedTracks(userToken: String, ratingStartDateAsString: String, ratingEndDateAsString: String, releaseStartDateAsString: String, releaseEndDateAsString: String, genre: String, artists: String, numItems: Int) {
 
     let requestBody = TopRatedTracksRequest(
       filters: Filters(
-        rateDate: [startDateAsString, endDateAsString],
-        releaseDate: [startDateAsString, endDateAsString],
+        rateDate: [ratingStartDateAsString, ratingEndDateAsString],
+        releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
         genres: genre.isEmpty ? [] : [genre],
         artists: artists.isEmpty ? [] : artists.components(separatedBy: ",") // Assuming you have a way to specify artists
       ),
@@ -268,11 +331,11 @@ class HomeViewModel: ObservableObject {
     }.resume()
   }
 
-  func fetchTopRatedAlbums(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, artists: String, numItems: Int){
+  func fetchTopRatedAlbums(userToken: String, ratingStartDateAsString: String, ratingEndDateAsString: String, releaseStartDateAsString: String, releaseEndDateAsString: String, genre: String, artists: String, numItems: Int){
     let requestBody = TopRatedTracksRequest( // Request body same as tracks
       filters: Filters(
-        rateDate: [startDateAsString, endDateAsString],
-        releaseDate: [startDateAsString, endDateAsString],
+        rateDate: [ratingStartDateAsString, ratingEndDateAsString],
+        releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
         genres: genre.isEmpty ? [] : [genre],
         artists: artists.isEmpty ? [] : artists.components(separatedBy: ",")
       ),
@@ -554,54 +617,6 @@ struct BarChartView4: View {
 }
 
 
-
-/*
-// Depracated
-struct BarChartView: View {
-
-  var trackRatings: [TopRatedTracksResponse.TrackRating] = [
-    TopRatedTracksResponse.TrackRating(track: TopRatedTracksResponse.TrackRating.Track(_id: "1", name: "Song A", popularity: 80, durationMS: 200000, spotifyID: "sptfy1", spotifyURL: "https://spotify.com/track1", previewURL: nil, __v: 0), rating: 5, ratedAt: "2022-12-01T00:00:00Z", _id: "tr1"),
-    TopRatedTracksResponse.TrackRating(track: TopRatedTracksResponse.TrackRating.Track(_id: "2", name: "Song B", popularity: 70, durationMS: 180000, spotifyID: "sptfy2", spotifyURL: "https://spotify.com/track2", previewURL: nil, __v: 0), rating: 4, ratedAt: "2022-12-02T00:00:00Z", _id: "tr2"),
-          // Add more mock TrackRating items...
-      ]
-
-  //var trackRatings: [TopRatedTracksResponse.TrackRating]
-
-  var sortedTrackRatings: [TopRatedTracksResponse.TrackRating] {
-    trackRatings.sorted { $0.rating > $1.rating }
-  }
-
-  var body: some View {
-    ZStack {
-      BackgroundView()
-      VStack {
-        Text("Top Rated Tracks")
-          .font(.headline)
-
-        ForEach(sortedTrackRatings, id: \.track._id) { trackRating in
-          HStack {
-            Text(trackRating.track.name)
-              .frame(width: 100, alignment: .leading)
-
-            Rectangle()
-              .fill(Color.blue)
-              .frame(width: CGFloat(trackRating.rating) * 8, height: 30) // Adjust multiplier as needed
-          }
-        }
-      }
-      .padding()
-    }
-  }
-}
-
-#Preview {
-  
-  BarChartView()
-    .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
-}
-
- */
-
 struct DatePickerRange: View {
   @Binding var startDate: Date
   @Binding var endDate: Date
@@ -621,6 +636,7 @@ struct DatePickerRange: View {
   }
 }
 
+/*
 struct MonthYearPicker: View {
   @Binding var selectedMonth: Int
   @Binding var selectedYear: Int
@@ -655,7 +671,7 @@ struct MonthYearPicker: View {
   private func updateDateAsString() {
     selectedDateAsString = "\(selectedYear)-\(selectedMonth)"
   }
-}
+}*/
 
 
 enum StatisticCategory: String, CaseIterable {
@@ -665,8 +681,10 @@ enum StatisticCategory: String, CaseIterable {
 }
 
 struct TracksStatisticsView: View {
-  @Binding var startDateAsString: String
-  @Binding var endDateAsString: String
+  @Binding var ratingStartDateAsString: String
+  @Binding var ratingEndDateAsString: String
+  @Binding var releaseStartDateAsString: String
+  @Binding var releaseEndDateAsString: String
   var genre: String
   var artists: String
   var numItems: Int
@@ -678,13 +696,13 @@ struct TracksStatisticsView: View {
     VStack {
       Button("Calculate") {
         let filters = Filters(
-          rateDate: [startDateAsString, endDateAsString],
-          releaseDate: [startDateAsString, endDateAsString],
+          rateDate: [ratingStartDateAsString, ratingEndDateAsString],
+          releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
           genres: [genre],
           artists: [artists]
         )
         let request = TopRatedTracksRequest(filters: filters, numItems: 10)
-        homeViewModel.fetchTopRatedTracks(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, artists: artists, numItems: numItems)
+        homeViewModel.fetchTopRatedTracks(userToken: userToken, ratingStartDateAsString: ratingStartDateAsString, ratingEndDateAsString: ratingEndDateAsString, releaseStartDateAsString: releaseStartDateAsString, releaseEndDateAsString: releaseEndDateAsString, genre: genre, artists: artists, numItems: numItems)
 
         //self.showBarChart = true
       }.font(.subheadline)
@@ -714,20 +732,14 @@ struct TracksStatisticsView: View {
     .background(Color.clear)
     .edgesIgnoringSafeArea(.all)
   }
-
-/*
-  var dateFormatter: DateFormatter {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM" // Adjust format as needed
-    return formatter
-  }*/
 }
 
 
-
 struct AlbumsStatisticsView: View {
-  @Binding var startDateAsString: String
-  @Binding var endDateAsString: String
+  @Binding var ratingStartDateAsString: String
+  @Binding var ratingEndDateAsString: String
+  @Binding var releaseStartDateAsString: String
+  @Binding var releaseEndDateAsString: String
   var genre: String
   var artists: String
   var numItems: Int
@@ -739,13 +751,13 @@ struct AlbumsStatisticsView: View {
     VStack {
       Button("Calculate") {
         let filters = Filters(
-          rateDate: [startDateAsString, endDateAsString],
-          releaseDate: [startDateAsString, endDateAsString],
+          rateDate: [ratingStartDateAsString, ratingEndDateAsString],
+          releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
           genres: [genre],
           artists: [artists]
         )
         let request = TopRatedTracksRequest(filters: filters, numItems: 10) // Request body is the same as tracks.
-        homeViewModel.fetchTopRatedAlbums(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, artists: artists, numItems: numItems)
+        homeViewModel.fetchTopRatedAlbums(userToken: userToken, ratingStartDateAsString: ratingStartDateAsString, ratingEndDateAsString: ratingEndDateAsString, releaseStartDateAsString: releaseStartDateAsString, releaseEndDateAsString: releaseEndDateAsString, genre: genre, artists: artists, numItems: numItems)
 
       }.font(.subheadline)
         .padding()
