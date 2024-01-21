@@ -135,8 +135,11 @@ struct ForYouView: View {
                     Text("Rating based").tag(1)
                     Text("Temporal").tag(2)
                 }
+                .padding(.top, 10)
+                .padding(.bottom, 5)
+                .padding(.horizontal)
                 .pickerStyle(SegmentedPickerStyle())
-                .padding()
+                
 
                 Group {
                     switch selectedTab {
@@ -150,6 +153,7 @@ struct ForYouView: View {
                 }
                 .transition(.opacity)
             }
+            
         }
     }
 }
@@ -175,10 +179,11 @@ struct TrackCardView: View {
     @State private var showLyricsPopup = false
     @EnvironmentObject var viewModelRec: SharedForRecommendation
     @State private var showSpotifyURL: Bool = false
+    @State private var scale: CGFloat = 1
 
     var body: some View {
         VStack{
-            VStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .center, spacing: 5) {
                 if let url = URL(string: track.album.imageURL ?? "") {
                     AsyncImage(url: url) { phase in
                         switch phase {
@@ -187,12 +192,12 @@ struct TrackCardView: View {
                         case .success(let image):
                             image
                                 .resizable()
-                                .frame(width: 300, height: 450)
+                                .frame(width: 300, height: 430)
                                 .cornerRadius(35)
-                                .padding(.top, -40)
+                            
                         case .failure:
                             Image(systemName: "photo")
-                                .frame(width: 300, height: 450)
+                                .frame(width: 300, height: 430)
                                 .cornerRadius(10)
                         @unknown default:
                             EmptyView()
@@ -213,59 +218,79 @@ struct TrackCardView: View {
                     .font(.caption)
                 
             }
-            .frame(width: 350, height: 550)
-            .padding()
+            .frame(width: 400, height: 530)
+            .padding(.bottom, 8)
             .cornerRadius(20)
             
-            HStack (spacing: 12){
-                Button(action: {
-                    self.showLyricsPopup = true
-                    viewModelRec.ShowSongInfo(track: track)
-                }, label: {
-                    VStack (spacing: 8){
-                        Image(systemName: "music.note.list")
-                            .font(.title)
-                            .foregroundColor(.indigo)
+            VStack{
+                if let friendUsername = friendUsername {
+                    Text("Recommended by \(friendUsername)")
+                        .frame(width: 159, height: 40)
+                        .background(.indigo.opacity(0.60))
+                        .cornerRadius(100)
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .fixedSize()
+                        .padding(.bottom, 2)
+                        .italic()
+                        .lineLimit(2)
+                        .scaleEffect(scale)  // Apply scale effect
+                        .onAppear {
+                                               // Repeating animation
+                                               withAnimation(Animation.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
+                                                   scale = 1.1  // Scale up to 120%
+                                               }
+                                           }
                         
-                    }
-                }).sheet(isPresented: $showLyricsPopup) {
-                    LyricsPopupView()
                 }
-                
-                Button(action: {
-                    viewModelRec.addToLikedSongs(trackId: track.spotifyID, albumId: track.album._id)
-                }, label: {
-                    VStack (spacing: 10)
-                    {
-                        Image(systemName: "heart.fill")
-                            .font(.title)
-                            .foregroundColor(.indigo)
+                HStack (spacing: 12){
+                    Button(action: {
+                        viewModelRec.ShowSongInfo(track: track)
+                        self.showLyricsPopup = true
+                    }, label: {
+                        VStack (spacing: 8){
+                            Image(systemName: "music.note.list")
+                                .font(.title)
+                                .foregroundColor(.indigo)
+                            
+                        }
+                    }).sheet(isPresented: $showLyricsPopup) {
+                        LyricsPopupView()
                     }
-                }).alert(isPresented: $viewModelRec.isAdded) {
-                    Alert(
-                        title: Text("Success"),
-                        message: Text("Recommended song added to liked songs successfully"),
-                        dismissButton: .default(Text("OK"))
-                    )
+                    
+                    Button(action: {
+                        viewModelRec.addToLikedSongs(trackId: track.spotifyID, albumId: track.album._id)
+                    }, label: {
+                        VStack (spacing: 10)
+                        {
+                            Image(systemName: "heart.fill")
+                                .font(.title)
+                                .foregroundColor(.indigo)
+                        }
+                    }).alert(isPresented: $viewModelRec.isAdded) {
+                        Alert(
+                            title: Text("Success"),
+                            message: Text("Recommended song added to liked songs successfully"),
+                            dismissButton: .default(Text("OK"))
+                        )
+                    }
+                    
+                    Button(action: {
+                        self.showSpotifyURL = true
+                        UIPasteboard.general.url = track.spotifyURL
+                    }, label: {
+                        VStack (spacing: 8){
+                            Image(systemName: "square.and.arrow.up.fill")
+                                .font(.title)
+                                .foregroundColor(.indigo)
+                        }
+                    })
                 }
-
-                Button(action: {
-                    self.showSpotifyURL = true
-                    UIPasteboard.general.url = track.spotifyURL
-                }, label: {
-                    VStack (spacing: 8){
-                        Image(systemName: "square.and.arrow.up.fill")
-                            .font(.title)
-                            .foregroundColor(.indigo)
-                    }
-                })
+                .frame(width: 300, height: 60)
+                .background(.black.opacity(0.30))
+                .cornerRadius(100)
+                .padding(.bottom)
             }
-            .frame(width: 300, height: 60)
-            .background(.black.opacity(0.30))
-            .cornerRadius(100)
-            .padding(.bottom)
-        }.onAppear{
-            viewModelRec.ShowSongInfo(track: track)
         }
         .sheet(isPresented: $showSpotifyURL) {
             SharePopupView(spotifyURL: track.spotifyURL)
@@ -279,11 +304,10 @@ struct LyricsPopupView: View {
     @EnvironmentObject var viewModelRec: SharedForRecommendation
     var body: some View {
         ZStack {
-           
             Color.black.opacity(0.2)
                 .edgesIgnoringSafeArea(.all)
 
-            VStack(spacing: 15) {
+            VStack(spacing: 10) {
                 Text("Lyrics")
                     .font(.title)
                     .fontWeight(.bold)
@@ -291,7 +315,7 @@ struct LyricsPopupView: View {
                     .padding(.top, 15)
                 
                 ScrollView(.vertical, showsIndicators: false) {
-                                VStack(alignment: .leading, spacing: 14) {
+                                VStack(alignment: .leading, spacing: 10) {
                                     ForEach(Array(viewModelRec.songLyrics.split(separator: "\n").enumerated()), id: \.offset) { index, line in
                                         Text(line)
                                             .foregroundColor(.white)
@@ -346,7 +370,7 @@ struct FriendBased: View {
                         .font(.headline)
                         .padding()
                         .foregroundColor(.white)
-                }
+                }.frame(width: 400, height: 530)
                 Spacer()
             }
             else {
@@ -401,8 +425,8 @@ class SharedForRecommendation: ObservableObject {
       @Published  var currentIdx: Int = 0
     @Published  var currentIdx2: Int = 0
     @Published var isRotated = false
-    @Published  var songLyrics: String = ""
     @Published var isAdded: Bool = false
+    @Published  var songLyrics: String = ""
     @Published var showErrorAlert: Bool = false
        @Published var errorMessage: String = ""
     @Published var recommendedTracksRating: [PopularTrack] = []
@@ -602,8 +626,73 @@ class SharedForRecommendation: ObservableObject {
     }
     
     func ShowSongInfo(track: Track) {
+        self.songLyrics = ""
         guard let artistName = track.artists.first?.name else { return }
         let songName = track.name
+        
+        let token = SessionManager.shared.token
+        let encodedSongName = songName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedArtistName = artistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+        let urlString = "http://localhost:4000/api/getFromGenius/getLyricsOfASong/\(encodedSongName)/\(encodedArtistName)"
+        guard let url = URL(string: urlString) else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data = data {
+                do {
+                    let jsonResponse = try JSONDecoder().decode(LyricsResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.songLyrics = jsonResponse.lyrics
+                    }
+                } catch {
+                    print("Error decoding lyrics: \(error)")
+                }
+            } else if let error = error {
+                print("Network error: \(error)")
+            }
+        }.resume()
+    }
+    
+    func ShowSongInfo2(track: PopularTrack) {
+        self.songLyrics = ""
+        guard let artistName = track.artistNames?.first else { return }
+        let songName = track.name
+        
+        let token = SessionManager.shared.token
+        let encodedSongName = songName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedArtistName = artistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+        let urlString = "http://localhost:4000/api/getFromGenius/getLyricsOfASong/\(encodedSongName)/\(encodedArtistName)"
+        guard let url = URL(string: urlString) else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data = data {
+                do {
+                    let jsonResponse = try JSONDecoder().decode(LyricsResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.songLyrics = jsonResponse.lyrics
+                    }
+                } catch {
+                    print("Error decoding lyrics: \(error)")
+                }
+            } else if let error = error {
+                print("Network error: \(error)")
+            }
+        }.resume()
+    }
+    
+    func ShowSongInfo3(recommendation: TemporalRecommendationResponse) {
+        self.songLyrics = ""
+        let songName = recommendation.randomTrack.name
+        let artistName = recommendation.artistName
         
         let token = SessionManager.shared.token
         let encodedSongName = songName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
@@ -750,6 +839,7 @@ class SharedForRecommendation: ObservableObject {
     
     private func extractFriendNameFromMessage(_ message: String) {
            // Assuming the friend's name is at the end after the last space
+            self.friendName = " "
            if let lastSpaceIndex = message.lastIndex(of: " ") {
                let friendNameIndex = message.index(after: lastSpaceIndex)
                self.friendName = String(message[friendNameIndex...])
@@ -811,7 +901,7 @@ struct TrackCardViewForRating: View {
 
     var body: some View {
         VStack{
-            VStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .center, spacing: 5) {
                 if let albumURL = track.albumURL, let url = URL(string: albumURL) {
                     AsyncImage(url: url) { phase in
                         switch phase {
@@ -820,11 +910,11 @@ struct TrackCardViewForRating: View {
                         case .success(let image):
                             image
                                 .resizable()
-                                .frame(width: 300, height: 450)
+                                .frame(width: 300, height: 430)
                                 .cornerRadius(35)
                         case .failure:
                             Image(systemName: "photo")
-                                .frame(width: 300, height: 450)
+                                .frame(width: 300, height: 430)
                                 .cornerRadius(10)
                         @unknown default:
                             EmptyView()
@@ -846,14 +936,14 @@ struct TrackCardViewForRating: View {
                     .font(.caption)
                 
             }
-            .frame(width: 350, height: 550)
+            .frame(width: 350, height: 530)
             .padding()
             .cornerRadius(20)
             
             HStack (spacing: 12){
                 Button(action: {
+                    viewModelRec.ShowSongInfo2(track: track)
                     self.showLyricsPopup = true
-                    //viewModelRec.ShowSongInfo(track: track)
                 }, label: {
                     VStack (spacing: 8){
                         Image(systemName: "music.note.list")
@@ -896,8 +986,6 @@ struct TrackCardViewForRating: View {
             .background(.black.opacity(0.30))
             .cornerRadius(100)
             .padding(.bottom)
-        }.onAppear{
-           // viewModelRec.ShowSongInfo(track: track.spotifyID)
         }
         .sheet(isPresented: $showSpotifyURL) {
             SharePopupView(spotifyURL: track.spotifyURL)
@@ -938,7 +1026,7 @@ struct RatingBased: View {
                         .font(.headline)
                         .padding()
                         .foregroundColor(.white)
-                }
+                }.frame(width: 400, height: 530)
                 Spacer()
             }
             else {
@@ -1051,12 +1139,12 @@ struct Temporal: View {
                             .font(.headline)
                             .padding()
                             .foregroundColor(.white)
-                    }
+                    }.frame(width: 400, height: 530)
                 Spacer()
             } else if let recommendation = viewModelRec.temporalRecommendation {
                 ZStack{
                     VStack{
-                        VStack(alignment: .center, spacing: 10) {
+                        VStack(alignment: .center, spacing: 5) {
                             if let url = URL(string: recommendation.randomTrack.albumURL ?? "") {
                                 AsyncImage(url: url) { phase in
                                     switch phase {
@@ -1065,11 +1153,11 @@ struct Temporal: View {
                                     case .success(let image):
                                         image
                                             .resizable()
-                                            .frame(width: 300, height: 450)
+                                            .frame(width: 300, height: 430)
                                             .cornerRadius(35)
                                     case .failure:
                                         Image(systemName: "photo")
-                                            .frame(width: 300, height: 450)
+                                            .frame(width: 300, height: 430)
                                             .cornerRadius(10)
                                     @unknown default:
                                         EmptyView()
@@ -1086,24 +1174,19 @@ struct Temporal: View {
                             
                             if let albumName = recommendation.randomTrack.albumName {
                                 Text(albumName)
-                                    .font(.headline)
+                                    .font(.caption)
                             }
                             
                         }
-                        .frame(width: 350, height: 550)
+                        .frame(width: 350, height: 530)
                         .padding()
                         .cornerRadius(20)
                         
                         HStack (spacing: 12){
                             Button(action: {
+                                viewModelRec.ShowSongInfo3(recommendation: recommendation)
                                 self.showLyricsPopup = true
-                                        if let trackID = viewModelRec.temporalRecommendation?.randomTrack.spotifyID {
-                                            viewModelRec.fetchTrack(trackID: trackID) { track in
-                                                if let track = track {
-                                                    viewModelRec.ShowSongInfo(track: track)
-                                                }
-                                            }
-                                        }
+                                
                             }, label: {
                                 VStack (spacing: 8){
                                     Image(systemName: "music.note.list")

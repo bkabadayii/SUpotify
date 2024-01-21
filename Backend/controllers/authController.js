@@ -92,6 +92,7 @@ module.exports.Login = async (req, res, next) => {
         if (!user) {
             return res.json({
                 message: "Incorrect password or email",
+                token: "",
                 success: false,
             });
         }
