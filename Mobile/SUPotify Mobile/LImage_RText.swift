@@ -16,6 +16,7 @@ struct LImage_RText: View {
     var songName: String
     var artistNames: String
     var imageURL: String
+    var previewURL: String?
     var isPlaylist: Bool
     @State private var showingPlaylistPicker = false
     @State var playlists: [Playlist] = []
@@ -27,7 +28,7 @@ struct LImage_RText: View {
         
         VStack {
             HStack {
-                NavigationLink(destination: SongDetailsView(songID: contentID, songName: songName, artistNames: artistNames, imageURL: imageURL, ratingType: contentType)) {
+                NavigationLink(destination: SongDetailsView(songID: contentID, songName: songName, artistNames: artistNames, imageURL: imageURL, previewURL: previewURL, ratingType: contentType)) {
                     ImageView(urlString: imageURL)
                         .aspectRatio(contentMode: .fill)
                         .frame(width:55, height:55)

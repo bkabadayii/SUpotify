@@ -18,6 +18,7 @@ struct TrackData: Codable {
   let artists: [ArtistData_forTrack]
   let spotifyID: String
   let spotifyURL: String
+  let previewURL: String?
   let __v: Int
 }
 
