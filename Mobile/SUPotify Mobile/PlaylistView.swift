@@ -22,10 +22,10 @@ struct PlaylistView: View {
                                                 [Color.init(red:55/255,
                                                             green: 50/255, blue: 200/255),
                                                  Color.black,Color.black]),
-                           startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)
+                           startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all).opacity(0.4)
             
             // Layer 1
-            Spacer()
+            //Spacer()
             VStack {
                 Spacer()
                     .frame(height:50)
@@ -110,7 +110,7 @@ struct PlaylistView: View {
                                 buttons: [
                                     .destructive(Text("Delete")) {
                                         
-                                        viewModel.removeTrackFromPlaylist(playlistID: playlistID, trackID: selectedTrackId) 
+                                        viewModel.removeTrackFromPlaylist(playlistID: playlistID, trackID: selectedTrackId)
                                      
                                     },
                                     .cancel()
@@ -127,7 +127,6 @@ struct PlaylistView: View {
         
     }
 }
-
 
 class PlaylistViewModel: ObservableObject {
     @Published var playlist: Playlistt? = nil

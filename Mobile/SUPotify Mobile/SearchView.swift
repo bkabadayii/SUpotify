@@ -192,7 +192,7 @@ struct SearchView: View {
         var body: some View {
             List {
                 if !searchViewModel.tracks.isEmpty {
-                    Section(header: Text("Tracks").foregroundStyle(.indigo).font(.largeTitle)) {
+                    Section(header: Text("Tracks").foregroundStyle(.indigo).font(.title)) {
                         ForEach(searchViewModel.tracks, id: \.id) { track in
                            
                             HStack{
@@ -215,7 +215,8 @@ struct SearchView: View {
 
                                 VStack (alignment: .leading) {
                                     Text(track.name)
-                                        .fontWeight(.medium)
+                                        .font(.subheadline)
+                                        
                                     //Text(track.id)
                                     Text(track.artists[0])
                                         .font(.caption)
@@ -250,7 +251,7 @@ struct SearchView: View {
                 }
 
                 if !searchViewModel.artists.isEmpty {
-                    Section(header: Text("Artists").font(.largeTitle).foregroundStyle(.indigo)) {
+                    Section(header: Text("Artists").font(.title).foregroundStyle(.indigo)) {
                         ForEach(searchViewModel.artists, id: \.id) { artists in
 
                             HStack{
@@ -287,7 +288,7 @@ struct SearchView: View {
                 }
 
                 if !searchViewModel.albums.isEmpty {
-                    Section(header: Text("Albums").font(.largeTitle).foregroundStyle(.indigo)) {
+                    Section(header: Text("Albums").font(.title).foregroundStyle(.indigo)) {
                         ForEach(searchViewModel.albums, id: \.id) { album in
                             HStack{
                                 if(album.image == nil){

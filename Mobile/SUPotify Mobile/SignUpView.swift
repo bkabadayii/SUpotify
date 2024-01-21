@@ -165,7 +165,7 @@ struct SignUpView: View {
           .font(.title)
           .bold()
           .padding(30)
-          .foregroundColor(.black)
+          .foregroundColor(.white)
 
 
         TextField("Email", text: $email)
@@ -174,6 +174,7 @@ struct SignUpView: View {
           .background(Color.black.opacity(0.50))
           .autocapitalization(.none)
           .cornerRadius(10)
+          
         TextField("Username", text: $username)
           .padding()
           .frame(width: 300, height: 50)
