@@ -129,127 +129,115 @@ describe("Liked Content Tests", () => {
         } catch (error) {
             assert.fail(error.message);
         }
-    }),
-        it("should search and like albums", async function () {
-            this.timeout(20000000);
-            try {
-                // In order to keep track of added id's
-                let addedIDs = new Set();
+    });
+    it("should search and like albums", async function () {
+        this.timeout(20000000);
+        try {
+            // In order to keep track of added id's
+            let addedIDs = new Set();
 
-                const searchURL =
-                    "http://localhost:4000/api/getFromSpotify/search/:searchTerm";
-                const apiUrl =
-                    "http://localhost:4000/api/likedContent/likeAlbumBySpotifyID";
+            const searchURL =
+                "http://localhost:4000/api/getFromSpotify/search/:searchTerm";
+            const apiUrl =
+                "http://localhost:4000/api/likedContent/likeAlbumBySpotifyID";
 
-                for (let i = 0; i < NUM_ITEMS_ALBUM; i++) {
-                    // Pick random search term?
-                    const randomSearchIndex = Math.floor(
-                        Math.random() * SEARCH_TERMS.length
-                    );
-                    const searchTerm = SEARCH_TERMS[randomSearchIndex];
+            for (let i = 0; i < NUM_ITEMS_ALBUM; i++) {
+                // Pick random search term?
+                const randomSearchIndex = Math.floor(
+                    Math.random() * SEARCH_TERMS.length
+                );
+                const searchTerm = SEARCH_TERMS[randomSearchIndex];
 
-                    const searchResponse = await axios.get(
-                        searchURL.replace(":searchTerm", searchTerm),
-                        {
-                            headers,
-                        }
-                    );
-                    assert.strictEqual(searchResponse.data.success, true);
-
-                    // Pick random index?
-                    const randomContentIndex = Math.floor(Math.random() * 5);
-                    const spotifyID =
-                        searchResponse.data.data.Albums[randomContentIndex].id;
-
-                    const likeAlbumResponse = await axios.post(
-                        apiUrl,
-                        {
-                            spotifyID,
-                        },
-                        { headers }
-                    );
-
-                    // If the track is already added, expect fail response
-                    if (addedIDs.has(spotifyID)) {
-                        assert.strictEqual(
-                            likeAlbumResponse.data.success,
-                            false
-                        );
+                const searchResponse = await axios.get(
+                    searchURL.replace(":searchTerm", searchTerm),
+                    {
+                        headers,
                     }
-                    // Else expect success response
-                    else {
-                        assert.strictEqual(
-                            likeAlbumResponse.data.success,
-                            true
-                        );
-                    }
+                );
+                assert.strictEqual(searchResponse.data.success, true);
 
-                    addedIDs.add(spotifyID);
+                // Pick random index?
+                const randomContentIndex = Math.floor(Math.random() * 5);
+                const spotifyID =
+                    searchResponse.data.data.Albums[randomContentIndex].id;
+
+                const likeAlbumResponse = await axios.post(
+                    apiUrl,
+                    {
+                        spotifyID,
+                    },
+                    { headers }
+                );
+
+                // If the track is already added, expect fail response
+                if (addedIDs.has(spotifyID)) {
+                    assert.strictEqual(likeAlbumResponse.data.success, false);
                 }
-                // done();
-            } catch (error) {
-                assert.fail(error.message);
-            }
-        }),
-        it("should search and like artists", async function () {
-            this.timeout(20000000);
-            try {
-                // In order to keep track of added id's
-                let addedIDs = new Set();
-
-                const searchURL =
-                    "http://localhost:4000/api/getFromSpotify/search/:searchTerm";
-                const apiUrl =
-                    "http://localhost:4000/api/likedContent/likeArtistBySpotifyID";
-
-                for (let i = 0; i < NUM_ITEMS_ARTIST; i++) {
-                    // Pick random search term?
-                    const randomSearchIndex = Math.floor(
-                        Math.random() * SEARCH_TERMS.length
-                    );
-                    const searchTerm = SEARCH_TERMS[randomSearchIndex];
-
-                    const searchResponse = await axios.get(
-                        searchURL.replace(":searchTerm", searchTerm),
-                        {
-                            headers,
-                        }
-                    );
-                    assert.strictEqual(searchResponse.data.success, true);
-
-                    // Pick random index?
-                    const randomContentIndex = Math.floor(Math.random() * 5);
-                    const spotifyID =
-                        searchResponse.data.data.Artists[randomContentIndex].id;
-
-                    const likeArtistResponse = await axios.post(
-                        apiUrl,
-                        {
-                            spotifyID,
-                        },
-                        { headers }
-                    );
-
-                    // If the track is already added, expect fail response
-                    if (addedIDs.has(spotifyID)) {
-                        assert.strictEqual(
-                            likeArtistResponse.data.success,
-                            false
-                        );
-                    }
-                    // Else expect success response
-                    else {
-                        assert.strictEqual(
-                            likeArtistResponse.data.success,
-                            true
-                        );
-                    }
-
-                    addedIDs.add(spotifyID);
+                // Else expect success response
+                else {
+                    assert.strictEqual(likeAlbumResponse.data.success, true);
                 }
-                // done();
-            } catch (error) {
-                assert.fail(error.message);
+
+                addedIDs.add(spotifyID);
             }
-        });
+            // done();
+        } catch (error) {
+            assert.fail(error.message);
+        }
+    });
+    it("should search and like artists", async function () {
+        this.timeout(20000000);
+        try {
+            // In order to keep track of added id's
+            let addedIDs = new Set();
+
+            const searchURL =
+                "http://localhost:4000/api/getFromSpotify/search/:searchTerm";
+            const apiUrl =
+                "http://localhost:4000/api/likedContent/likeArtistBySpotifyID";
+
+            for (let i = 0; i < NUM_ITEMS_ARTIST; i++) {
+                // Pick random search term?
+                const randomSearchIndex = Math.floor(
+                    Math.random() * SEARCH_TERMS.length
+                );
+                const searchTerm = SEARCH_TERMS[randomSearchIndex];
+
+                const searchResponse = await axios.get(
+                    searchURL.replace(":searchTerm", searchTerm),
+                    {
+                        headers,
+                    }
+                );
+                assert.strictEqual(searchResponse.data.success, true);
+
+                // Pick random index?
+                const randomContentIndex = Math.floor(Math.random() * 5);
+                const spotifyID =
+                    searchResponse.data.data.Artists[randomContentIndex].id;
+
+                const likeArtistResponse = await axios.post(
+                    apiUrl,
+                    {
+                        spotifyID,
+                    },
+                    { headers }
+                );
+
+                // If the track is already added, expect fail response
+                if (addedIDs.has(spotifyID)) {
+                    assert.strictEqual(likeArtistResponse.data.success, false);
+                }
+                // Else expect success response
+                else {
+                    assert.strictEqual(likeArtistResponse.data.success, true);
+                }
+
+                addedIDs.add(spotifyID);
+            }
+            // done();
+        } catch (error) {
+            assert.fail(error.message);
+        }
+    });
 });
