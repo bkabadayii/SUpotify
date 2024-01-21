@@ -4,8 +4,7 @@ const assert = require("assert");
 
 require("dotenv").config();
 const headers = {
-    Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NDE3YTNjZDg3YzQ4YzY0OWFjNGYzYSIsImlhdCI6MTcwNTg0Mjc5MCwiZXhwIjoxNzA2MTAxOTkwfQ.JZJTN5vT1zf29C4hXZ7mfmpWW-2OZf0w4vqHHG5F_vQ",
+    Authorization: "Bearer <your_token>",
 };
 
 const NUM_ITEMS = 5;
