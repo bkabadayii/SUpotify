@@ -394,16 +394,15 @@ async function getRecentRatedArtist(username) {
       const recentArtistsIds3= (recentTracks.map ((track)=>track.artists));
 
       const recentArtistsIds2= recentArtistsIds3.flat();
-      const recentArtistsIds1= recentArtistsIds2.map((artistId)=>artistId.toString())
+      const recentArtistsIds1= recentArtistsIds2.map((artistId)=>artistId.toString());
 
       const recentArtistsIds = [...new Set(recentArtistsIds1)];
-
 
       // Get artists rated higher than 7
       const highRatedArtists = artistRatings.filter(artist=>artist.rating > 7.0).map(artist=>artist.artist);
 
       //Get both high rated non recent activity artists
-      const crossedArtists = recentArtistsIds.filter(element => highRatedArtists.includes(element));
+      const crossedArtists = highRatedArtists.filter(element => !recentArtistsIds.includes(element));
 
       // Choose one artist randomly from the high rated artists array
       const randomIndex = Math.floor(Math.random() * crossedArtists.length);
