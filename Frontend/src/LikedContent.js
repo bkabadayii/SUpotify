@@ -415,7 +415,7 @@ const LikedContent = () => {
                     <a href={item.album.spotifyURL} target="_blank" rel="noopener noreferrer">Listen on Spotify</a>
                     <button
                       className="remove-content-button"
-                      onClick={() => removeLikedContent(item.album._id, 'ALBUM')}
+                      onClick={(event) => removeLikedContent(item.album._id, 'ALBUM', event)}
                     >
                       <FaTrashAlt className="icon" />
                     </button>
@@ -438,7 +438,7 @@ const LikedContent = () => {
                     <a href={item.artist.spotifyURL} target="_blank" rel="noopener noreferrer">Listen on Spotify</a>
                     <button
                       className="remove-content-button"
-                      onClick={() => removeLikedContent(item.artist._id, 'ARTIST')}
+                      onClick={(event) => removeLikedContent(item.artist._id, 'ARTIST', event)}
                     >
                       <FaTrashAlt className="icon" />
                     </button>

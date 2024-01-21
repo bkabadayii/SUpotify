@@ -11,6 +11,7 @@ const SearchBar = () => {
   const [isSearched, setIsSearched] = useState(false);
   const history = useHistory();
 
+
   const handleChange = (value) => {
     setSearchTerm(value);
     if (value.trim() !== '') {
