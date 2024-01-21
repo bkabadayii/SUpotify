@@ -161,6 +161,7 @@ module.exports.commentContent = async (req, res) => {
         res.status(201).json({
             message: "Commented to content successfully",
             success: true,
+            newComment,
         });
     } catch (err) {
         console.error(err);
