@@ -32,7 +32,6 @@ struct LImage_RText: View {
                     ImageView(urlString: imageURL)
                         .aspectRatio(contentMode: .fill)
                         .frame(width:55, height:55)
-                    
                         .clipped()
                         .border(Color.gray, width: 1)
                         .padding(.leading, 10)

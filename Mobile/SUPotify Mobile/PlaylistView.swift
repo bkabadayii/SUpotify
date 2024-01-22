@@ -21,13 +21,11 @@ struct PlaylistView: View {
           LinearGradient(gradient: Gradient(colors:
                                               [Color.blue,
                                                Color.indigo,Color.blue, Color.indigo, Color.blue, Color.indigo, Color.blue, Color.black,Color.black, Color.black, Color.black, Color.black]),
-                         startPoint: .topLeading, endPoint: .bottomTrailing)
-          .opacity(0.4)
-          .edgesIgnoringSafeArea(.all)
+                         startPoint: .topLeading, endPoint: .bottomTrailing).edgesIgnoringSafeArea(.all).opacity(0.4)
 
 
             // Layer 1
-            Spacer()
+            //Spacer()
             VStack {
                 Spacer()
                     .frame(height:50)
@@ -112,7 +110,7 @@ struct PlaylistView: View {
                                 buttons: [
                                     .destructive(Text("Delete")) {
                                         
-                                        viewModel.removeTrackFromPlaylist(playlistID: playlistID, trackID: selectedTrackId) 
+                                        viewModel.removeTrackFromPlaylist(playlistID: playlistID, trackID: selectedTrackId)
                                      
                                     },
                                     .cancel()
@@ -129,7 +127,6 @@ struct PlaylistView: View {
         
     }
 }
-
 
 class PlaylistViewModel: ObservableObject {
     @Published var playlist: Playlistt? = nil

@@ -50,8 +50,8 @@ struct LoginView: View {
                         .font(.largeTitle)
                         .bold()
                         .padding(30)
-                        .foregroundColor(.black)
-                    
+                        .foregroundColor(.white)
+
                     TextField("Email", text: $email)
                         .padding()
                         .frame(width: 300, height: 50)
@@ -232,7 +232,7 @@ struct LoginResponse: Codable {
 struct BackgroundView3: View {
     var body: some View {
         LinearGradient(colors: [.blue, .indigo, .blue, .indigo, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
-            .opacity(0.6)
+            .opacity(0.4)
             .ignoresSafeArea()
     
     }

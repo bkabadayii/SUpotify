@@ -48,7 +48,6 @@ struct PlaylistGrid: View {
                     ForEach(playlists, id: \._id) { playlist in
                         VStack {
                             
-                            
                             NavigationLink(destination: PlaylistView(playlistID: playlist._id)) {
                                 Image(systemName: "music.note.list")
                                     .resizable()
