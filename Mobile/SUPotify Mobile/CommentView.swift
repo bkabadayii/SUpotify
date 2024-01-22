@@ -271,6 +271,8 @@ struct CommentView: View {
           HStack {
               TextField("Write a comment...", text: $newComment)
                   .textFieldStyle(RoundedBorderTextFieldStyle())
+                  .autocapitalization(.none)
+                  .keyboardType(.default)
 
               Button("Post", action: postNewComment)
           }

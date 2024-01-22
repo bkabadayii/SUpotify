@@ -210,6 +210,7 @@ struct SignUpView: View {
         .frame(width: 100.0, height: 50)
         .background(.black.opacity(0.50))
         .cornerRadius(10)
+        .border(Color.clear).cornerRadius(10).padding()
 
         NavigationLink("", destination: LoginView(), isActive: $isSignUpSuccessful)
           .opacity(0)

@@ -170,7 +170,7 @@ struct LoginView: View {
                         .frame(width: 300, height: 50)
                         .background(.black.opacity(0.40))
                         .cornerRadius(10)
-                        .border(Color.indigo).cornerRadius(10).padding()
+                        .border(Color.clear).cornerRadius(10).padding()
                         .alert(isPresented: $showingAlert) {
                             Alert(
                                 title: Text("Login Failed"),
@@ -197,7 +197,7 @@ struct LoginView: View {
                     .foregroundColor(.white)
                     .frame(width: 100.0, height: 50)
                     .background(.black.opacity(0.40))
-                    .border(Color.indigo).cornerRadius(10).padding()
+                    .border(Color.clear).cornerRadius(10).padding()
                     .cornerRadius(10)
                 }
             }
