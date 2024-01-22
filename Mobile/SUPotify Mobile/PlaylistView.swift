@@ -93,7 +93,7 @@ struct PlaylistView: View {
                     VStack {
                         ForEach(viewModel.tracks ?? []) { track in
                             HStack {
-                                LImage_RText(contentID: track.id, contentType: "TRACK", songName: track.name, artistNames: track.artists.map { $0.name }.joined(separator: ", "), imageURL: track.album.imageURL, isPlaylist: true).environmentObject(SharedViewModel.shared)
+                              LImage_RText(contentID: track.id, contentType: "TRACK", songName: track.name, artistNames: track.artists.map { $0.name }.joined(separator: ", "), imageURL: track.album.imageURL, previewURL: track.previewURL, isPlaylist: true).environmentObject(SharedViewModel.shared)
                                 
                                 Spacer()
                                 
@@ -250,7 +250,8 @@ struct Playlistt: Codable{
         let name: String
         let artists: [Artist]
         let album: Album
-        
+        let previewURL: String?
+
         var id: String { _id }
         
         struct Artist: Codable {

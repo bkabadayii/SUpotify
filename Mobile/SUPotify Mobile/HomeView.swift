@@ -36,7 +36,7 @@ struct TopRatedTracksResponse: Codable {
 
   struct TrackRating: Codable {
     var track: Track
-    var rating: Int
+    var rating: Float
     var ratedAt: String
     var _id: String
       
@@ -81,7 +81,7 @@ struct TopRatedAlbumsResponse: Codable {
 
   struct AlbumRating: Codable {
     var album: AlbumStat
-    var rating: Int
+    var rating: Float
     var ratedAt: String
     var _id: String
     struct AlbumStat: Codable {
@@ -118,7 +118,7 @@ struct TopRatedArtistsResponse: Codable {
 
   struct ArtistRating: Codable {
     var artist: ArtistStat
-    var rating: Double
+    var rating: Float
     var ratedAt: String
     var _id: String
 
@@ -150,8 +150,8 @@ struct HomeView: View {
   @State private var releaseStartDateAsString: String = ""
   @State private var releaseEndDateAsString: String = ""
 
-  @State private var genre: String = "" // Provide a default value
-  @State private var artists: String = "" // Provide a default value
+  @State private var genre: String = ""
+  @State private var artists: String = ""
   @State private var selectedOption: String = "Ranking based"
   let username = SessionManager.shared.username
   let userToken = SessionManager.shared.token
@@ -172,24 +172,36 @@ struct HomeView: View {
         //Divider()
 
         HStack {
-          Spacer()
-          Text("From:")
-            .font(.system(size: 14))
-            DatePicker("", selection: $ratingStartDate, in: ...Date() , displayedComponents: .date)
-            .onChange(of: ratingStartDate) { newValue in
-                    self.ratingStartDateAsString = formatToYearMonth(newValue)
-                }
-            .padding(.trailing)
-          Text("To:")
-            .font(.system(size: 14))
-            DatePicker("", selection: $ratingEndDate, in: ...Date() , displayedComponents: .date)
-            .onChange(of: ratingEndDate) { newValue in
-                    self.ratingEndDateAsString = formatToYearMonth(newValue)
-                }
-            .padding(.trailing)
+            Spacer()
+
+            if useRatingDate {
+              Text("From:")
+                  .font(.system(size: 14))
+                DatePicker("", selection: $ratingStartDate, in: ...Date() , displayedComponents: .date)
+                    .onChange(of: ratingStartDate) { newValue in
+                        self.ratingStartDateAsString = formatToYearMonth(newValue)
+                    }
+                    .padding(.trailing)
+            } else {
+                Text("")
+            }
+
+
+            if useRatingDate {
+              Text("To:")
+                  .font(.system(size: 14))
+                DatePicker("", selection: $ratingEndDate, in: ...Date() , displayedComponents: .date)
+                    .onChange(of: ratingEndDate) { newValue in
+                        self.ratingEndDateAsString = formatToYearMonth(newValue)
+                    }
+                    .padding(.trailing)
+            } else {
+                Text("")
+            }
         }
         .padding(.top)
         .padding(.bottom)
+
 
         Divider()
 
@@ -201,24 +213,38 @@ struct HomeView: View {
         //Divider()
 
         HStack {
-          Spacer()
-          Text("From:")
-            .font(.system(size: 14))
-          DatePicker("", selection: $releaseStartDate, in: ...Date() , displayedComponents: .date)
-            .onChange(of: releaseStartDate) { newValue in
-                    self.releaseStartDateAsString = formatToYearMonth(newValue)
-                }
-            .padding(.trailing)
-          Text("To:")
-            .font(.system(size: 14))
-          DatePicker("", selection: $releaseEndDate, in: ...Date() , displayedComponents: .date)
-            .onChange(of: releaseEndDate) { newValue in
-                    self.releaseEndDateAsString = formatToYearMonth(newValue)
-                }
-            .padding(.trailing)
+            Spacer()
+
+            if useReleaseDate {
+              Text("From:")
+                  .font(.system(size: 14))
+                DatePicker("", selection: $releaseStartDate, in: ...Date() , displayedComponents: .date)
+                    .onChange(of: releaseStartDate) { newValue in
+                        self.releaseStartDateAsString = formatToYearMonth(newValue)
+                    }
+                    .padding(.trailing)
+            } else {
+              Text("")
+              //self.releaseStartDateAsString = ""
+            }
+
+
+
+            if useReleaseDate {
+              Text("To:")
+                  .font(.system(size: 14))
+                DatePicker("", selection: $releaseEndDate, in: ...Date() , displayedComponents: .date)
+                    .onChange(of: releaseEndDate) { newValue in
+                        self.releaseEndDateAsString = formatToYearMonth(newValue)
+                    }
+                    .padding(.trailing)
+            } else {
+                Text("")
+            }
         }
         .padding(.top)
         .padding(.bottom)
+
 
         /*
         HStack{
@@ -250,11 +276,11 @@ struct HomeView: View {
 
         switch selectedTab {
         case .tracks:
-          TracksStatisticsView(ratingStartDateAsString: $ratingStartDateAsString, ratingEndDateAsString: $ratingEndDateAsString, releaseStartDateAsString: $releaseStartDateAsString, releaseEndDateAsString: $releaseEndDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
+          TracksStatisticsView(ratingStartDateAsString: $ratingStartDateAsString, ratingEndDateAsString: $ratingEndDateAsString, releaseStartDateAsString: $releaseStartDateAsString, releaseEndDateAsString: $releaseEndDateAsString, useRatingDate: $useRatingDate, useReleaseDate: $useReleaseDate, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
         case .albums:
-          AlbumsStatisticsView(ratingStartDateAsString: $ratingStartDateAsString, ratingEndDateAsString: $ratingEndDateAsString, releaseStartDateAsString: $releaseStartDateAsString, releaseEndDateAsString: $releaseEndDateAsString, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
+          AlbumsStatisticsView(ratingStartDateAsString: $ratingStartDateAsString, ratingEndDateAsString: $ratingEndDateAsString, releaseStartDateAsString: $releaseStartDateAsString, releaseEndDateAsString: $releaseEndDateAsString, useRatingDate: $useRatingDate, useReleaseDate: $useReleaseDate, genre: genre, artists: artists, numItems: 10, homeViewModel: homeViewModel)
         case .artists:
-          ArtistsStatisticsView(startDateAsString: $releaseStartDateAsString, endDateAsString: $releaseEndDateAsString, genre: genre, numItems: 10, homeViewModel: homeViewModel)
+          ArtistsStatisticsView(startDateAsString: $releaseStartDateAsString, endDateAsString: $releaseEndDateAsString, useRatingDate: $useRatingDate, genre: genre, numItems: 10, homeViewModel: homeViewModel)
         }
 
         Spacer()
@@ -280,12 +306,15 @@ class HomeViewModel: ObservableObject {
   @Published var topRatedArtistsResponse: TopRatedArtistsResponse?
   @Published var showBarChart = false
 
-  func fetchTopRatedTracks(userToken: String, ratingStartDateAsString: String, ratingEndDateAsString: String, releaseStartDateAsString: String, releaseEndDateAsString: String, genre: String, artists: String, numItems: Int) {
+  func fetchTopRatedTracks(userToken: String, ratingStartDateAsString: String, ratingEndDateAsString: String, releaseStartDateAsString: String, releaseEndDateAsString: String, genre: String, artists: String, numItems: Int, useRatingDate: Bool, useReleaseDate: Bool) {
+
+    let rateDateArray = useRatingDate ? [ratingStartDateAsString, ratingEndDateAsString] : []
+    let releaseDateArray = useReleaseDate ? [releaseStartDateAsString, releaseEndDateAsString] : []
 
     let requestBody = TopRatedTracksRequest(
       filters: Filters(
-        rateDate: [ratingStartDateAsString, ratingEndDateAsString],
-        releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
+        rateDate: rateDateArray,
+        releaseDate: releaseDateArray,
         genres: genre.isEmpty ? [] : [genre],
         artists: artists.isEmpty ? [] : artists.components(separatedBy: ",") // Assuming you have a way to specify artists
       ),
@@ -300,6 +329,7 @@ class HomeViewModel: ObservableObject {
 
     do {
       request.httpBody = try JSONEncoder().encode(requestBody)
+      print(request.httpBody)
     } catch {
       print("Error encoding request body: \(error)")
       return
@@ -331,11 +361,15 @@ class HomeViewModel: ObservableObject {
     }.resume()
   }
 
-  func fetchTopRatedAlbums(userToken: String, ratingStartDateAsString: String, ratingEndDateAsString: String, releaseStartDateAsString: String, releaseEndDateAsString: String, genre: String, artists: String, numItems: Int){
+  func fetchTopRatedAlbums(userToken: String, ratingStartDateAsString: String, ratingEndDateAsString: String, releaseStartDateAsString: String, releaseEndDateAsString: String, genre: String, artists: String, numItems: Int, useRatingDate: Bool, useReleaseDate: Bool){
+
+    let rateDateArray = useRatingDate ? [ratingStartDateAsString, ratingEndDateAsString] : []
+    let releaseDateArray = useReleaseDate ? [releaseStartDateAsString, releaseEndDateAsString] : []
+
     let requestBody = TopRatedTracksRequest( // Request body same as tracks
       filters: Filters(
-        rateDate: [ratingStartDateAsString, ratingEndDateAsString],
-        releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
+        rateDate: rateDateArray,
+        releaseDate: releaseDateArray,
         genres: genre.isEmpty ? [] : [genre],
         artists: artists.isEmpty ? [] : artists.components(separatedBy: ",")
       ),
@@ -381,10 +415,13 @@ class HomeViewModel: ObservableObject {
     }.resume()
   }
 
-  func fetchTopRatedArtists(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, numItems: Int){
+  func fetchTopRatedArtists(userToken: String, startDateAsString: String, endDateAsString: String, genre: String, numItems: Int, useRatingDate: Bool){
+
+    let rateDateArray = useRatingDate ? [startDateAsString, endDateAsString] : []
+
     let requestBody = TopRatedArtistsRequest(
       filters: Filters2(
-        rateDate: [startDateAsString, endDateAsString],
+        rateDate: rateDateArray,
         genres: genre.isEmpty ? [] : [genre]
       ),
       numItems: numItems
@@ -484,10 +521,13 @@ struct BarChartView2: View {
                               Spacer()
                           }
                       }
-                      Text("\(trackRating.rating)")
-                          .font(.caption)
-                          .foregroundColor(.white)
-                          .frame(width: 30, alignment: .center)
+
+                    let rating: Float = trackRating.rating
+                    let ratingString = String(format: "%.0f", rating)
+                    Text("\(ratingString)")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .frame(width: 30, alignment: .center)
                   }
                   .frame(height: 30)
               }
@@ -529,7 +569,10 @@ struct BarChartView3: View {
                         }
                         .frame(height: 20)
 
-                        Text("\(albumRating.rating)")
+
+                      let rating: Float = albumRating.rating
+                      let ratingString = String(format: "%.0f", rating)
+                        Text("\(ratingString)")
                             .font(.caption)
                             .foregroundColor(.white)
                             .frame(width: 30, alignment: .center)
@@ -587,7 +630,7 @@ struct BarChartView4: View {
                         }
                         .frame(height: 20)
 
-                      let rating: Double = artistRating.rating
+                      let rating: Float = artistRating.rating
                       let ratingString = String(format: "%.0f", rating)
                         Text("\(ratingString)")
                             .font(.caption)
@@ -636,43 +679,6 @@ struct DatePickerRange: View {
   }
 }
 
-/*
-struct MonthYearPicker: View {
-  @Binding var selectedMonth: Int
-  @Binding var selectedYear: Int
-  @Binding var selectedDateAsString: String
-  private let months = Calendar.current.monthSymbols
-
-  private var years: [Int] {
-    let currentYear = Calendar.current.component(.year, from: Date())
-    return Array(currentYear-20...currentYear)
-  }
-
-  var body: some View {
-    HStack {
-      Picker("Month", selection: $selectedMonth) {
-        ForEach(1...12, id: \.self) { month in
-          Text(self.months[month - 1]).tag(month)
-        }
-      }
-      .pickerStyle(WheelPickerStyle())
-      .onChange(of: selectedMonth) { _ in updateDateAsString() }
-
-      Picker("Year", selection: $selectedYear) {
-        ForEach(years, id: \.self) { year in
-          Text("\(year)").tag(year)
-        }
-      }
-      .pickerStyle(WheelPickerStyle())
-      .onChange(of: selectedYear) { _ in updateDateAsString() }
-    }
-  }
-
-  private func updateDateAsString() {
-    selectedDateAsString = "\(selectedYear)-\(selectedMonth)"
-  }
-}*/
-
 
 enum StatisticCategory: String, CaseIterable {
   case tracks = "Tracks"
@@ -685,6 +691,8 @@ struct TracksStatisticsView: View {
   @Binding var ratingEndDateAsString: String
   @Binding var releaseStartDateAsString: String
   @Binding var releaseEndDateAsString: String
+  @Binding var useRatingDate: Bool
+  @Binding var useReleaseDate: Bool
   var genre: String
   var artists: String
   var numItems: Int
@@ -695,14 +703,17 @@ struct TracksStatisticsView: View {
   var body: some View {
     VStack {
       Button("Calculate") {
+        let rateDateArray = useRatingDate ? [ratingStartDateAsString, ratingEndDateAsString] : []
+        let releaseDateArray = useReleaseDate ? [releaseStartDateAsString, releaseEndDateAsString] : []
+
         let filters = Filters(
-          rateDate: [ratingStartDateAsString, ratingEndDateAsString],
-          releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
+          rateDate: rateDateArray,
+          releaseDate: releaseDateArray,
           genres: [genre],
           artists: [artists]
         )
         let request = TopRatedTracksRequest(filters: filters, numItems: 10)
-        homeViewModel.fetchTopRatedTracks(userToken: userToken, ratingStartDateAsString: ratingStartDateAsString, ratingEndDateAsString: ratingEndDateAsString, releaseStartDateAsString: releaseStartDateAsString, releaseEndDateAsString: releaseEndDateAsString, genre: genre, artists: artists, numItems: numItems)
+        homeViewModel.fetchTopRatedTracks(userToken: userToken, ratingStartDateAsString: ratingStartDateAsString, ratingEndDateAsString: ratingEndDateAsString, releaseStartDateAsString: releaseStartDateAsString, releaseEndDateAsString: releaseEndDateAsString, genre: genre, artists: artists, numItems: numItems, useRatingDate: useRatingDate, useReleaseDate: useReleaseDate)
 
         //self.showBarChart = true
       }.font(.subheadline)
@@ -740,6 +751,8 @@ struct AlbumsStatisticsView: View {
   @Binding var ratingEndDateAsString: String
   @Binding var releaseStartDateAsString: String
   @Binding var releaseEndDateAsString: String
+  @Binding var useRatingDate: Bool
+  @Binding var useReleaseDate: Bool
   var genre: String
   var artists: String
   var numItems: Int
@@ -747,17 +760,20 @@ struct AlbumsStatisticsView: View {
   @ObservedObject var homeViewModel: HomeViewModel
   @State private var navigateToBarChart = false
 
-  var body: some View {
+   var body: some View {
     VStack {
       Button("Calculate") {
+        let rateDateArray = useRatingDate ? [ratingStartDateAsString, ratingEndDateAsString] : []
+        let releaseDateArray = useReleaseDate ? [releaseStartDateAsString, releaseEndDateAsString] : []
+
         let filters = Filters(
-          rateDate: [ratingStartDateAsString, ratingEndDateAsString],
-          releaseDate: [releaseStartDateAsString, releaseEndDateAsString],
+          rateDate: rateDateArray,
+          releaseDate: releaseDateArray,
           genres: [genre],
           artists: [artists]
         )
         let request = TopRatedTracksRequest(filters: filters, numItems: 10) // Request body is the same as tracks.
-        homeViewModel.fetchTopRatedAlbums(userToken: userToken, ratingStartDateAsString: ratingStartDateAsString, ratingEndDateAsString: ratingEndDateAsString, releaseStartDateAsString: releaseStartDateAsString, releaseEndDateAsString: releaseEndDateAsString, genre: genre, artists: artists, numItems: numItems)
+        homeViewModel.fetchTopRatedAlbums(userToken: userToken, ratingStartDateAsString: ratingStartDateAsString, ratingEndDateAsString: ratingEndDateAsString, releaseStartDateAsString: releaseStartDateAsString, releaseEndDateAsString: releaseEndDateAsString, genre: genre, artists: artists, numItems: numItems, useRatingDate: useRatingDate, useReleaseDate: useReleaseDate)
 
       }.font(.subheadline)
         .padding()
@@ -793,6 +809,7 @@ struct AlbumsStatisticsView: View {
 struct ArtistsStatisticsView: View {
   @Binding var startDateAsString: String
   @Binding var endDateAsString: String
+  @Binding var useRatingDate: Bool
   var genre: String
   //var artists: String
   var numItems: Int
@@ -803,12 +820,14 @@ struct ArtistsStatisticsView: View {
   var body: some View {
     VStack {
       Button("Calculate") {
+        let rateDateArray = useRatingDate ? [startDateAsString, endDateAsString] : []
+
         let filters = Filters2(
-          rateDate: [startDateAsString, endDateAsString],
+          rateDate: rateDateArray,
           genres: [genre]
         )
         let request = TopRatedArtistsRequest(filters: filters, numItems: 10)
-        homeViewModel.fetchTopRatedArtists(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, numItems: numItems)
+        homeViewModel.fetchTopRatedArtists(userToken: userToken, startDateAsString: startDateAsString, endDateAsString: endDateAsString, genre: genre, numItems: numItems, useRatingDate: useRatingDate)
 
         //self.showBarChart = true
       }.font(.subheadline)
