@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import './MyProfile.css'; // Ensure this CSS file is created and linked
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
 
 const MyProfile = () => {
   const [myPlaylists, setMyPlaylists] = useState([]);
@@ -90,7 +91,7 @@ const MyProfile = () => {
       fetchFollowedUsers();
     } catch (error) {
       console.error('Error removing followed user:', error);
-      alert('Error removing followed user');
+      toast.error('Error removing followed user');
     }
   };  
 
@@ -113,11 +114,11 @@ const MyProfile = () => {
         { followedUsername: followedUsername },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(`Successfully followed ${followedUsername}`);
+      toast.success(`Successfully followed ${followedUsername}`);
       setFollowedUsername(''); // Reset the input field after following
     } catch (error) {
       console.error('Error following user:', error);
-      alert('Error following user');
+      toast.error('Error following user');
     }
   };
 
@@ -153,7 +154,7 @@ const MyProfile = () => {
 
   const handleSubmitPlaylist = async () => {
     if (!newPlaylistName) {
-      alert("Please enter a playlist name.");
+      toast.warn("Please enter a playlist name.");
       return;
     }
 
@@ -165,15 +166,15 @@ const MyProfile = () => {
       );
 
       if (response.data.success) {
-        alert("Playlist created successfully!");
+        toast.success("Playlist created successfully!");
         fetchPlaylists();
         // Handle success (e.g., close modal and clear input)
       } else {
-        alert("Failed to create playlist.");
+        toast.error("Failed to create playlist.");
       }
     } catch (error) {
       console.error('Error creating playlist:', error);
-      alert('An error occurred while creating the playlist.');
+      toast.error('An error occurred while creating the playlist.');
     } finally {
       setIsCreatingPlaylist(false);
       setNewPlaylistName('');
@@ -193,7 +194,7 @@ const MyProfile = () => {
       fetchPlaylists();
     } catch (error) {
       console.error('Error deleting playlist:', error);
-      alert('An error occurred while deleting the playlist.');
+      toast.error('An error occurred while deleting the playlist.');
     }
   };
 

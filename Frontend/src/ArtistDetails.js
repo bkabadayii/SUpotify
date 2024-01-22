@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import './ArtistDetails.css';
 import { FaThumbsUp, FaRegThumbsUp } from 'react-icons/fa';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
 
 const ArtistDetails = () => {
     const [artistDetails, setArtistDetails] = useState(null);
@@ -44,7 +45,7 @@ const ArtistDetails = () => {
               // ... other comment details
             }]);
             setNewComment('');
-            alert('Comment posted successfully');
+            toast.success('Comment posted successfully');
             fetchComments();
           }
         })
@@ -85,10 +86,10 @@ const ArtistDetails = () => {
         );
         // Refetch comments to update UI
         fetchComments();
-        alert('Comment deleted successfully.');
+        toast.success('Comment deleted successfully.');
       } catch (error) {
         console.error('Error deleting comment:', error);
-        alert('Failed to delete comment.');
+        toast.error('Failed to delete comment.');
       }
     };
 

@@ -16,6 +16,7 @@ struct FriendsView: View {
     @State private var friendsBlockedStatus = [String: Bool]()
     @State private var showAlert = false
     @State private var alertMessage: String = ""
+    @State private var alertMessager: String = ""
     
     init() {
         self.username = SessionManager.shared.username
@@ -38,6 +39,7 @@ struct FriendsView: View {
                     Button(action: {
                         if(newFriendUsername == myUsername){
                             giveAlert = true
+                            alertMessager = "You cannot add yourself as a friend"
                         }
                         self.addFriend(friendUsername: self.newFriendUsername)
                        
@@ -49,17 +51,10 @@ struct FriendsView: View {
                             .background(Color.indigo.opacity(0.50))
                             .cornerRadius(8)
                             .font(.subheadline)
-                            .alert(isPresented: $notExist) {
-                                Alert(
-                                    title: Text("Cannot add friend"),
-                                    message: Text("This user does not exist!"),
-                                    dismissButton: .default(Text("OK"))
-                                )
-                            }
                             .alert(isPresented: $giveAlert) {
                                 Alert(
                                     title: Text("Cannot add friend"),
-                                    message: Text("You cannot add yourself as friend"),
+                                    message: Text(alertMessager),
                                     dismissButton: .default(Text("OK"))
                                 )
                             }
@@ -153,8 +148,14 @@ struct FriendsView: View {
                             self.friends.append(trimmedUsername)
                             print(response)
                         } else if (response.message == "This user does not exist!"){
-                            print("This user does not exist")
-                            notExist = true
+                            print(response.message)
+                            giveAlert = true
+                            alertMessager = response.message
+                        }
+                        else if (response.message == "Followed username already exists in user followed users list!"){
+                            print(response.message)
+                            giveAlert = true
+                            alertMessager = response.message
                         }
                     } catch {
                         print("Decoding error!")

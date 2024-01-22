@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import axios from 'axios';
 import { Link, useHistory } from 'react-router-dom';
 import './Signup.css';
+import { toast } from 'react-toastify';
+
 
 const Signup = () => {
   const [email, setEmail] = useState("")
@@ -18,16 +20,16 @@ const Signup = () => {
 
       if(res.data.success === true)
       {
-        alert('Sign up successful. You can now log in to your account.')
+        toast.success('Sign up successful. You can now log in to your account.')
       }
       else
       {
-        alert('User already exists.')
+        toast.error('User already exists.')
       }
     }
     else
     {
-      alert('Please fill all fields.')
+      toast.warn('Please fill all fields.')
     }
     
   }

@@ -105,3 +105,35 @@
   margin-bottom: 40px; /* Spacing below the header */
   font-size: 45px; /* Adjust font size as needed */
 }
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  background-color: transparent;
+  color: white;
+  border: 2px solid #3820a3;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.tab:hover {
+  background-color: #3820a3;
+  color: white;
+}
+
+.tab.active {
+  background-color: #3820a3;
+  color: white;
+}
+
+.centered-track-card {
+  display: flex;
+  justify-content: center;
+}

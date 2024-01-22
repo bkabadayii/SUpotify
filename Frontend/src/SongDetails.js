@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import './SongDetails.css'
 import { FaThumbsUp, FaRegThumbsUp } from 'react-icons/fa';
 import Navbar from './Navbar';
+import { toast } from 'react-toastify';
 
 const SongDetails = () => {
   const [songDetails, setSongDetails] = useState(null);
@@ -55,7 +56,7 @@ const SongDetails = () => {
           // ... other comment details
         }]);
         setNewComment('');
-        alert('Comment posted successfully');
+        toast.success('Comment posted successfully');
         fetchComments();
       }
     })
@@ -71,11 +72,11 @@ const SongDetails = () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
-            alert("Song added to liked songs!");
+          toast.success("Song added to liked songs!");
         }
     } catch (error) {
         console.error('Error adding song to liked songs:', error);
-        alert('An error occurred while adding the song to liked songs.');
+        toast.error('An error occurred while adding the song to liked songs.');
     }
   };
 
@@ -113,16 +114,16 @@ const SongDetails = () => {
       );
       // Refetch comments to update UI
       fetchComments();
-      alert('Comment deleted successfully.');
+      toast.success('Comment deleted successfully.');
     } catch (error) {
       console.error('Error deleting comment:', error);
-      alert('Failed to delete comment.');
+      toast.error('Failed to delete comment.');
     }
   };
 
   const handleAddToPlaylist = async () => {
     if (!selectedPlaylistId) {
-      alert('Please select a playlist.');
+      toast.warn('Please select a playlist.');
       return;
     }
   
@@ -133,10 +134,10 @@ const SongDetails = () => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert('Song added to playlist!');
+      toast.success('Song added to playlist!');
     } catch (error) {
       console.error('Error adding song to playlist:', error);
-      alert('Failed to add song to playlist.');
+      toast.error('Failed to add song to playlist.');
     }
   };  
 

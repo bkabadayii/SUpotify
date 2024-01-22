@@ -18,12 +18,21 @@ struct PlaylistView: View {
     
     var body: some View {
         ZStack{
+
           LinearGradient(gradient: Gradient(colors:
                                               [Color.blue,
                                                Color.indigo,Color.blue, Color.indigo, Color.blue, Color.indigo, Color.blue, Color.black,Color.black, Color.black, Color.black, Color.black]),
                          startPoint: .topLeading, endPoint: .bottomTrailing).edgesIgnoringSafeArea(.all).opacity(0.4)
 
 
+/*
+            LinearGradient(gradient: Gradient(colors:
+                                                [Color.init(red:55/255,
+                                                            green: 50/255, blue: 200/255),
+                                                 Color.black,Color.black]),
+                           startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all).opacity(0.4)
+            
+*/
             // Layer 1
             //Spacer()
             VStack {
