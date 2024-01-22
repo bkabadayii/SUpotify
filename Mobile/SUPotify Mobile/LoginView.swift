@@ -51,7 +51,7 @@ struct LoginView: View {
                         .bold()
                         .padding(30)
                         .foregroundColor(.white)
-                    
+
                     TextField("Email", text: $email)
                         .padding()
                         .frame(width: 300, height: 50)

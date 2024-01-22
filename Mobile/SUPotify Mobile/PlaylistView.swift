@@ -18,12 +18,21 @@ struct PlaylistView: View {
     
     var body: some View {
         ZStack{
+
+          LinearGradient(gradient: Gradient(colors:
+                                              [Color.blue,
+                                               Color.indigo,Color.blue, Color.indigo, Color.blue, Color.indigo, Color.blue, Color.black,Color.black, Color.black, Color.black, Color.black]),
+                         startPoint: .topLeading, endPoint: .bottomTrailing).edgesIgnoringSafeArea(.all).opacity(0.4)
+
+
+/*
             LinearGradient(gradient: Gradient(colors:
                                                 [Color.init(red:55/255,
                                                             green: 50/255, blue: 200/255),
                                                  Color.black,Color.black]),
                            startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all).opacity(0.4)
             
+*/
             // Layer 1
             //Spacer()
             VStack {
@@ -91,7 +100,7 @@ struct PlaylistView: View {
                     VStack {
                         ForEach(viewModel.tracks ?? []) { track in
                             HStack {
-                                LImage_RText(contentID: track.id, contentType: "TRACK", songName: track.name, artistNames: track.artists.map { $0.name }.joined(separator: ", "), imageURL: track.album.imageURL, isPlaylist: true).environmentObject(SharedViewModel.shared)
+                              LImage_RText(contentID: track.id, contentType: "TRACK", songName: track.name, artistNames: track.artists.map { $0.name }.joined(separator: ", "), imageURL: track.album.imageURL, previewURL: track.previewURL, isPlaylist: true).environmentObject(SharedViewModel.shared)
                                 
                                 Spacer()
                                 
@@ -247,7 +256,8 @@ struct Playlistt: Codable{
         let name: String
         let artists: [Artist]
         let album: Album
-        
+        let previewURL: String?
+
         var id: String { _id }
         
         struct Artist: Codable {

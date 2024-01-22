@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import AVFoundation
 
 struct RatingInfoResponse: Codable {
   var message: String
@@ -158,6 +159,7 @@ struct SongDetailsView: View {
   var songName: String
   var artistNames: String
   var imageURL: String
+  var previewURL: String?
   var ratingType: String
 
   @State private var songRating: Int = 0
@@ -165,6 +167,9 @@ struct SongDetailsView: View {
   @State private var hasRating: Bool = false
   @State private var isSliderInUse: Bool = false
   @State private var lyrics: String? = nil
+
+  @State private var player: AVPlayer?
+  @State private var isPlaying = false
 
   @State var isRotated: Bool = false
 
@@ -194,7 +199,36 @@ struct SongDetailsView: View {
             }
             
             Spacer()
-            
+
+            // Check if previewURL is not nil and not empty
+            if let previewURL = previewURL, !previewURL.isEmpty {
+              Button(action: {
+                      if isPlaying {
+                          // Stop the player if it is currently playing
+                          player?.pause()
+                      } else {
+                          // If the player is nil, initialize it with the URL
+                          if player == nil, let url = URL(string: previewURL) {
+                              player = AVPlayer(url: url)
+                          }
+                          // Start playing the preview
+                          player?.play()
+                      }
+                      // Toggle the playing state
+                      isPlaying.toggle()
+                }) {
+                    Image(systemName: isPlaying ? "stop.circle" : "play.circle")
+                        .font(.title)
+                        .foregroundColor(isPlaying ? .red : .blue)
+                        .shadow(color: isPlaying ? .red : .clear, radius: isPlaying ? 10 : 0, x: 0, y: 0)
+                }
+                .onDisappear {
+                    // Stop the player when the view disappears
+                    player?.pause()
+                    player = nil
+                }
+            }
+
             NavigationLink(destination: CommentView(contentID: songID, contentType: ratingType, songName: songName, artistName: artistNames)) {
               Image(systemName: "text.bubble")
                 .font(.title)
